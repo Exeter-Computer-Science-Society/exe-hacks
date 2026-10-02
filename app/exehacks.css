@@ -675,6 +675,9 @@ a.track-meta:hover { color: var(--green-2); }
 	border: 1px solid var(--line); color: var(--text-dim); transition: color .2s, border-color .2s, background .2s;
 }
 .tcard .links a:hover { color: var(--green); border-color: var(--green); background: rgba(5,255,97,0.08); }
+.tcard-tba { opacity: 0.72; }
+.tcard-tba .nm { color: var(--text-dim); }
+.tcard-tba .pic-fallback span { font-size: 2rem; letter-spacing: 0.14em; }
 
 /* faq */
 .faq-grid { display: grid; grid-template-columns: 0.7fr 1.3fr; gap: clamp(32px, 5vw, 64px); align-items: start; }

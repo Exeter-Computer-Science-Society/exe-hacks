@@ -5,6 +5,7 @@ import { RegistrationButton } from "./components/RegistrationButton"
 import { BootTerminal } from "./components/BootTerminal"
 import { Countdown } from "./components/Countdown"
 import { Question } from "./components/Question"
+import { Profile } from "./components/Team/Profiles"
 import Sponsor from "./components/General/Sponsor"
 import Image from "next/image"
 import Link from "next/link"
@@ -631,6 +632,41 @@ export default function Home() {
 					<p className="mono text-center mt-10 reveal" style={{ color: "var(--text-dim)" }}>
 						🍕 Food and refreshments provided throughout the weekend.
 					</p>
+				</div>
+			</section>
+
+			{/* ============ TEAM ============ */}
+			<section
+				className="band band-alt"
+				id="team"
+			>
+				<div className="wrap">
+					<div className="section-head reveal">
+						<span className="section-tag">Who runs this</span>
+						<h2 className="h-section">Meet the team.</h2>
+						<p className="lead">The people putting the weekend on. More organisers to be announced.</p>
+					</div>
+
+					<div className="team-grid reveal d1">
+						<Profile
+							name="Kazybek Khairulla"
+							position="Lead Organizer"
+							image="/images/team/2027/Kazybek.JPG"
+						/>
+						<Profile
+							name="Wiktor Wiejak"
+							position="Logistics"
+							image="/images/team/2027/Wiktor.jpeg"
+						/>
+						<Profile
+							name="To be announced"
+							tba
+						/>
+						<Profile
+							name="To be announced"
+							tba
+						/>
+					</div>
 				</div>
 			</section>
 

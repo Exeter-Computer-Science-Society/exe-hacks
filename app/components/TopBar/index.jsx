@@ -45,6 +45,12 @@ export function TopBar() {
 						</Link>
 						<Link
 							className="nl"
+							href="/#team"
+						>
+							Team
+						</Link>
+						<Link
+							className="nl"
 							href="/#faq"
 						>
 							FAQ

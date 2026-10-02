@@ -16,9 +16,9 @@ function initialsOf(name) {
 		.join("")
 }
 
-export function Profile({ name, position, description, image = "", github = "", linkedin = "", website = "", cybersoc = false }) {
+export function Profile({ name, position, description, image = "", github = "", linkedin = "", website = "", cybersoc = false, tba = false }) {
 	return (
-		<article className="gcard tcard">
+		<article className={`gcard tcard${tba ? " tcard-tba" : ""}`}>
 			<div className="pic">
 				{image ? (
 					<Image
@@ -34,14 +34,14 @@ export function Profile({ name, position, description, image = "", github = "", 
 						className="pic-fallback"
 						aria-hidden="true"
 					>
-						<span>{initialsOf(name)}</span>
+						<span>{tba ? "TBA" : initialsOf(name)}</span>
 					</div>
 				)}
 			</div>
 
 			<div className="body">
 				<p className="nm">{name}</p>
-				<p className="role">{position}</p>
+				{position && <p className="role">{position}</p>}
 				{description && <p className="bio">{description}</p>}
 			</div>
 
