@@ -57,7 +57,7 @@ export function TopBar() {
 						</Link>
 					</nav>
 
-					<RegistrationButton label="Register" />
+					<RegistrationButton interest label="Register" />
 				</div>
 			</div>
 		</header>

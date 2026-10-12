@@ -347,12 +347,12 @@ h2.h-section, .h-section {
 
 /* the message line under the wordmark. The wordmark is the lockup, this is the headline. */
 .hero-headline {
-	font-size: clamp(1.5rem, 2.6vw, 2.15rem);
+	font-size: clamp(1.45rem, 2.4vw, 2rem);
 	font-weight: 700;
-	line-height: 1.1;
+	line-height: 1.15;
 	letter-spacing: -0.02em;
-	margin-bottom: 0.55rem;
-	max-width: 20ch;
+	margin-bottom: 0.7rem;
+	max-width: 18em;
 	text-wrap: balance;
 }
 
@@ -378,6 +378,22 @@ h2.h-section, .h-section {
 .hero-meta .chip { padding: 0.35rem 0.7rem; }
 
 .hero-cta { display: flex; flex-wrap: wrap; gap: 0.85rem; align-items: center; }
+.hero-cta.col { flex-direction: column; align-items: flex-start; }
+.interest-callout {
+	display: flex;
+	flex-direction: column;
+	align-items: flex-start;
+	gap: 0.9rem;
+	width: min(100%, 28rem);
+	padding: 1.15rem 1.25rem 1.25rem;
+}
+.interest-callout p {
+	margin: 0;
+	font-weight: 700;
+	font-size: 1.05rem;
+	line-height: 1.35;
+	text-wrap: balance;
+}
 .hero-note { font-family: var(--font-mono); font-size: 0.74rem; color: var(--text-faint); margin-top: 0.7rem; letter-spacing: 0.02em; }
 
 /* retro-only elements, hidden in the base theme */
@@ -563,6 +579,27 @@ a.track-meta:hover { color: var(--green-2); }
 	font-size: 1rem;
 }
 .sponsor-field textarea { resize: vertical; min-height: 8rem; }
+.sponsor-check {
+	display: flex;
+	align-items: flex-start;
+	gap: 0.75rem;
+	cursor: pointer;
+}
+.sponsor-check input {
+	width: 1.15rem;
+	height: 1.15rem;
+	margin-top: 0.2rem;
+	accent-color: var(--green);
+	flex-shrink: 0;
+}
+.sponsor-check span {
+	font-family: var(--font-display);
+	font-size: 1rem;
+	letter-spacing: normal;
+	text-transform: none;
+	color: var(--text);
+	line-height: 1.45;
+}
 .sponsor-field input:focus,
 .sponsor-field select:focus,
 .sponsor-field textarea:focus {
@@ -893,6 +930,8 @@ html[data-theme="retro"] .sponsor-field textarea:focus {
 	border-color: var(--green);
 	box-shadow: 4px 4px 0 0 rgba(61,255,136,0.18);
 }
+html[data-theme="retro"] .sponsor-check span { font-size: 1.05rem; }
+html[data-theme="retro"] .interest-callout p { font-family: var(--font-pixel); letter-spacing: 0.01em; }
 html[data-theme="retro"] .sponsor-form-actions .mono { font-size: 0.95rem; }
 html[data-theme="retro"] .partner { border-radius: 0; border: 2px dashed var(--line); }
 html[data-theme="retro"] .pcol { border-radius: 0; border: 2px solid var(--line); border-bottom: none; }

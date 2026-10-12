@@ -13,9 +13,19 @@ import { LUMA_URL } from '../../config';
  *   otherwise                                 -> open, links to the Luma page
  *
  * With both timestamps null and LUMA_URL set the button is simply open, which is the
- * current state: the date is still being confirmed but sign-ups run through Luma.
+ * ticket-sale state: sign-ups run through Luma.
+ *
+ * Pass `interest` during the off-season. Tickets are not on sale yet, so the button
+ * links to /interested/ instead of Luma.
  */
-export function RegistrationButton({ registration_open = null, registration_closed = null, force_close = false, link = LUMA_URL, label = "Register on Luma" }) {
+export function RegistrationButton({ registration_open = null, registration_closed = null, force_close = false, link = LUMA_URL, label = "Register on Luma", interest = false }) {
+	if (interest) {
+		return (
+			<Link href="/interested/" className="btn btn-primary">
+				{label}
+			</Link>
+		)
+	}
 
 	const now = new Date().getTime()
 
