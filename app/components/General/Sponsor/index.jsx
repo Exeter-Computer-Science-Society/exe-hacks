@@ -42,12 +42,6 @@ const info = {
         site: "https://tenzingnaturalenergy.com/",
         level: "bronze",
     }
-    // southwestcybersecuritycluster: {
-	// 	name: "South West Cyber Security Cluster",
-	// 	image: "/images/sponsors/swcsc.png",
-	// 	site: "https://southwestcsc.org/",
-	// 	level: "silver",
-	// },
     // rootmepro: {
     //     name: "Root Me Pro",
     //     image: "/images/sponsors/rootmepro.png",

@@ -150,10 +150,10 @@ export default function PastHackathon() {
 
 					<div className="hero-cta">
 						<Link
-							className="btn btn-ghost"
-							href="/"
+							className="btn btn-primary"
+							href="/interested/"
 						>
-							ExeHacks runs next on 6–7 February 2027
+							Register your interest
 						</Link>
 					</div>
 				</div>

@@ -278,10 +278,7 @@ export default function Home() {
 						>
 							<div className="gcard interest-callout">
 								<p>Tickets and more details coming soon!</p>
-								<RegistrationButton
-									interest
-									label="Register your interest"
-								/>
+								<RegistrationButton />
 							</div>
 
 							<button
@@ -590,16 +587,7 @@ export default function Home() {
 							</div>
 
 							<div className="hero-cta">
-								<RegistrationButton
-									interest
-									label="Register your interest"
-								/>
-								<Link
-									className="btn btn-ghost"
-									href="/sponsor"
-								>
-									Sponsor the weekend
-								</Link>
+								<RegistrationButton />
 							</div>
 						</article>
 					</div>
@@ -619,28 +607,37 @@ export default function Home() {
 					<div className="section-head reveal">
 						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">Meet the team.</h2>
-						<p className="lead">The people putting the weekend on. More organisers to be announced.</p>
+						<p className="lead">The society president, the organiser, and the advisor.</p>
 					</div>
 
-					<div className="team-grid reveal d1">
-						<Profile
-							name="Kazybek Khairulla"
-							position="Lead Organizer"
-							image="/images/team/2027/Kazybek.JPG"
-						/>
-						<Profile
-							name="Wiktor Wiejak"
-							position="Logistics"
-							image="/images/team/2027/Wiktor.jpeg"
-						/>
-						<Profile
-							name="To be announced"
-							tba
-						/>
-						<Profile
-							name="To be announced"
-							tba
-						/>
+					<div className="team-groups reveal d1">
+						<div className="team-group">
+							<span className="section-tag">Team</span>
+							<div className="team-grid">
+								<Profile
+									name="Piran"
+									position="Computer Science President (EXCS)"
+								/>
+							</div>
+						</div>
+						<div className="team-group">
+							<span className="section-tag">Organisers</span>
+							<div className="team-grid">
+								<Profile
+									name="Kazybek Khairulla"
+									position="Lead Organiser"
+								/>
+							</div>
+						</div>
+						<div className="team-group">
+							<span className="section-tag">Advisor</span>
+							<div className="team-grid">
+								<Profile
+									name="Wiktor"
+									position="Advisor"
+								/>
+							</div>
+						</div>
 					</div>
 				</div>
 			</section>
@@ -725,17 +722,7 @@ export default function Home() {
 						</h2>
 						<p>Tickets and more details are coming soon. Leave your details and we&apos;ll email you. See you {event_window}.</p>
 						<div className="hero-cta">
-							<RegistrationButton
-								interest
-								label="Register your interest"
-							/>
-							<Link
-								className="btn btn-ghost"
-								href="https://www.instagram.com/hacksouthwest/"
-								target="_blank"
-							>
-								Follow the updates
-							</Link>
+							<RegistrationButton />
 						</div>
 					</div>
 				</div>

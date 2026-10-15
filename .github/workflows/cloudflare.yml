@@ -1,6 +1,7 @@
-# Deploys the Worker to the EXCS Cloudflare account, not South West Collective.
-# Local `wrangler whoami` on this machine is South West Collective, so a bare
-# `wrangler deploy` would create hack-sw-website on the wrong account.
+# Deploys the Worker to the EXCS Cloudflare account.
+# A local wrangler login can be the wrong Cloudflare account
+# (id d058c8ec4c5caeadbd55cf293f3d2d32), so a bare `wrangler deploy` would
+# create hack-sw-website there.
 #
 # Run this only after GitHub secrets are from the EXCS account:
 #   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN,
@@ -29,28 +30,42 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Refuse the South West Collective account
+      - name: Refuse the wrong Cloudflare account
         env:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           if [ -z "$CLOUDFLARE_ACCOUNT_ID" ]; then
-            echo "CLOUDFLARE_ACCOUNT_ID is empty. Use the EXCS Cloudflare account ID, not South West Collective."
+            echo "CLOUDFLARE_ACCOUNT_ID is empty. Use the EXCS Cloudflare account ID."
             exit 1
           fi
           if [ "$CLOUDFLARE_ACCOUNT_ID" = "d058c8ec4c5caeadbd55cf293f3d2d32" ]; then
-            echo "CLOUDFLARE_ACCOUNT_ID is South West Collective. ExeHacks must deploy to the EXCS account."
+            echo "CLOUDFLARE_ACCOUNT_ID is the wrong Cloudflare account. ExeHacks must deploy to the EXCS account."
             exit 1
           fi
 
-      - name: Publish Formspree form
-        run: npm run formspree:deploy
+      # Sponsor enquiries still use Formspree. Interest signups use D1, so a
+      # missing Formspree key must not block the Worker deploy.
+      - name: Publish Formspree forms
         env:
           FORMSPREE_DEPLOY_KEY: ${{ secrets.FORMSPREE_DEPLOY_KEY }}
+        run: |
+          if [ -z "$FORMSPREE_DEPLOY_KEY" ]; then
+            echo "FORMSPREE_DEPLOY_KEY is unset. Skipping Formspree. Sponsor enquiries need this key; interest signups use D1."
+            exit 0
+          fi
+          npm run formspree:deploy
 
       - name: Build static export
         run: npm run build
         env:
           NEXT_PUBLIC_FORMSPREE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FORMSPREE_PROJECT_ID }}
+
+      - name: Apply D1 migrations
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: d1 migrations apply exehacks-interest --remote
 
       - name: Deploy Worker
         uses: cloudflare/wrangler-action@v3

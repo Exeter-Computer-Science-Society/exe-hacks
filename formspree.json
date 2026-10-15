@@ -12,19 +12,6 @@
       "actions": [
         { "type": "email", "to": "excs@groups.exeterguild.com" }
       ]
-    },
-    "interest": {
-      "name": "Register your interest",
-      "fields": {
-        "firstName": { "type": "text", "required": true },
-        "lastName": { "type": "text", "required": true },
-        "email": { "type": "email", "required": true },
-        "university": { "type": "text", "required": false },
-        "consent": { "type": "text", "required": true }
-      },
-      "actions": [
-        { "type": "email", "to": "excs@groups.exeterguild.com" }
-      ]
     }
   }
 }

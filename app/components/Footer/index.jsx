@@ -31,13 +31,6 @@ export function Footer() {
 						<h5>Community</h5>
 						<Link href="/#excs">Who runs it</Link>
 						<Link href="/#rebrand">Why the new name</Link>
-						<Link
-							href="https://swcollective.uk"
-							target="_blank"
-							rel="noopener"
-						>
-							Partner: South West Collective ↗
-						</Link>
 					</div>
 
 					<div className="foot-col">

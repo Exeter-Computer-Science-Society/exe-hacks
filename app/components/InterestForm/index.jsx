@@ -1,27 +1,59 @@
 "use client"
 
-import { ValidationError, useForm } from "@formspree/react"
+import { useState } from "react"
 
-import { CONTACT_EMAIL, FORMSPREE_INTEREST_FORM_KEY } from "../../config"
+import { CONTACT_EMAIL } from "../../config"
 
 export function InterestForm() {
-	const [state, handleSubmit, reset] = useForm(FORMSPREE_INTEREST_FORM_KEY, {
-		data: {
-			subject: "ExeHacks 2027 interest registration",
-		},
-	})
+	const [submitting, setSubmitting] = useState(false)
+	const [succeeded, setSucceeded] = useState(false)
+	const [error, setError] = useState("")
 
-	function onSubmit(event) {
+	async function onSubmit(event) {
 		event.preventDefault()
-		const formData = new FormData(event.currentTarget)
-		const university = formData.get("university")
-		if (typeof university !== "string" || university.trim() === "") {
-			formData.delete("university")
+		setError("")
+		const form = event.currentTarget
+		if (!form.reportValidity()) return
+
+		const data = new FormData(form)
+		const university = data.get("university")
+		setSubmitting(true)
+		try {
+			const response = await fetch("/api/interest", {
+				method: "POST",
+				headers: {
+					accept: "application/json",
+					"content-type": "application/json",
+				},
+				body: JSON.stringify({
+					firstName: data.get("firstName"),
+					lastName: data.get("lastName"),
+					email: data.get("email"),
+					university: typeof university === "string" ? university : "",
+					consent: data.get("consent") === "yes",
+					hp_website: data.get("hp_website") || "",
+				}),
+			})
+			if (!response.ok) {
+				let message = ""
+				try {
+					const body = await response.json()
+					if (body && typeof body.error === "string") message = body.error
+				} catch {
+					message = ""
+				}
+				setError(message || "We couldn't register your interest. Check the form and try again.")
+				return
+			}
+			setSucceeded(true)
+		} catch {
+			setError("We couldn't register your interest. Check your connection and try again.")
+		} finally {
+			setSubmitting(false)
 		}
-		handleSubmit(formData)
 	}
 
-	if (state.succeeded) {
+	if (succeeded) {
 		return (
 			<div className="sponsor-form sent" role="status">
 				<p className="mono sponsor-form-kicker">You&apos;re on the list</p>
@@ -29,7 +61,10 @@ export function InterestForm() {
 				<button
 					type="button"
 					className="btn btn-ghost"
-					onClick={reset}
+					onClick={() => {
+						setSucceeded(false)
+						setError("")
+					}}
 				>
 					Register someone else
 				</button>
@@ -51,13 +86,8 @@ export function InterestForm() {
 						type="text"
 						name="firstName"
 						autoComplete="given-name"
+						maxLength={80}
 						required
-					/>
-					<ValidationError
-						field="firstName"
-						prefix="First name"
-						errors={state.errors}
-						className="sponsor-form-error"
 					/>
 				</label>
 				<label className="sponsor-field" htmlFor="interest-last-name">
@@ -67,13 +97,7 @@ export function InterestForm() {
 						type="text"
 						name="lastName"
 						autoComplete="family-name"
-						required
-					/>
-					<ValidationError
-						field="lastName"
-						prefix="Last name"
-						errors={state.errors}
-						className="sponsor-form-error"
+						maxLength={80}
 					/>
 				</label>
 				<label className="sponsor-field" htmlFor="interest-email">
@@ -83,13 +107,8 @@ export function InterestForm() {
 						type="email"
 						name="email"
 						autoComplete="email"
+						maxLength={254}
 						required
-					/>
-					<ValidationError
-						field="email"
-						prefix="Email"
-						errors={state.errors}
-						className="sponsor-form-error"
 					/>
 				</label>
 				<label className="sponsor-field" htmlFor="interest-university">
@@ -99,12 +118,7 @@ export function InterestForm() {
 						type="text"
 						name="university"
 						autoComplete="organization"
-					/>
-					<ValidationError
-						field="university"
-						prefix="University"
-						errors={state.errors}
-						className="sponsor-form-error"
+						maxLength={120}
 					/>
 				</label>
 			</div>
@@ -118,31 +132,30 @@ export function InterestForm() {
 				/>
 				<span>I agree to be emailed about ExeHacks.</span>
 			</label>
-			<ValidationError
-				field="consent"
-				prefix="Consent"
-				errors={state.errors}
-				className="sponsor-form-error"
-			/>
-			{state.errors ? (
+			<div className="sponsor-honeypot" aria-hidden="true">
+				<input
+					id="interest-hp"
+					type="text"
+					name="hp_website"
+					tabIndex={-1}
+					autoComplete="off"
+					defaultValue=""
+				/>
+			</div>
+			{error ? (
 				<div role="alert">
 					<p className="sponsor-form-error">
-						We couldn&apos;t register your interest. Check the form and try again, or email{" "}
-						<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+						{error} You can also email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
 					</p>
-					<ValidationError
-						errors={state.errors}
-						className="sponsor-form-error"
-					/>
 				</div>
 			) : null}
 			<div className="sponsor-form-actions">
 				<button
 					type="submit"
 					className="btn btn-primary"
-					disabled={state.submitting}
+					disabled={submitting}
 				>
-					{state.submitting ? "Registering…" : "Register"}
+					{submitting ? "Registering…" : "Register"}
 				</button>
 				<p className="mono">We&apos;ll only email you about ExeHacks.</p>
 			</div>

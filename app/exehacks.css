@@ -608,10 +608,15 @@ a.track-meta:hover { color: var(--green-2); }
 }
 .sponsor-honeypot {
 	position: absolute;
-	left: -9999px;
 	width: 1px;
 	height: 1px;
+	padding: 0;
+	margin: -1px;
 	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 .sponsor-form-error { color: #ff6b7a; margin: 0; font-size: 0.95rem; }
 .sponsor-form-actions {
@@ -639,12 +644,18 @@ a.track-meta:hover { color: var(--green-2); }
 	.sponsor-form-grid { grid-template-columns: 1fr; }
 }
 
-/* South West Collective city list */
-.collective-cities { display: flex; flex-direction: column; gap: 10px; }
-.cc-row { display: flex; align-items: baseline; gap: 0.9rem; padding: 1rem 1.2rem; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
-.cc-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); box-shadow: 0 0 10px var(--green); flex-shrink: 0; }
-.cc-name { font-weight: 700; font-size: 1.05rem; width: 100px; flex-shrink: 0; }
-.cc-note { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-dim); }
+/* team groups: one card should not stretch across the page */
+.team-groups { display: flex; flex-direction: column; gap: 2.5rem; }
+.team-group .team-grid { margin-top: 1rem; grid-template-columns: repeat(auto-fit, minmax(230px, 280px)); }
+
+/* admin console */
+.admin-table-wrap { overflow-x: auto; border: 1px solid var(--line); }
+.admin-table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.admin-table th, .admin-table td { text-align: left; padding: 0.65rem 0.8rem; border-bottom: 1px solid var(--line); vertical-align: top; }
+.admin-table th { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-dim); }
+.admin-tools { display: flex; flex-wrap: wrap; gap: 0.8rem; align-items: end; margin: 1rem 0 1.2rem; }
+.admin-tabs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.2rem; }
+.admin-count { color: var(--text-dim); margin: 0 0 1rem; }
 
 /* gallery strip */
 .gallery { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; }
@@ -903,10 +914,8 @@ html[data-theme="retro"] .past-list { border-top: 2px solid var(--line); }
 html[data-theme="retro"] .past-row { border-bottom: 2px solid var(--line-2); }
 html[data-theme="retro"] .pe-when, html[data-theme="retro"] .pe-what { font-size: 1rem; }
 html[data-theme="retro"] .pe-name { font-family: var(--font-pixel); font-size: 0.95rem; }
-html[data-theme="retro"] .cc-row { border-radius: 0; border: 2px solid var(--line); }
-html[data-theme="retro"] .cc-dot { border-radius: 0; }
-html[data-theme="retro"] .cc-name { font-family: var(--font-pixel); }
-html[data-theme="retro"] .cc-note { font-size: 1rem; letter-spacing: 0.04em; }
+html[data-theme="retro"] .admin-table-wrap { border-radius: 0; border: 2px solid var(--line); }
+html[data-theme="retro"] .admin-table th { font-family: var(--font-pixel); font-size: 0.9rem; letter-spacing: 0.04em; }
 html[data-theme="retro"] .cd-unit { border-radius: 0; border: 2px solid var(--line); }
 html[data-theme="retro"] .cd-unit .v { font-size: clamp(2rem, 4vw, 2.9rem); text-shadow: 0 0 14px rgba(61,255,136,0.4); }
 html[data-theme="retro"] .sponsor-form {
