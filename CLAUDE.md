@@ -76,18 +76,20 @@ on two files.
 | path | trigger | account |
 |---|---|---|
 | **GitHub Pages** — what serves the live site | **push to `main`** (`deploy.yml`) | GitHub, via OIDC |
-| **Cloudflare Workers** — assets-only Worker `hack-sw-website` | Workers Builds, or `cloudflare.yml` **`workflow_dispatch` only** | **EXCS** Cloudflare account |
+| **Cloudflare Workers** — `hack-sw-website` serves `./out`, `/api/interest` (D1), and `/admin` | Workers Builds, or `cloudflare.yml` **`workflow_dispatch` only** | **EXCS** Cloudflare account |
 
 ⚠️ **`wrangler deploy` from this machine publishes to the wrong account.** Local
-`wrangler whoami` is **South West Collective** (that is `swc-website`'s account),
-so a bare `npm run deploy` would create `hack-sw-website` under South West
-Collective instead of Exeter Computer Science Society. Pin
+`wrangler whoami` is the wrong Cloudflare account (id
+`d058c8ec4c5caeadbd55cf293f3d2d32`), so a bare `npm run deploy` would create
+`hack-sw-website` there instead of Exeter Computer Science Society. Pin
 `CLOUDFLARE_ACCOUNT_ID` to the EXCS account first, or let the GitHub workflow do
 it — its secrets are already the EXCS ones.
 
-`wrangler.jsonc` is deliberately minimal and **must keep no `main` key**. Without
-it, `wrangler deploy` auto-detects "Next.js", assumes a server-rendered app, and
-migrates the project to the OpenNext adapter — which then fails reading
+`wrangler.jsonc` sets `main` to `worker/index.js`. The Worker runs first for
+`/api/*` and `/admin*` (`assets.run_worker_first`); every other path is still the
+static export in `./out`. Keep that `main` key. Without an explicit Worker entry, `wrangler deploy`
+auto-detects "Next.js", assumes a server-rendered app, and migrates the project to
+the OpenNext adapter — which then fails reading
 `.next/standalone/.next/server/pages-manifest.json`, a file a static export never
 produces.
 

@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS interest (
+	id INTEGER PRIMARY KEY AUTOINCREMENT,
+	first_name TEXT NOT NULL,
+	last_name TEXT,
+	email TEXT NOT NULL UNIQUE COLLATE NOCASE,
+	university TEXT,
+	consent INTEGER NOT NULL,
+	created_at TEXT NOT NULL DEFAULT (datetime('now'))
+);

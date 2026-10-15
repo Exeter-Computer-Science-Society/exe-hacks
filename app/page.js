@@ -14,8 +14,6 @@ import Link from "next/link"
 import { useEffect, useState } from "react"
 import { useReveal } from "./components/Reveal/useReveal"
 
-// config
-import { LUMA_URL } from "./config"
 
 export default function Home() {
 	useReveal()
@@ -27,13 +25,11 @@ export default function Home() {
 	const [fading1, setFading1] = useState(false)
 	const [fading2, setFading2] = useState(false)
 
-	// 6–7 February 2027 is the locked weekend. Countdown and registration
-	// timestamps stay null until we have exact kickoff and signup times.
+	// 6–7 February 2027 is the locked weekend. The countdown stays null until
+	// we have an exact kickoff time. Tickets are not on sale yet: the hero
+	// and the other register buttons collect interest at /interested/.
 	const event_date = null // kickoff. Drives the countdown.
-	const registration_open = null // when registration opens
-	const registration_closed = null // when registration closes before the event
 	const event_window = "6–7 February 2027"
-	const event_link = LUMA_URL // the Luma event page. Set it in app/config.js.
 
 	const questions = [
 		{
@@ -252,33 +248,11 @@ export default function Home() {
 					</div>
 
 					<div className="hero-text">
-						{/*
-							Hero copy, variant B ("more personality"). Leads with the rename, which is
-							the story while the rebrand is still news.
-
-							Variant A ("straight") is the swap for once the rename stops being news.
-							It says what the event is first and treats the rename as a footnote:
-
-							<p className="hero-headline reveal d1">Exeter&apos;s student hackathon.</p>
-							<p className="hero-sub reveal d2">
-								24 hours to build something, on campus, open to every skill level.
-								Formerly Hack South West.
-							</p>
-						*/}
-						<p className="hero-headline reveal d1">We changed the name, not the venue.</p>
+						<p className="hero-headline reveal d1">ExeHacks 2027 · 6–7 February 2027 · Exeter</p>
 
 						<p className="hero-sub reveal d2">
-							Hack South West is now <b>ExeHacks</b>. Same event, same people, run by <b>EXCS</b>.{" "}
-							<b>{event_window}</b> at the Innovation Centre.{" "}
-							<button
-								type="button"
-								className="hero-inline-link"
-								onClick={() => {
-									document.getElementById("rebrand").scrollIntoView({ behavior: "smooth" })
-								}}
-							>
-								Why the new name
-							</button>
+							Whether you&apos;re writing your first line of code or you&apos;ve shipped projects before, ExeHacks is 24 hours,
+							free, with food, for about 150 hackers. Run by <b>EXCS</b>, the Exeter Computer Science Society.
 						</p>
 
 						<div className="hero-meta reveal d2">
@@ -289,24 +263,23 @@ export default function Home() {
 								</span>
 								<span className="chip cyan">
 									<span className="dot" />
-									Innovation Centre, Exeter
+									Exeter
 								</span>
 								<span className="chip purple">
 									<span className="dot" />
-									£500+ prizes
+									Free · food included
 								</span>
 							</div>
 						</div>
 
 						<div
-							className="hero-cta reveal d3"
+							className="hero-cta col reveal d3"
 							id="register"
 						>
-							<RegistrationButton
-								registration_open={registration_open}
-								registration_closed={registration_closed}
-								link={event_link}
-							/>
+							<div className="gcard interest-callout">
+								<p>Tickets and more details coming soon!</p>
+								<RegistrationButton />
+							</div>
 
 							<button
 								type="button"
@@ -614,17 +587,7 @@ export default function Home() {
 							</div>
 
 							<div className="hero-cta">
-								<RegistrationButton
-									registration_open={registration_open}
-									registration_closed={registration_closed}
-									link={event_link}
-								/>
-								<Link
-									className="btn btn-ghost"
-									href="/sponsor"
-								>
-									Sponsor the weekend
-								</Link>
+								<RegistrationButton />
 							</div>
 						</article>
 					</div>
@@ -644,28 +607,37 @@ export default function Home() {
 					<div className="section-head reveal">
 						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">Meet the team.</h2>
-						<p className="lead">The people putting the weekend on. More organisers to be announced.</p>
+						<p className="lead">The society president, the organiser, and the advisor.</p>
 					</div>
 
-					<div className="team-grid reveal d1">
-						<Profile
-							name="Kazybek Khairulla"
-							position="Lead Organizer"
-							image="/images/team/2027/Kazybek.JPG"
-						/>
-						<Profile
-							name="Wiktor Wiejak"
-							position="Logistics"
-							image="/images/team/2027/Wiktor.jpeg"
-						/>
-						<Profile
-							name="To be announced"
-							tba
-						/>
-						<Profile
-							name="To be announced"
-							tba
-						/>
+					<div className="team-groups reveal d1">
+						<div className="team-group">
+							<span className="section-tag">Team</span>
+							<div className="team-grid">
+								<Profile
+									name="Piran"
+									position="Computer Science President (EXCS)"
+								/>
+							</div>
+						</div>
+						<div className="team-group">
+							<span className="section-tag">Organisers</span>
+							<div className="team-grid">
+								<Profile
+									name="Kazybek Khairulla"
+									position="Lead Organiser"
+								/>
+							</div>
+						</div>
+						<div className="team-group">
+							<span className="section-tag">Advisor</span>
+							<div className="team-grid">
+								<Profile
+									name="Wiktor"
+									position="Advisor"
+								/>
+							</div>
+						</div>
 					</div>
 				</div>
 			</section>
@@ -748,20 +720,9 @@ export default function Home() {
 							</span>
 							?
 						</h2>
-						<p>Round up your team, grab your spot, and we&apos;ll see you {event_window}.</p>
+						<p>Tickets and more details are coming soon. Leave your details and we&apos;ll email you. See you {event_window}.</p>
 						<div className="hero-cta">
-							<RegistrationButton
-								registration_open={registration_open}
-								registration_closed={registration_closed}
-								link={event_link}
-							/>
-							<Link
-								className="btn btn-ghost"
-								href="https://www.instagram.com/hacksouthwest/"
-								target="_blank"
-							>
-								Follow the updates
-							</Link>
+							<RegistrationButton />
 						</div>
 					</div>
 				</div>
