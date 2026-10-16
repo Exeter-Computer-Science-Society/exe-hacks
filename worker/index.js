@@ -2,6 +2,7 @@
  * ExeHacks Worker. Static pages are the asset bundle in ./out.
  * This script runs first for /api/* and /admin* (see wrangler.jsonc).
  *
+ * POST /api/join stores a core-team application in team_applications.
  * POST /api/interest stores a row in D1. A repeated email is still 200, so the
  * response does not say whether that address was already on the list.
  * GET /api/interest/export.csv needs Authorization: Bearer $EXPORT_TOKEN.
@@ -29,6 +30,11 @@ const worker = {
 		if (path === "/api/interest") {
 			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
 			return postInterest(request, env)
+		}
+
+		if (path === "/api/join") {
+			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
+			return postJoin(request, env)
 		}
 
 		if (path === "/api/interest/export.csv") {
@@ -95,6 +101,80 @@ async function postInterest(request, env) {
 	}
 
 	return json({ ok: true })
+}
+
+const TEAM_ROLES = new Set([
+	"Sponsorship Lead",
+	"Logistics Lead (venue, food, kit)",
+	"Marketing & Social Lead",
+	"Design Lead",
+	"Tech Lead (website, judging)",
+	"Volunteer Coordinator",
+	"Welfare Lead",
+	"Finance / Treasurer",
+])
+const AVAILABILITY = new Set(["yes", "partly", "no"])
+const PHONE = /^[0-9+()\s-]{7,30}$/
+
+async function postJoin(request, env) {
+	if (!sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
+	const length = Number(request.headers.get("content-length") || 0)
+	if (length > 20_000) return json({ ok: false, error: "Check the form and try again." }, 413)
+
+	const parsed = await readBody(request)
+	if (parsed.error === "type") return json({ ok: false, error: "Check the form and try again." }, 415)
+	if (parsed.error) return json({ ok: false, error: "Check the form and try again." }, 400)
+	const data = parsed.data
+	if (honeypotTripped(data)) return json({ ok: true })
+
+	const fullName = clip(field(data, "fullName", "full_name"), 120)
+	const email = clip(field(data, "email"), 254)
+	const phone = clip(field(data, "phone"), 30)
+	const courseYear = clip(field(data, "courseYear", "course_year"), 120)
+	const why = clipLong(field(data, "why"), 2000)
+	const experience = clipLong(field(data, "experience"), 2000)
+	const availability = field(data, "availability").trim().toLowerCase()
+	let roles = fieldRaw(data, "roles")
+	if (typeof roles === "string") roles = roles.split(",")
+	if (!Array.isArray(roles)) roles = []
+	roles = [...new Set(roles.filter((r) => typeof r === "string").map((r) => r.trim()))]
+
+	for (const item of [fullName, email, phone, courseYear, why, experience]) {
+		if (!item.ok) return json({ ok: false, error: "Check the form and try again." }, 400)
+	}
+	if (!fullName.value) return json({ ok: false, error: "Add your full name." }, 400)
+	if (!EMAIL.test(email.value)) return json({ ok: false, error: "Add a valid email address." }, 400)
+	if (!PHONE.test(phone.value)) return json({ ok: false, error: "Add a valid phone number." }, 400)
+	if (!courseYear.value) return json({ ok: false, error: "Add your course and year." }, 400)
+	if (roles.length < 1 || roles.length > 2 || !roles.every((r) => TEAM_ROLES.has(r))) {
+		return json({ ok: false, error: "Pick one or two roles." }, 400)
+	}
+	if (!why.value) return json({ ok: false, error: "Tell us why you want to help." }, 400)
+	if (!AVAILABILITY.has(availability)) return json({ ok: false, error: "Tell us if you're free that weekend." }, 400)
+	if (!consentGiven(fieldRaw(data, "consent"))) {
+		return json({ ok: false, error: "Consent is required so we can consider your application." }, 400)
+	}
+
+	try {
+		await env.DB.prepare(
+			`INSERT INTO team_applications (full_name, email, phone, course_year, roles, why, experience, availability, consent)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`
+		)
+			.bind(fullName.value, email.value, phone.value, courseYear.value, roles.join("; "), why.value, experience.value || null, availability)
+			.run()
+	} catch (error) {
+		console.error("team application insert failed", error instanceof Error ? error.name : "error")
+		return json({ ok: false, error: "We couldn't save that. Try again in a moment." }, 500)
+	}
+	return json({ ok: true })
+}
+
+// Like clip, but allows newlines and tabs in long free-text answers.
+function clipLong(value, max) {
+	const trimmed = value.trim()
+	if (trimmed.length > max) return { ok: false, value: "" }
+	if (/[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/.test(trimmed)) return { ok: false, value: "" }
+	return { ok: true, value: trimmed }
 }
 
 async function exportCsv(request, env) {

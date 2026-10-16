@@ -29,6 +29,7 @@ export function Footer() {
 
 					<div className="foot-col">
 						<h5>Community</h5>
+						<Link href="/join/">Join the team</Link>
 						<Link href="/#excs">Who runs it</Link>
 						<Link href="/#rebrand">Why the new name</Link>
 					</div>

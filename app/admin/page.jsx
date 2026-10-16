@@ -14,8 +14,8 @@ export default function AdminPage() {
 						<span className="section-tag">ExeHacks admin</span>
 						<h1 className="h-section">Signups</h1>
 						<p className="lead">
-							Interest registrations, newest first. Other D1 tables show up here when they exist, including a future
-							registrations table.
+							Interest registrations and core-team applications (team_applications), newest first. Pick a table to view or
+							download it as CSV. Other D1 tables show up here when they exist.
 						</p>
 					</div>
 					<AdminConsole />
