@@ -617,9 +617,10 @@ export default function Home() {
 								<Profile
 									name="Kazybek Khairulla"
 									position="Lead Organiser"
+									image="/team/kazybek.webp"
 								/>
 								<Profile
-									name="Piran"
+									name="Piran Trevenna"
 									position="Lead Organiser"
 								/>
 							</div>
@@ -628,8 +629,9 @@ export default function Home() {
 							<span className="section-tag">Advisor</span>
 							<div className="team-grid">
 								<Profile
-									name="Wiktor"
+									name="Wiktor Wiejak"
 									position="Advisor"
+									image="/team/wiktor.webp"
 								/>
 							</div>
 						</div>
