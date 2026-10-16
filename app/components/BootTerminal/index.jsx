@@ -9,7 +9,7 @@ const LINES = [
 	{ t: "booting ExeHacks 2027 ...", arrow: true },
 	{ t: "formerly: Hack South West", ok: true },
 	{ t: "when: 6–7 February 2027", ok: true },
-	{ t: "location: Innovation Centre, Exeter", ok: true },
+	{ t: "location: Venue TBC (University of Exeter)", ok: true },
 	{ t: "run by: EXCS", ok: true },
 	{ t: "open to: every skill level", ok: true },
 	{ t: "prize pool: £500+ loaded", ok: true },
