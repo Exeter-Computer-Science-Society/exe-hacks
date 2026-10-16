@@ -7,9 +7,14 @@ export function AdminConsole() {
 	const [table, setTable] = useState("")
 	const [query, setQuery] = useState("")
 	const [applied, setApplied] = useState("")
+	const [role, setRole] = useState("")
+	const [year, setYear] = useState("")
+	const [availability, setAvailability] = useState("")
 	const [result, setResult] = useState(null)
 	const [error, setError] = useState("")
 	const [loading, setLoading] = useState(true)
+
+	const isTeam = table === "team_applications"
 
 	useEffect(() => {
 		let cancel = false
@@ -21,7 +26,7 @@ export function AdminConsole() {
 				if (cancel) return
 				const names = Array.isArray(body.tables) ? body.tables : []
 				setTables(names)
-				setTable(names.includes("interest") ? "interest" : names[0] || "")
+				setTable(names.includes("team_applications") ? "team_applications" : names.includes("interest") ? "interest" : names[0] || "")
 			} catch (cause) {
 				if (!cancel) setError(cause instanceof Error ? cause.message : "Could not load tables.")
 			} finally {
@@ -43,6 +48,9 @@ export function AdminConsole() {
 			try {
 				const params = new URLSearchParams()
 				if (applied) params.set("q", applied)
+				if (isTeam && role) params.set("role", role)
+				if (isTeam && year) params.set("year", year)
+				if (isTeam && availability) params.set("availability", availability)
 				const suffix = params.toString() ? `?${params}` : ""
 				const response = await fetch(`/api/admin/tables/${encodeURIComponent(table)}${suffix}`, {
 					headers: { accept: "application/json" },
@@ -63,10 +71,15 @@ export function AdminConsole() {
 		return () => {
 			cancel = true
 		}
-	}, [table, applied])
+	}, [table, applied, role, year, availability, isTeam])
 
 	const csvParams = new URLSearchParams()
 	if (applied) csvParams.set("q", applied)
+	if (isTeam && role) csvParams.set("role", role)
+	if (isTeam && year) csvParams.set("year", year)
+	if (isTeam && availability) csvParams.set("availability", availability)
+	const options = result?.options || {}
+	const filtered = Boolean(applied || (isTeam && (role || year || availability)))
 	const csvHref = table
 		? `/api/admin/tables/${encodeURIComponent(table)}.csv${csvParams.toString() ? `?${csvParams}` : ""}`
 		: ""
@@ -84,6 +97,9 @@ export function AdminConsole() {
 								setTable(name)
 								setQuery("")
 								setApplied("")
+								setRole("")
+								setYear("")
+								setAvailability("")
 							}}
 						>
 							{name}
@@ -112,6 +128,56 @@ export function AdminConsole() {
 				<button type="submit" className="btn btn-ghost">
 					Search
 				</button>
+				{isTeam && (
+					<>
+						<label className="sponsor-field" htmlFor="admin-role">
+							<span>Role</span>
+							<select id="admin-role" value={role} onChange={(event) => setRole(event.target.value)}>
+								<option value="">Any role</option>
+								{(options.roles || []).map((name) => (
+									<option key={name} value={name}>
+										{name}
+									</option>
+								))}
+							</select>
+						</label>
+						<label className="sponsor-field" htmlFor="admin-year">
+							<span>Course / year</span>
+							<select id="admin-year" value={year} onChange={(event) => setYear(event.target.value)}>
+								<option value="">Any</option>
+								{(options.years || []).map((name) => (
+									<option key={name} value={name}>
+										{name}
+									</option>
+								))}
+							</select>
+						</label>
+						<label className="sponsor-field" htmlFor="admin-availability">
+							<span>Available 6–7 Feb</span>
+							<select id="admin-availability" value={availability} onChange={(event) => setAvailability(event.target.value)}>
+								<option value="">Any</option>
+								<option value="yes">Yes</option>
+								<option value="partly">Partly</option>
+								<option value="no">No</option>
+							</select>
+						</label>
+						{filtered && (
+							<button
+								type="button"
+								className="btn btn-ghost"
+								onClick={() => {
+									setQuery("")
+									setApplied("")
+									setRole("")
+									setYear("")
+									setAvailability("")
+								}}
+							>
+								Clear filters
+							</button>
+						)}
+					</>
+				)}
 				{csvHref && (
 					<a className="btn btn-primary" href={csvHref}>
 						Download CSV
@@ -127,8 +193,11 @@ export function AdminConsole() {
 
 			{result && (
 				<p className="mono admin-count">
-					{result.count} {result.count === 1 ? "row" : "rows"}
+					{result.count} {isTeam ? (result.count === 1 ? "applicant" : "applicants") : result.count === 1 ? "row" : "rows"}
 					{applied ? ` matching “${applied}”` : ""}
+					{isTeam && role ? ` · role: ${role}` : ""}
+					{isTeam && year ? ` · ${year}` : ""}
+					{isTeam && availability ? ` · available: ${availability}` : ""}
 					{table === "interest" ? " · newest first" : ""}
 				</p>
 			)}

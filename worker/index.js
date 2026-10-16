@@ -330,10 +330,12 @@ async function adminApi(request, env, path) {
 		return json({ ok: false, error: "Unknown table." }, 404)
 	}
 
-	const search = new URL(request.url).searchParams.get("q") || ""
+	const params = new URL(request.url).searchParams
+	const search = params.get("q") || ""
+	const filters = { role: params.get("role") || "", year: params.get("year") || "", availability: params.get("availability") || "" }
 	try {
 		if (csv) {
-			const page = await readTableCsv(env.DB, table, search)
+			const page = await readTableCsv(env.DB, table, search, filters)
 			if (!page) return json({ ok: false, error: "Unknown table." }, 404)
 			return new Response(toCsv(page.columns, page.rows), {
 				status: 200,
@@ -349,7 +351,7 @@ async function adminApi(request, env, path) {
 		const url = new URL(request.url)
 		const limit = clampInt(url.searchParams.get("limit"), 200, 1, 500)
 		const offset = clampInt(url.searchParams.get("offset"), 0, 0, 100000)
-		const page = await readTable(env.DB, table, { search, limit, offset })
+		const page = await readTable(env.DB, table, { search, filters, limit, offset })
 		if (!page) return json({ ok: false, error: "Unknown table." }, 404)
 		return json({ ok: true, ...page })
 	} catch (error) {
