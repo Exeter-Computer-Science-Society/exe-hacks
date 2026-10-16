@@ -38,6 +38,9 @@ export function JoinForm() {
 					email: data.get("email"),
 					phone: data.get("phone"),
 					courseYear: data.get("courseYear"),
+					discord: data.get("discord"),
+					linkedin: data.get("linkedin") || "",
+					github: data.get("github") || "",
 					roles,
 					why: data.get("why"),
 					experience: data.get("experience") || "",
@@ -93,6 +96,18 @@ export function JoinForm() {
 				<label className="sponsor-field" htmlFor="join-course">
 					<span>Course and year</span>
 					<input id="join-course" type="text" name="courseYear" maxLength={120} placeholder="e.g. Computer Science, 2nd year" required />
+				</label>
+				<label className="sponsor-field" htmlFor="join-discord">
+					<span>Discord username</span>
+					<input id="join-discord" type="text" name="discord" maxLength={37} pattern="@?[A-Za-z0-9_.]{2,32}(#[0-9]{4})?" title="Your Discord username, e.g. exehacks_fan" required />
+				</label>
+				<label className="sponsor-field" htmlFor="join-linkedin">
+					<span>LinkedIn URL (optional)</span>
+					<input id="join-linkedin" type="url" name="linkedin" maxLength={200} pattern="https?://([a-z]{2,3}\.)?linkedin\.com/.+" title="A linkedin.com link" placeholder="https://www.linkedin.com/in/…" />
+				</label>
+				<label className="sponsor-field" htmlFor="join-github">
+					<span>GitHub username or URL (optional)</span>
+					<input id="join-github" type="text" name="github" maxLength={200} pattern="(https?://(www\.)?github\.com/)?[A-Za-z0-9](?:[A-Za-z0-9\-]{0,38})/?" title="A GitHub username or github.com link" />
 				</label>
 			</div>
 

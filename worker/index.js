@@ -114,6 +114,9 @@ const TEAM_ROLES = new Set([
 	"Finance / Treasurer",
 ])
 const AVAILABILITY = new Set(["yes", "partly", "no"])
+const DISCORD = /^@?[A-Za-z0-9_.]{2,32}(#[0-9]{4})?$/
+const LINKEDIN = /^https?:\/\/([a-z]{2,3}\.)?linkedin\.com\/\S+$/i
+const GITHUB = /^(https?:\/\/(www\.)?github\.com\/)?[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/?$/i
 const PHONE = /^[0-9+()\s-]{7,30}$/
 
 async function postJoin(request, env) {
@@ -131,6 +134,9 @@ async function postJoin(request, env) {
 	const email = clip(field(data, "email"), 254)
 	const phone = clip(field(data, "phone"), 30)
 	const courseYear = clip(field(data, "courseYear", "course_year"), 120)
+	const discord = clip(field(data, "discord"), 37)
+	const linkedin = clip(field(data, "linkedin"), 200)
+	const github = clip(field(data, "github"), 200)
 	const why = clipLong(field(data, "why"), 2000)
 	const experience = clipLong(field(data, "experience"), 2000)
 	const availability = field(data, "availability").trim().toLowerCase()
@@ -139,13 +145,16 @@ async function postJoin(request, env) {
 	if (!Array.isArray(roles)) roles = []
 	roles = [...new Set(roles.filter((r) => typeof r === "string").map((r) => r.trim()))]
 
-	for (const item of [fullName, email, phone, courseYear, why, experience]) {
+	for (const item of [fullName, email, phone, courseYear, discord, linkedin, github, why, experience]) {
 		if (!item.ok) return json({ ok: false, error: "Check the form and try again." }, 400)
 	}
 	if (!fullName.value) return json({ ok: false, error: "Add your full name." }, 400)
 	if (!EMAIL.test(email.value)) return json({ ok: false, error: "Add a valid email address." }, 400)
 	if (!PHONE.test(phone.value)) return json({ ok: false, error: "Add a valid phone number." }, 400)
 	if (!courseYear.value) return json({ ok: false, error: "Add your course and year." }, 400)
+	if (!DISCORD.test(discord.value)) return json({ ok: false, error: "Add your Discord username." }, 400)
+	if (linkedin.value && !LINKEDIN.test(linkedin.value)) return json({ ok: false, error: "Check your LinkedIn link." }, 400)
+	if (github.value && !GITHUB.test(github.value)) return json({ ok: false, error: "Check your GitHub username or link." }, 400)
 	if (roles.length < 1 || roles.length > 2 || !roles.every((r) => TEAM_ROLES.has(r))) {
 		return json({ ok: false, error: "Pick one or two roles." }, 400)
 	}
@@ -157,10 +166,10 @@ async function postJoin(request, env) {
 
 	try {
 		await env.DB.prepare(
-			`INSERT INTO team_applications (full_name, email, phone, course_year, roles, why, experience, availability, consent)
-			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1)`
+			`INSERT INTO team_applications (full_name, email, phone, course_year, roles, why, experience, availability, consent, discord, linkedin, github)
+			 VALUES (?, ?, ?, ?, ?, ?, ?, ?, 1, ?, ?, ?)`
 		)
-			.bind(fullName.value, email.value, phone.value, courseYear.value, roles.join("; "), why.value, experience.value || null, availability)
+			.bind(fullName.value, email.value, phone.value, courseYear.value, roles.join("; "), why.value, experience.value || null, availability, discord.value.replace(/^@/, ""), linkedin.value || null, github.value || null)
 			.run()
 	} catch (error) {
 		console.error("team application insert failed", error instanceof Error ? error.name : "error")
