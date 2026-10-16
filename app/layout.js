@@ -18,7 +18,7 @@ const fontVars = [bricolage.variable, jetbrains.variable, pixelify.variable, vt3
 export const metadata = {
 	title: "ExeHacks: Exeter's student hackathon",
 	description:
-		"ExeHacks is the University of Exeter's student hackathon, 6–7 February 2027 at the Innovation Centre. Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West.",
+		"ExeHacks is the University of Exeter's student hackathon, 6–7 February 2027. Venue TBC (University of Exeter). Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West.",
 	// Sized favicons from public/images/icons/. public/favicon.ico is the same
 	// mark so browsers that still request /favicon.ico get the new icon.
 	icons: {

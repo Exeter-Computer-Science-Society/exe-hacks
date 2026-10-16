@@ -45,7 +45,7 @@ export default function Home() {
 		{
 			id: 15,
 			question: "When is ExeHacks?",
-			answer: "6–7 February 2027 at the Innovation Centre, Phase 2, University of Exeter. Saturday into Sunday, 24 hours."
+			answer: "6–7 February 2027. Venue TBC (University of Exeter). Saturday into Sunday, 24 hours."
 		},
 		{
 			id: 3,
@@ -65,7 +65,7 @@ export default function Home() {
 		{
 			id: 5,
 			question: "Where is ExeHacks Happening?",
-			answer: "We are hosting the event in the innovation centre at the University of Exeter. The address is: University of Exeter, Innovation Centre, Rennes Drive, Exeter, EX4 4RN"
+			answer: "Venue TBC (University of Exeter). We will confirm the exact venue and address before the event."
 		},
 		{
 			id: 6,
@@ -361,7 +361,7 @@ export default function Home() {
 								className="lead reveal d2"
 								style={{ margin: "0 auto" }}
 							>
-								24 hours at the Innovation Centre, Phase 2. The weekend is locked.
+								24 hours. Venue TBC (University of Exeter). The weekend is locked.
 							</p>
 							<div className="hero-cta reveal d3 justify-center">
 								<button
@@ -523,7 +523,7 @@ export default function Home() {
 							</h3>
 
 							<p className="ev-desc">
-								<b>{event_window}</b> at the <b>Innovation Centre, Phase 2</b>. Food, workshops, teams of up to four. Build whatever
+								<b>{event_window}</b> at <b>Venue TBC (University of Exeter)</b>. Food, workshops, teams of up to four. Build whatever
 								you want. The tracks below are how you win, not a brief you have to follow.
 							</p>
 
@@ -532,7 +532,7 @@ export default function Home() {
 									<span className="k">When</span> {event_window}
 								</div>
 								<div className="ev-fact">
-									<span className="k">Where</span> Innovation Centre, Phase 2
+									<span className="k">Where</span> Venue TBC (University of Exeter)
 								</div>
 								<div className="ev-fact">
 									<span className="k">Teams</span> Up to 4 people
@@ -708,7 +708,7 @@ export default function Home() {
 							className="eyebrow"
 							style={{ display: "block", marginBottom: "1.2rem" }}
 						>
-							University of Exeter · Innovation Centre
+							Venue TBC (University of Exeter)
 						</span>
 						<h2>
 							Ready to{" "}
