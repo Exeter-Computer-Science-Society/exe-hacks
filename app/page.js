@@ -607,24 +607,19 @@ export default function Home() {
 					<div className="section-head reveal">
 						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">Meet the team.</h2>
-						<p className="lead">The society president, the organiser, and the advisor.</p>
+						<p className="lead">Two lead organisers and an advisor.</p>
 					</div>
 
 					<div className="team-groups reveal d1">
-						<div className="team-group">
-							<span className="section-tag">Team</span>
-							<div className="team-grid">
-								<Profile
-									name="Piran"
-									position="Computer Science President (EXCS)"
-								/>
-							</div>
-						</div>
 						<div className="team-group">
 							<span className="section-tag">Organisers</span>
 							<div className="team-grid">
 								<Profile
 									name="Kazybek Khairulla"
+									position="Lead Organiser"
+								/>
+								<Profile
+									name="Piran"
 									position="Lead Organiser"
 								/>
 							</div>
