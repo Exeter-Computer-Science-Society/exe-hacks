@@ -125,6 +125,10 @@ export default function Home() {
 		{ title: "Best of Impact for Exeter / the South West", blurb: "Best project with a real impact on Exeter or the South West." }
 	]
 
+	// The schedule below is the old Hack South West 2024 timetable. Hidden until the
+	// ExeHacks 2027 Run of Show is final: update hackSaturday/hackSunday, then set true.
+	const SHOW_SCHEDULE = false
+
 	const hackSaturday = [
 		{ time: "08:00", what: "Registration Opens + Talk To Sponsors" },
 		{ time: "08:30", what: "Board Games + Team Building" },
@@ -289,7 +293,7 @@ export default function Home() {
 									document.getElementById("events").scrollIntoView({ behavior: "smooth" })
 								}}
 							>
-								See the schedule
+								{SHOW_SCHEDULE ? "See the schedule" : "See the event"}
 							</button>
 						</div>
 
@@ -372,7 +376,7 @@ export default function Home() {
 										document.getElementById("events").scrollIntoView({ behavior: "smooth" })
 									}}
 								>
-									See the schedule
+									{SHOW_SCHEDULE ? "See the schedule" : "See the event"}
 								</button>
 							</div>
 						</>
@@ -543,7 +547,7 @@ export default function Home() {
 								</div>
 							</div>
 
-							<div className="event-body">
+							<div className={SHOW_SCHEDULE ? "event-body" : "event-body event-body-solo"}>
 								<div className="event-copy">
 									<span className="section-tag">Tracks we&apos;re planning</span>
 									<div className="tracks">
@@ -559,6 +563,7 @@ export default function Home() {
 									</div>
 								</div>
 
+								{SHOW_SCHEDULE && (
 								<div className="event-side">
 									<span className="section-tag">Schedule</span>
 									<div className="sched mt-4">
@@ -585,6 +590,7 @@ export default function Home() {
 										))}
 									</div>
 								</div>
+								)}
 							</div>
 
 							<div className="hero-cta">
