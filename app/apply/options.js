@@ -107,3 +107,10 @@ export const MLH_LINKS = {
 }
 
 export const GRADUATION_YEARS = Array.from({ length: 9 }, (_, i) => String(2026 + i))
+
+// Countdown target on the closed /apply page: Mon 9 Nov 2026, 12:00 UK time.
+// The UK is on GMT in November, so 12:00 London = 12:00 UTC.
+// This only drives the clock. The form opens when the Worker var APPLICATIONS_OPEN is "true".
+export const OPENS_AT_ISO = "2026-11-09T12:00:00Z"
+export const OPENS_AT = Date.parse(OPENS_AT_ISO)
+export const OPENS_TIME_LABEL = "12:00 UK time"
