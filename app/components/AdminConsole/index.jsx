@@ -2,19 +2,59 @@
 
 import { useEffect, useState } from "react"
 
+// Filter dropdowns per table. Options come from the API (result.options[optionsKey]);
+// items are strings or { value, label }.
+const FILTERS = {
+	team_applications: [
+		{ key: "role", label: "Role", optionsKey: "roles", any: "Any role" },
+		{ key: "year", label: "Course / year", optionsKey: "years" },
+		{
+			key: "availability",
+			label: "Available 6–7 Feb",
+			static: [
+				{ value: "yes", label: "Yes" },
+				{ value: "partly", label: "Partly" },
+				{ value: "no", label: "No" },
+			],
+		},
+	],
+	hacker_applications: [
+		{ key: "status", label: "Status", optionsKey: "statuses" },
+		{ key: "level", label: "Level of study", optionsKey: "levels" },
+		{ key: "school", label: "University / school", optionsKey: "schools" },
+		{ key: "experience", label: "Experience", optionsKey: "experience" },
+		{ key: "team", label: "Team status", optionsKey: "teams" },
+		{ key: "heard", label: "Heard from", optionsKey: "heard" },
+	],
+}
+
+const NOUNS = {
+	team_applications: ["applicant", "applicants"],
+	hacker_applications: ["hacker application", "hacker applications"],
+}
+
+function optionValue(item) {
+	return typeof item === "string" ? item : item.value
+}
+
+function optionLabel(item) {
+	if (typeof item === "string") return item
+	return item.label.split(":")[0]
+}
+
 export function AdminConsole() {
 	const [tables, setTables] = useState([])
 	const [table, setTable] = useState("")
 	const [query, setQuery] = useState("")
 	const [applied, setApplied] = useState("")
-	const [role, setRole] = useState("")
-	const [year, setYear] = useState("")
-	const [availability, setAvailability] = useState("")
+	const [filters, setFilters] = useState({})
 	const [result, setResult] = useState(null)
 	const [error, setError] = useState("")
 	const [loading, setLoading] = useState(true)
 
-	const isTeam = table === "team_applications"
+	const tableFilters = FILTERS[table] || []
+	const activeFilters = tableFilters.filter((f) => filters[f.key])
+	const filterKey = JSON.stringify(filters)
 
 	useEffect(() => {
 		let cancel = false
@@ -39,6 +79,13 @@ export function AdminConsole() {
 		}
 	}, [])
 
+	function buildParams() {
+		const params = new URLSearchParams()
+		if (applied) params.set("q", applied)
+		for (const f of tableFilters) if (filters[f.key]) params.set(f.key, filters[f.key])
+		return params
+	}
+
 	useEffect(() => {
 		if (!table) return undefined
 		let cancel = false
@@ -46,11 +93,7 @@ export function AdminConsole() {
 			setLoading(true)
 			setError("")
 			try {
-				const params = new URLSearchParams()
-				if (applied) params.set("q", applied)
-				if (isTeam && role) params.set("role", role)
-				if (isTeam && year) params.set("year", year)
-				if (isTeam && availability) params.set("availability", availability)
+				const params = buildParams()
 				const suffix = params.toString() ? `?${params}` : ""
 				const response = await fetch(`/api/admin/tables/${encodeURIComponent(table)}${suffix}`, {
 					headers: { accept: "application/json" },
@@ -71,18 +114,22 @@ export function AdminConsole() {
 		return () => {
 			cancel = true
 		}
-	}, [table, applied, role, year, availability, isTeam])
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [table, applied, filterKey])
 
-	const csvParams = new URLSearchParams()
-	if (applied) csvParams.set("q", applied)
-	if (isTeam && role) csvParams.set("role", role)
-	if (isTeam && year) csvParams.set("year", year)
-	if (isTeam && availability) csvParams.set("availability", availability)
+	const csvParams = buildParams()
 	const options = result?.options || {}
-	const filtered = Boolean(applied || (isTeam && (role || year || availability)))
+	const filtered = Boolean(applied || activeFilters.length)
 	const csvHref = table
 		? `/api/admin/tables/${encodeURIComponent(table)}.csv${csvParams.toString() ? `?${csvParams}` : ""}`
 		: ""
+	const nouns = NOUNS[table]
+
+	function clearAll() {
+		setQuery("")
+		setApplied("")
+		setFilters({})
+	}
 
 	return (
 		<div className="admin-console">
@@ -95,11 +142,7 @@ export function AdminConsole() {
 							className={name === table ? "btn btn-primary" : "btn btn-ghost"}
 							onClick={() => {
 								setTable(name)
-								setQuery("")
-								setApplied("")
-								setRole("")
-								setYear("")
-								setAvailability("")
+								clearAll()
 							}}
 						>
 							{name}
@@ -128,59 +171,34 @@ export function AdminConsole() {
 				<button type="submit" className="btn btn-ghost">
 					Search
 				</button>
-				{isTeam && (
-					<>
-						<label className="sponsor-field" htmlFor="admin-role">
-							<span>Role</span>
-							<select id="admin-role" value={role} onChange={(event) => setRole(event.target.value)}>
-								<option value="">Any role</option>
-								{(options.roles || []).map((name) => (
-									<option key={name} value={name}>
-										{name}
-									</option>
-								))}
-							</select>
-						</label>
-						<label className="sponsor-field" htmlFor="admin-year">
-							<span>Course / year</span>
-							<select id="admin-year" value={year} onChange={(event) => setYear(event.target.value)}>
-								<option value="">Any</option>
-								{(options.years || []).map((name) => (
-									<option key={name} value={name}>
-										{name}
-									</option>
-								))}
-							</select>
-						</label>
-						<label className="sponsor-field" htmlFor="admin-availability">
-							<span>Available 6–7 Feb</span>
-							<select id="admin-availability" value={availability} onChange={(event) => setAvailability(event.target.value)}>
-								<option value="">Any</option>
-								<option value="yes">Yes</option>
-								<option value="partly">Partly</option>
-								<option value="no">No</option>
-							</select>
-						</label>
-						{filtered && (
-							<button
-								type="button"
-								className="btn btn-ghost"
-								onClick={() => {
-									setQuery("")
-									setApplied("")
-									setRole("")
-									setYear("")
-									setAvailability("")
-								}}
+				{tableFilters.map((f) => {
+					const items = f.static || options[f.optionsKey] || []
+					return (
+						<label className="sponsor-field" htmlFor={`admin-${f.key}`} key={f.key}>
+							<span>{f.label}</span>
+							<select
+								id={`admin-${f.key}`}
+								value={filters[f.key] || ""}
+								onChange={(event) => setFilters((current) => ({ ...current, [f.key]: event.target.value }))}
 							>
-								Clear filters
-							</button>
-						)}
-					</>
+								<option value="">{f.any || "Any"}</option>
+								{items.map((item) => (
+									<option key={optionValue(item)} value={optionValue(item)}>
+										{optionLabel(item)}
+									</option>
+								))}
+							</select>
+						</label>
+					)
+				})}
+				{filtered && tableFilters.length > 0 && (
+					<button type="button" className="btn btn-ghost" onClick={clearAll}>
+						Clear filters
+					</button>
 				)}
 				{csvHref && (
 					<a className="btn btn-primary" href={csvHref}>
-						Download CSV
+						{filtered ? "Download filtered CSV" : "Download CSV"}
 					</a>
 				)}
 			</form>
@@ -193,11 +211,9 @@ export function AdminConsole() {
 
 			{result && (
 				<p className="mono admin-count">
-					{result.count} {isTeam ? (result.count === 1 ? "applicant" : "applicants") : result.count === 1 ? "row" : "rows"}
+					{result.count} {nouns ? (result.count === 1 ? nouns[0] : nouns[1]) : result.count === 1 ? "row" : "rows"}
 					{applied ? ` matching “${applied}”` : ""}
-					{isTeam && role ? ` · role: ${role}` : ""}
-					{isTeam && year ? ` · ${year}` : ""}
-					{isTeam && availability ? ` · available: ${availability}` : ""}
+					{activeFilters.map((f) => ` · ${f.label.toLowerCase()}: ${filters[f.key]}`).join("")}
 					{table === "interest" ? " · newest first" : ""}
 				</p>
 			)}

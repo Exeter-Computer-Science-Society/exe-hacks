@@ -55,7 +55,10 @@
 
 	// Comma-separated allow-list checked after the Cloudflare Access JWT.
 	// Override in the dashboard or with `wrangler secret put ADMIN_EMAILS` if it changes.
+	// APPLICATIONS_OPEN gates /apply and POST /api/apply. Keep "false" until
+	// opening day (Mon 9 Nov 2026), then set it to "true" and redeploy.
 	"vars": {
-		"ADMIN_EMAILS": "kazybekkhairulla@gmail.com"
+		"ADMIN_EMAILS": "kazybekkhairulla@gmail.com",
+		"APPLICATIONS_OPEN": "false"
 	}
 }

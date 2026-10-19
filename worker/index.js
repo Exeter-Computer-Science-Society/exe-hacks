@@ -3,6 +3,8 @@
  * This script runs first for /api/* and /admin* (see wrangler.jsonc).
  *
  * POST /api/join stores a core-team application in team_applications.
+ * GET /api/apply/status and POST /api/apply serve the hacker application (see apply.js).
+ * Applications stay closed unless the var APPLICATIONS_OPEN is "true".
  * POST /api/interest stores a row in D1. A repeated email is still 200, so the
  * response does not say whether that address was already on the list.
  * GET /api/interest/export.csv needs Authorization: Bearer $EXPORT_TOKEN.
@@ -11,6 +13,7 @@
 
 import { authorizeAdmin } from "./access.js"
 import { listTables, readTable, readTableCsv } from "./admin.js"
+import { applicationsOpen, insertApplication, validateApplication } from "./apply.js"
 import { toCsv } from "./csv.js"
 
 const LIMITS = {
@@ -35,6 +38,16 @@ const worker = {
 		if (path === "/api/join") {
 			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
 			return postJoin(request, env)
+		}
+
+		if (path === "/api/apply/status") {
+			if (request.method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
+			return json({ ok: true, open: applicationsOpen(env) })
+		}
+
+		if (path === "/api/apply") {
+			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
+			return postApply(request, env)
 		}
 
 		if (path === "/api/interest/export.csv") {
@@ -173,6 +186,42 @@ async function postJoin(request, env) {
 			.run()
 	} catch (error) {
 		console.error("team application insert failed", error instanceof Error ? error.name : "error")
+		return json({ ok: false, error: "We couldn't save that. Try again in a moment." }, 500)
+	}
+	return json({ ok: true })
+}
+
+async function postApply(request, env) {
+	if (!sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
+	if (!applicationsOpen(env)) {
+		return json({ ok: false, closed: true, error: "Applications aren't open yet. Register your interest and we'll email you when they open." }, 403)
+	}
+	const length = Number(request.headers.get("content-length") || 0)
+	if (length > 20_000) return json({ ok: false, error: "Check the form and try again." }, 413)
+
+	const parsed = await readBody(request)
+	if (parsed.error === "type") return json({ ok: false, error: "Check the form and try again." }, 415)
+	if (parsed.error) return json({ ok: false, error: "Check the form and try again." }, 400)
+	const data = parsed.data
+	if (honeypotTripped(data)) return json({ ok: true })
+
+	const result = validateApplication(data, { clip, clipLong, field, fieldRaw, consentGiven })
+	if (!result.ok) return json({ ok: false, error: result.error }, 400)
+
+	try {
+		const { inserted } = await insertApplication(env.DB, result.row)
+		if (!inserted) {
+			return json(
+				{
+					ok: false,
+					duplicate: true,
+					error: "You've already applied with this email, so you're all set. We'll be in touch when decisions go out.",
+				},
+				409
+			)
+		}
+	} catch (error) {
+		console.error("hacker application insert failed", error instanceof Error ? error.name : "error")
 		return json({ ok: false, error: "We couldn't save that. Try again in a moment." }, 500)
 	}
 	return json({ ok: true })
@@ -332,7 +381,17 @@ async function adminApi(request, env, path) {
 
 	const params = new URL(request.url).searchParams
 	const search = params.get("q") || ""
-	const filters = { role: params.get("role") || "", year: params.get("year") || "", availability: params.get("availability") || "" }
+	const filters = {
+		role: params.get("role") || "",
+		year: params.get("year") || "",
+		availability: params.get("availability") || "",
+		level: params.get("level") || "",
+		school: params.get("school") || "",
+		experience: params.get("experience") || "",
+		status: params.get("status") || "",
+		team: params.get("team") || "",
+		heard: params.get("heard") || "",
+	}
 	try {
 		if (csv) {
 			const page = await readTableCsv(env.DB, table, search, filters)
