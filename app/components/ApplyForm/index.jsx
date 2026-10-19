@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 
 import {
 	AGES,
@@ -13,12 +13,15 @@ import {
 	HEARD_FROM,
 	LEVELS_OF_STUDY,
 	MLH_LINKS,
+	OPENS_AT,
 	OPENS_LABEL,
+	OPENS_TIME_LABEL,
 	SCHOOL_SUGGESTIONS,
 	TEAM_STATUSES,
 	TSHIRT_SIZES,
 } from "../../apply/options"
 import { CONTACT_EMAIL } from "../../config"
+import { ClockCountdown } from "../ClockCountdown"
 
 const DIETARY = ["Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-free / Coeliac", "Dairy-free", "Nut allergy"]
 
@@ -40,26 +43,40 @@ export function ApplyForm() {
 	const [duplicate, setDuplicate] = useState(false)
 	const [dietary, setDietary] = useState([])
 
+	// true once the countdown has hit zero but the Worker flag has not been flipped yet.
+	const [opening, setOpening] = useState(false)
+
 	useEffect(() => {
 		let cancel = false
 		// ?preview=1 shows the form while closed so it can be checked. The Worker still refuses submissions.
 		const wantsPreview = new URLSearchParams(window.location.search).get("preview") === "1"
-		fetch("/api/apply/status", { headers: { accept: "application/json" } })
-			.then((response) => (response.ok ? response.json() : { open: false }))
-			.then((body) => {
-				if (cancel) return
-				setPreview(wantsPreview)
-				setState(body && body.open === true ? "open" : "closed")
-			})
-			.catch(() => {
-				if (cancel) return
-				setPreview(wantsPreview)
-				setState("closed")
-			})
+		fetchOpen().then((open) => {
+			if (cancel) return
+			setPreview(wantsPreview)
+			setState(open ? "open" : "closed")
+		})
 		return () => {
 			cancel = true
 		}
 	}, [])
+
+	// When the clock reaches zero, poll the Worker every 30 s until APPLICATIONS_OPEN is "true".
+	const onCountdownDone = useCallback(() => setOpening(true), [])
+	useEffect(() => {
+		if (!opening || state === "open") return undefined
+		let cancel = false
+		const check = () =>
+			fetchOpen().then((open) => {
+				if (!cancel && open) setState("open")
+			})
+		const first = setTimeout(check, 0)
+		const id = setInterval(check, 30_000)
+		return () => {
+			cancel = true
+			clearTimeout(first)
+			clearInterval(id)
+		}
+	}, [opening, state])
 
 	async function onSubmit(event) {
 		event.preventDefault()
@@ -124,18 +141,26 @@ export function ApplyForm() {
 		}
 	}
 
-	if (state === "loading") {
-		return <p className="mono">Checking whether applications are open…</p>
-	}
-
-	if (state === "closed" && !preview) {
+	// While the status check is in flight, show the closed panel (the likely answer) so the page doesn't jump.
+	if (state === "loading" || (state === "closed" && !preview)) {
 		return (
-			<div className="sponsor-form sent" role="status">
-				<p className="mono sponsor-form-kicker">Applications open {OPENS_LABEL}</p>
-				<p>
-					Hacker applications for ExeHacks 2027 aren&apos;t open yet. Register your interest and we&apos;ll email you the
-					moment they open.
+			<div className="sponsor-form sent apply-closed">
+				<p className="mono sponsor-form-kicker">
+					{opening ? "Applications are opening" : `Applications open ${OPENS_LABEL}, ${OPENS_TIME_LABEL}`}
 				</p>
+				{opening ? (
+					<p role="status">
+						Applications are opening now. This page will switch to the form automatically, or refresh in a minute.
+					</p>
+				) : (
+					<>
+						<ClockCountdown target={OPENS_AT} label="Applications open in" onDone={onCountdownDone} />
+						<p>
+							Hacker applications for ExeHacks 2027 aren&apos;t open yet. Register your interest and we&apos;ll email you
+							the moment they open.
+						</p>
+					</>
+				)}
 				<div className="sponsor-form-actions">
 					<Link href="/interested/" className="btn btn-primary">
 						Register your interest
@@ -412,4 +437,15 @@ export function ApplyForm() {
 			</div>
 		</form>
 	)
+}
+
+async function fetchOpen() {
+	try {
+		const response = await fetch("/api/apply/status", { headers: { accept: "application/json" }, cache: "no-store" })
+		if (!response.ok) return false
+		const body = await response.json()
+		return Boolean(body && body.open === true)
+	} catch {
+		return false
+	}
 }
