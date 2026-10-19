@@ -57,7 +57,7 @@ export function InterestForm() {
 		return (
 			<div className="sponsor-form sent" role="status">
 				<p className="mono sponsor-form-kicker">You&apos;re on the list</p>
-				<p>Thanks. We&apos;ll email you as soon as tickets are available.</p>
+				<p>Thanks. We&apos;ll email you as soon as applications open (Mon 9 Nov 2026).</p>
 				<button
 					type="button"
 					className="btn btn-ghost"
