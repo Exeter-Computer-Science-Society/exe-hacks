@@ -3,7 +3,7 @@
 // components
 import { RegistrationButton } from "./components/RegistrationButton"
 import { BootTerminal } from "./components/BootTerminal"
-import { Countdown } from "./components/Countdown"
+import { ClockCountdown } from "./components/ClockCountdown"
 import { Question } from "./components/Question"
 import { Profile } from "./components/Team/Profiles"
 import Sponsor from "./components/General/Sponsor"
@@ -25,10 +25,11 @@ export default function Home() {
 	const [fading1, setFading1] = useState(false)
 	const [fading2, setFading2] = useState(false)
 
-	// 6–7 February 2027 is the locked weekend. The countdown stays null until
-	// we have an exact kickoff time. Tickets are not on sale yet: the hero
+	// 6–7 February 2027 is the locked weekend. Hacking starts Sat 6 Feb 2027 at
+	// 11:00 UK time (Run of Show draft); the UK is on GMT then, so 11:00 UTC.
+	// Set to null to hide the countdown. Tickets are not on sale yet: the hero
 	// and the other register buttons collect interest at /interested/.
-	const event_date = null // kickoff. Drives the countdown.
+	const event_date = Date.parse("2027-02-06T11:00:00Z") // hacking starts. Drives the countdown.
 	const event_window = "6–7 February 2027"
 
 	const questions = [
@@ -334,7 +335,7 @@ export default function Home() {
 						className="section-tag reveal"
 						style={{ justifyContent: "center" }}
 					>
-						{event_date ? "Doors open in" : "When"}
+						{event_date ? "Sat 6 Feb 2027 · 11:00 UK" : "When"}
 					</span>
 
 					{event_date ? (
@@ -343,10 +344,10 @@ export default function Home() {
 								className="h-section reveal d1"
 								style={{ maxWidth: "18ch" }}
 							>
-								The countdown to <span className="grad-text">kickoff</span> is on.
+								The countdown to <span className="grad-text">hacking</span> is on.
 							</h2>
-							<div className="reveal d2">
-								<Countdown registration={event_date} />
+							<div className="reveal d2 clock-center">
+								<ClockCountdown target={event_date} label="Hacking starts in" prompt="$ ./hack --starts-in" dayDigits={3} />
 							</div>
 						</>
 					) : (

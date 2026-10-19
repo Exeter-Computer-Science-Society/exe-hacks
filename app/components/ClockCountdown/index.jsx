@@ -7,7 +7,7 @@ const MINUTE = 60 * SECOND
 const HOUR = 60 * MINUTE
 const DAY = 24 * HOUR
 
-const pad = (n) => String(n).padStart(2, "0")
+const pad = (n, width = 2) => String(n).padStart(width, "0")
 
 function split(ms) {
 	const left = Math.max(0, ms)
@@ -28,7 +28,8 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`
  * so it is read on demand rather than announced every second.
  * Calls onDone once when the target passes.
  */
-export function ClockCountdown({ target, label, onDone }) {
+// dayDigits fixes the width of the days cell (use 3 for targets 100+ days away) so it never resizes.
+export function ClockCountdown({ target, label, onDone, prompt = "$ ./open --in", dayDigits = 2 }) {
 	const [now, setNow] = useState(null)
 
 	useEffect(() => {
@@ -53,6 +54,7 @@ export function ClockCountdown({ target, label, onDone }) {
 		{ key: "minutes", label: "Mins" },
 		{ key: "seconds", label: "Secs" },
 	]
+	const width = (key) => (key === "days" ? Math.max(2, dayDigits) : 2)
 	const spoken = parts
 		? `${label} ${plural(parts.days, "day")}, ${plural(parts.hours, "hour")} and ${plural(parts.minutes, "minute")}.`
 		: label
@@ -61,13 +63,15 @@ export function ClockCountdown({ target, label, onDone }) {
 		<div className="clock" role="timer" aria-live="off" aria-atomic="true">
 			<span className="clock-sr">{spoken}</span>
 			<div className="clock-face" aria-hidden="true">
-				<span className="clock-prompt">$ ./open --in</span>
+				<span className="clock-prompt">{prompt}</span>
 				<div className="clock-digits">
 					{cells.map((cell, index) => (
 						<div className="clock-group" key={cell.key}>
 							{index > 0 ? <span className="clock-sep">:</span> : null}
 							<div className="clock-cell">
-								<span className="clock-value">{parts ? pad(parts[cell.key]) : "--"}</span>
+								<span className="clock-value" style={{ width: `${width(cell.key)}ch` }}>
+									{parts ? pad(parts[cell.key], width(cell.key)) : "-".repeat(width(cell.key))}
+								</span>
 								<span className="clock-label">{cell.label}</span>
 							</div>
 						</div>

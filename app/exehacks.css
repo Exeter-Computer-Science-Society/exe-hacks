@@ -667,7 +667,7 @@ a.track-meta:hover { color: var(--green-2); }
 	text-shadow: 0 0 18px rgba(5, 255, 97, 0.45);
 }
 /* Fixed width per pair of digits: the clock never changes size as it ticks. */
-.clock-value { display: inline-block; width: 2ch; text-align: center; }
+.clock-value { display: inline-block; width: 2ch; text-align: center; white-space: nowrap; }
 .clock-sep { width: 0.9ch; text-align: center; opacity: 0.55; }
 .clock-label {
 	font-family: var(--font-mono); font-size: clamp(0.6rem, 2vw, 0.7rem);
@@ -676,6 +676,9 @@ a.track-meta:hover { color: var(--green-2); }
 @media (max-width: 420px) {
 	.clock-digits { justify-content: center; }
 }
+/* Homepage: centred, prompt on the left edge of the face. */
+.clock-center .clock-face { align-items: center; text-align: left; }
+.clock-center .clock-prompt { align-self: flex-start; }
 
 /* /apply hacker application */
 .admin-tools select { max-width: 18rem; }
