@@ -1,3 +1,11 @@
+import {
+	APPLICATION_STATUSES,
+	EXPERIENCE_LEVELS,
+	HEARD_FROM,
+	LEVELS_OF_STUDY,
+	TEAM_STATUSES,
+} from "../app/apply/options.js"
+
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/
 const INTERNAL = /^(_cf_|sqlite_|d1_)/i
 export const TEAM_ROLES = ["Sponsorship", "Logistics", "Marketing & Social", "Design", "Tech", "Volunteer Coordinator", "Welfare", "Finance"]
@@ -51,6 +59,40 @@ export async function readTable(db, table, { search = "", filters = {}, limit = 
 			.prepare(`SELECT DISTINCT course_year AS value FROM team_applications WHERE course_year IS NOT NULL AND course_year != '' ORDER BY course_year COLLATE NOCASE`)
 			.all()
 		options = { roles: TEAM_ROLES, years: (results || []).map((r) => r.value), availability: AVAILABILITY }
+	}
+	if (table === "hacker_applications") {
+		const exact = [
+			["level", "level_of_study", LEVELS_OF_STUDY],
+			["experience", "experience_level", EXPERIENCE_LEVELS.map((item) => item.value)],
+			["status", "status", APPLICATION_STATUSES],
+			["team", "team_status", TEAM_STATUSES.map((item) => item.value)],
+			["heard", "heard_from", HEARD_FROM],
+		]
+		for (const [key, column, allowed] of exact) {
+			const value = String(filters[key] || "")
+			if (allowed.includes(value)) {
+				clauses.push(`${column} = ?`)
+				binds.push(value)
+				applied[key] = value
+			}
+		}
+		const school = String(filters.school || "").trim().slice(0, 200)
+		if (school) {
+			clauses.push(`school = ? COLLATE NOCASE`)
+			binds.push(school)
+			applied.school = school
+		}
+		const { results } = await db
+			.prepare(`SELECT school AS value, COUNT(*) AS n FROM hacker_applications GROUP BY school COLLATE NOCASE ORDER BY n DESC, school COLLATE NOCASE`)
+			.all()
+		options = {
+			levels: LEVELS_OF_STUDY,
+			schools: (results || []).map((r) => r.value),
+			experience: EXPERIENCE_LEVELS,
+			statuses: APPLICATION_STATUSES,
+			teams: TEAM_STATUSES,
+			heard: HEARD_FROM,
+		}
 	}
 	const where = clauses.length ? `WHERE ${clauses.map((c) => `(${c})`).join(" AND ")}` : ""
 	const order = orderBy(columns)

@@ -640,6 +640,18 @@ a.track-meta:hover { color: var(--green-2); }
 }
 .sponsor-page-back { color: var(--text-dim); margin-top: 1.5rem; }
 
+/* /apply hacker application */
+.admin-tools select { max-width: 18rem; }
+.apply-note { margin: 0; color: var(--text-dim); font-size: 0.92rem; line-height: 1.5; }
+.apply-preview {
+	margin: 0;
+	padding: 0.6rem 0.8rem;
+	border: 1px dashed var(--green);
+	color: var(--green);
+	font-size: 0.8rem;
+}
+fieldset.apply-fieldset { border: 0; padding: 0; margin: 0; min-width: 0; }
+
 @media (max-width: 700px) {
 	.sponsor-form-grid { grid-template-columns: 1fr; }
 }
