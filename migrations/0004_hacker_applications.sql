@@ -1,4 +1,4 @@
--- ExeHacks 2027 hacker applications (POST /api/apply).
+-- ExeHacks 2027 hacker applications (POST /api/apply). 18+ only, enforced in worker/apply.js.
 -- status drives acceptance waves: pending -> accepted / waitlisted / rejected, then confirmed / declined.
 CREATE TABLE IF NOT EXISTS hacker_applications (
 	id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS hacker_applications (
 	email TEXT NOT NULL UNIQUE COLLATE NOCASE,
 	phone TEXT,
 	age TEXT NOT NULL,
-	under_18 INTEGER NOT NULL DEFAULT 0,
 	school TEXT NOT NULL,
 	level_of_study TEXT NOT NULL,
 	course TEXT NOT NULL,

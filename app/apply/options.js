@@ -8,9 +8,9 @@
 
 export const OPENS_LABEL = "Mon 9 Nov 2026"
 
-export const MIN_AGE = 16
-export const ADULT_AGE = 18
-export const MAX_AGE = 99
+// ExeHacks is 18+ only (age on Sat 6 Feb 2027).
+export const MIN_AGE = 18
+export const AGE_MESSAGE = "ExeHacks is open to people aged 18+ on 6 Feb 2027."
 // Dropdown values. MLH asks for a specific age rather than a date of birth.
 export const AGES = Array.from({ length: 30 - MIN_AGE + 1 }, (_, i) => String(MIN_AGE + i)).concat(["31+"])
 

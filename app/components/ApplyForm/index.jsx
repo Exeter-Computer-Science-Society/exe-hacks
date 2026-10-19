@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 
 import {
-	ADULT_AGE,
 	AGES,
 	COUNTRIES,
 	EXPERIENCE_LEVELS,
@@ -39,7 +38,6 @@ export function ApplyForm() {
 	const [submitting, setSubmitting] = useState(false)
 	const [error, setError] = useState("")
 	const [duplicate, setDuplicate] = useState(false)
-	const [age, setAge] = useState("")
 	const [dietary, setDietary] = useState([])
 
 	useEffect(() => {
@@ -147,8 +145,6 @@ export function ApplyForm() {
 		)
 	}
 
-	const under18 = age !== "" && Number.parseInt(age, 10) < ADULT_AGE
-
 	return (
 		<form className="sponsor-form" onSubmit={onSubmit} noValidate={false}>
 			{state === "closed" && preview ? (
@@ -176,8 +172,8 @@ export function ApplyForm() {
 					<input id="apply-phone" type="tel" name="phone" autoComplete="tel" maxLength={30} pattern="[0-9+()\s\-]{7,30}" />
 				</label>
 				<label className="sponsor-field" htmlFor="apply-age">
-					<span>Age on 6 February 2027</span>
-					<select id="apply-age" name="age" required value={age} onChange={(event) => setAge(event.target.value)}>
+					<span>Age on 6 February 2027 (18+ only)</span>
+					<select id="apply-age" name="age" required defaultValue="">
 						<option value="" disabled>
 							Choose one
 						</option>
@@ -202,12 +198,6 @@ export function ApplyForm() {
 					</select>
 				</label>
 			</div>
-			{under18 ? (
-				<p className="apply-note" role="note">
-					You can apply if you&apos;re 16 or 17, but we&apos;ll need a signed parent or guardian consent form before we can
-					confirm your place.
-				</p>
-			) : null}
 
 			<p className="mono sponsor-form-kicker">Study</p>
 			<div className="sponsor-form-grid">

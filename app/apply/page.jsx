@@ -21,7 +21,7 @@ export default function ApplyPage() {
 							for around 150 hackers. It&apos;s run by EXCS and is the new name for Hack South West.
 						</p>
 						<p>
-							Every level is welcome, including first-timers. We review applications in waves and email you with a decision.
+							Open to anyone aged 18 or over on 6 February 2027. Every level is welcome, including first-timers. We review applications in waves and email you with a decision.
 							Takes about 5 minutes.
 						</p>
 					</div>

@@ -9,8 +9,9 @@
  */
 
 import {
-	ADULT_AGE,
+	AGE_MESSAGE,
 	AGES,
+	MIN_AGE,
 	COUNTRIES,
 	EXPERIENCE_LEVELS,
 	GRADUATION_YEARS,
@@ -81,7 +82,8 @@ export function validateApplication(data, { clip, clipLong, field, fieldRaw, con
 	if (!v.lastName) return { ok: false, error: "Add your last name." }
 	if (!EMAIL.test(v.email)) return { ok: false, error: "Add a valid email address." }
 	if (v.phone && !PHONE.test(v.phone)) return { ok: false, error: "Check your phone number." }
-	if (!ALLOWED.age.has(v.age)) return { ok: false, error: "Choose your age. You need to be 16 or over to apply." }
+	if (/^\d{1,3}$/.test(v.age) && Number(v.age) < MIN_AGE) return { ok: false, error: AGE_MESSAGE }
+	if (!ALLOWED.age.has(v.age)) return { ok: false, error: "Choose your age." }
 	if (!v.school) return { ok: false, error: "Add your university or school." }
 	if (!ALLOWED.level.has(v.level)) return { ok: false, error: "Choose your level of study." }
 	if (!v.course) return { ok: false, error: "Add your course or major." }
@@ -108,7 +110,6 @@ export function validateApplication(data, { clip, clipLong, field, fieldRaw, con
 	}
 	const mlhMarketing = consentGiven(fieldRaw(data, "mlhMarketing")) ? 1 : 0
 
-	const ageNumber = Number.parseInt(v.age, 10)
 	return {
 		ok: true,
 		row: {
@@ -117,7 +118,6 @@ export function validateApplication(data, { clip, clipLong, field, fieldRaw, con
 			email: v.email,
 			phone: v.phone || null,
 			age: v.age,
-			under_18: ageNumber < ADULT_AGE ? 1 : 0,
 			school: v.school,
 			level_of_study: v.level,
 			course: v.course,
