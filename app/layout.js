@@ -15,10 +15,38 @@ const vt323 = VT323({ weight: "400", subsets: ["latin"], display: "swap", variab
 
 const fontVars = [bricolage.variable, jetbrains.variable, pixelify.variable, vt323.variable].join(" ")
 
+const siteTitle = "ExeHacks: Exeter's student hackathon"
+const siteDescription =
+	"ExeHacks is the University of Exeter's student hackathon, 6–7 February 2027. Venue TBC (University of Exeter). Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West."
+
+// Link preview card for WhatsApp, Discord, LinkedIn, X etc. 1200x630, made from
+// the site's own wordmark/palette. Child pages inherit it via the root layout.
+const ogImage = {
+	url: "/images/og/exehacks-og.png",
+	width: 1200,
+	height: 630,
+	alt: "ExeHacks: 6–7 February 2027. University of Exeter, 24-hour student hackathon. exehacks.excs.uk",
+}
+
 export const metadata = {
-	title: "ExeHacks: Exeter's student hackathon",
-	description:
-		"ExeHacks is the University of Exeter's student hackathon, 6–7 February 2027. Venue TBC (University of Exeter). Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West.",
+	metadataBase: new URL("https://exehacks.excs.uk"),
+	title: siteTitle,
+	description: siteDescription,
+	openGraph: {
+		title: siteTitle,
+		description: siteDescription,
+		url: "/",
+		siteName: "ExeHacks",
+		images: [ogImage],
+		type: "website",
+		locale: "en_GB",
+	},
+	twitter: {
+		card: "summary_large_image",
+		title: siteTitle,
+		description: siteDescription,
+		images: [ogImage],
+	},
 	// Sized favicons from public/images/icons/. public/favicon.ico is the same
 	// mark so browsers that still request /favicon.ico get the new icon.
 	icons: {
