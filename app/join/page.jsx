@@ -1,12 +1,9 @@
 import Link from "next/link"
 
-import { JoinForm } from "../components/JoinForm"
-import { TEAM_ROLES } from "./roles"
-
 export const metadata = {
-	title: "Join the ExeHacks core team",
+	title: "Core team applications are closed: ExeHacks 2027",
 	description:
-		"Help run ExeHacks 2027, Exeter's 24-hour student hackathon, 6–7 February 2027. No experience needed.",
+		"Applications to the ExeHacks 2027 core team are now closed. If you already applied, we'll be in touch.",
 }
 
 export default function JoinPage() {
@@ -16,18 +13,24 @@ export default function JoinPage() {
 				<div className="wrap sponsor-page">
 					<div className="section-head">
 						<span className="section-tag">ExeHacks 2027 · 6–7 February · Exeter</span>
-						<h1 className="h-section">Join the ExeHacks core team</h1>
+						<h1 className="h-section">Applications are now closed</h1>
 						<p className="lead">
-							ExeHacks 2027 is Exeter&apos;s 24-hour student hackathon, run by EXCS on 6–7 February 2027 for around 150
-							hackers. We&apos;re looking for people to help run it.
+							Thanks for wanting to help run ExeHacks 2027. We&apos;re no longer taking new applications for the core team.
 						</p>
-						<p>
-							No experience needed. Expect a few hours a week until February, then all hands on the weekend itself.
-						</p>
-						<p className="mono">Roles: {TEAM_ROLES.join(" · ")}</p>
 					</div>
 
-					<JoinForm />
+					<div className="sponsor-form sent" role="status">
+						<p className="mono sponsor-form-kicker">Applications are now closed</p>
+						<p>
+							If you already applied, we&apos;ll be in touch about next steps. Want to come and hack? Register your interest
+							and we&apos;ll email you when tickets open.
+						</p>
+						<div className="sponsor-form-actions">
+							<Link href="/interested/" className="btn btn-primary">
+								Register your interest
+							</Link>
+						</div>
+					</div>
 
 					<p className="mono sponsor-page-back">
 						<Link href="/">← Back to ExeHacks</Link>
