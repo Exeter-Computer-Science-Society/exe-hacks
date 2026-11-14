@@ -614,7 +614,7 @@ export default function Home() {
 					<div className="section-head reveal">
 						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">Meet the team.</h2>
-						<p className="lead">Two lead organisers and an advisor.</p>
+						<p className="lead">Two lead organisers, an academic organiser and an advisor.</p>
 					</div>
 
 					<div className="team-groups reveal d1">
@@ -629,6 +629,11 @@ export default function Home() {
 								<Profile
 									name="Piran Trevenna"
 									position="Lead Organiser"
+								/>
+								<Profile
+									name="Emre Acarsoy"
+									position="Academic Organiser"
+									image="/team/emre.jpg"
 								/>
 							</div>
 						</div>
