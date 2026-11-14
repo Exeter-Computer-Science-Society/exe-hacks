@@ -1,0 +1,40 @@
+name: CI
+
+# Checks that the static export installs, passes the dependency audit and
+# builds. It does not deploy anything: the live site (https://exehacks.excs.uk)
+# is the Cloudflare Worker `hack-sw-website`, deployed by Workers Builds or by
+# the manual "Deploy to Cloudflare (EXCS)" workflow in cloudflare.yml.
+# GitHub Pages is disabled on this repo.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit production dependencies
+        run: npm audit --omit=dev --audit-level=high
+
+      - name: Build static export
+        run: npm run build
