@@ -49,7 +49,8 @@ back to the human as questions.
 A push to `main` runs `ci.yml` (install, `npm audit --omit=dev
 --audit-level=high`, build). **It does not deploy.** Whether `main` reaches the
 live site on its own depends on whether Workers Builds is connected to this repo
-in the EXCS Cloudflare dashboard. That was **not verified** as of 2026-11-14.
+in the EXCS Cloudflare dashboard. As of 2026-11-14 it is **not**: Cloudflare has
+never posted a check on any commit.
 After merging, check https://exehacks.excs.uk for the change. If it hasn't
 appeared, tell the human; don't deploy it yourself.
 
@@ -92,8 +93,8 @@ on two files.
 | workflow | trigger | does |
 |---|---|---|
 | `ci.yml` | push to `main`, pull requests | install, audit, build. **No deploy.** |
-| `cloudflare.yml` | **`workflow_dispatch` only** | Formspree forms, build, `d1 migrations apply --remote`, `wrangler deploy` to the **EXCS** account |
-| Workers Builds (Cloudflare dashboard) | push, if connected | unverified, see above |
+| `cloudflare.yml` | **`workflow_dispatch` only**, needs secrets that are not set yet (below) | Formspree forms, build, `d1 migrations apply --remote`, `wrangler deploy` to the **EXCS** account |
+| Workers Builds (Cloudflare dashboard) | push, if connected | not connected as of 2026-11-14 |
 
 The CI audit step blocks on new advisories even when your change is unrelated.
 It failed every push from #8 to #12 because of advisories against `next`. The fix
@@ -104,8 +105,18 @@ is usually `npm audit fix` without `--force`, which changes only
 `wrangler whoami` is the wrong Cloudflare account (id
 `d058c8ec4c5caeadbd55cf293f3d2d32`), so a bare `npm run deploy` would create
 `hack-sw-website` there instead of Exeter Computer Science Society. Pin
-`CLOUDFLARE_ACCOUNT_ID` to the EXCS account first, or let the GitHub workflow do
-it — its secrets are already the EXCS ones.
+`CLOUDFLARE_ACCOUNT_ID` to the EXCS account first.
+
+⚠️ **`cloudflare.yml` cannot deploy yet: the repo has no Actions secrets.** As of
+2026-11-14 there are no repo, org or environment secrets, so the workflow stops
+at "Refuse the wrong Cloudflare account". It needs `CLOUDFLARE_ACCOUNT_ID`,
+`CLOUDFLARE_API_TOKEN`, `FORMSPREE_DEPLOY_KEY` and
+`NEXT_PUBLIC_FORMSPREE_PROJECT_ID`. Adding them needs repo `admin`, and
+`maintain` is not enough. Until then, the live site is deployed by hand from a
+maintainer's machine with their own `.env`. Building without
+`NEXT_PUBLIC_FORMSPREE_PROJECT_ID` produces a site whose sponsor form has no
+Formspree project, so never deploy a build made without it. Check with
+`gh secret list` before suggesting the workflow.
 
 `wrangler.jsonc` sets `main` to `worker/index.js`. The Worker runs first for
 `/api/*` and `/admin*` (`assets.run_worker_first`); every other path is still the
