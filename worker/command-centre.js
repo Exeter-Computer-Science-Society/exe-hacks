@@ -155,6 +155,8 @@ export async function createItem(db, item, email) {
 }
 
 export async function updateItem(db, id, fields, email) {
+	const before = await db.prepare(`SELECT tone FROM command_centre_items WHERE id = ?`).bind(id).first()
+	if (!before) return { ok: false, status: 404, error: "That item no longer exists." }
 	const keys = Object.keys(fields)
 	const sets = keys.map((key) => `${key} = ?`)
 	const row = await db
@@ -166,7 +168,7 @@ export async function updateItem(db, id, fields, email) {
 		.bind(...keys.map((key) => fields[key]), email, id)
 		.first()
 	if (!row) return { ok: false, status: 404, error: "That item no longer exists." }
-	return { ok: true, item: row }
+	return { ok: true, item: row, previousTone: before.tone }
 }
 
 export async function deleteItem(db, id) {

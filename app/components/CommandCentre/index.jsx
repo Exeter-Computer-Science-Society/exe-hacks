@@ -163,7 +163,8 @@ function Item({ item, tones, onPatch, onDelete, busy }) {
 	)
 }
 
-export function CommandCentre() {
+export function CommandCentre({ base = "/admin" }) {
+	const api = base === "/team" ? "/api/team" : "/api/admin"
 	const [data, setData] = useState(null)
 	const [error, setError] = useState("")
 	const [notice, setNotice] = useState("")
@@ -173,17 +174,17 @@ export function CommandCentre() {
 
 	const load = useCallback(async () => {
 		try {
-			const body = await call("/api/admin/overview")
+			const body = await call(`${api}/overview`)
 			setData(body)
 			setError("")
 		} catch (cause) {
 			setError(cause instanceof Error ? cause.message : "Could not load the Command Centre.")
 		}
-	}, [])
+	}, [api])
 
 	useEffect(() => {
 		let cancel = false
-		call("/api/admin/overview")
+		call(`${api}/overview`)
 			.then((body) => {
 				if (!cancel) setData(body)
 			})
@@ -193,7 +194,7 @@ export function CommandCentre() {
 		return () => {
 			cancel = true
 		}
-	}, [])
+	}, [api])
 
 	async function mutate(work, message) {
 		setBusy(true)
@@ -212,10 +213,10 @@ export function CommandCentre() {
 	}
 
 	const patch = (id, fields) =>
-		mutate(() => call(`/api/admin/items/${id}`, { method: "PATCH", body: JSON.stringify(fields) }))
-	const remove = (id) => mutate(() => call(`/api/admin/items/${id}`, { method: "DELETE" }), "Item removed.")
+		mutate(() => call(`${api}/items/${id}`, { method: "PATCH", body: JSON.stringify(fields) }))
+	const remove = (id) => mutate(() => call(`${api}/items/${id}`, { method: "DELETE" }), "Item removed.")
 	const create = (section, form) =>
-		mutate(() => call("/api/admin/items", { method: "POST", body: JSON.stringify({ ...form, section }) }), "Item added.")
+		mutate(() => call(`${api}/items`, { method: "POST", body: JSON.stringify({ ...form, section }) }), "Item added.")
 
 	if (error && !data) {
 		return (
@@ -239,7 +240,13 @@ export function CommandCentre() {
 				<button type="button" className="cc-link" onClick={load} disabled={busy}>
 					Refresh
 				</button>{" "}
-				· <a href="/admin/signups/">Signups and applicant data</a>
+				· <a href={`${base}/signups/`}>Signups and applicant data</a>
+				{base === "/team" ? (
+					<>
+						{" "}
+						· <a href="/auth/logout">Sign out</a>
+					</>
+				) : null}
 			</p>
 
 			<div className="cc-metrics">

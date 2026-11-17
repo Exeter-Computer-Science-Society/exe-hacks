@@ -42,7 +42,8 @@ function optionLabel(item) {
 	return item.label.split(":")[0]
 }
 
-export function AdminConsole() {
+export function AdminConsole({ base = "/admin" }) {
+	const api = base === "/team" ? "/api/team" : "/api/admin"
 	const [tables, setTables] = useState([])
 	const [table, setTable] = useState("")
 	const [query, setQuery] = useState("")
@@ -60,7 +61,7 @@ export function AdminConsole() {
 		let cancel = false
 		async function loadTables() {
 			try {
-				const response = await fetch("/api/admin/tables", { headers: { accept: "application/json" } })
+				const response = await fetch(`${api}/tables`, { headers: { accept: "application/json" } })
 				const body = await response.json()
 				if (!response.ok) throw new Error(body.error || "Could not load tables.")
 				if (cancel) return
@@ -77,7 +78,7 @@ export function AdminConsole() {
 		return () => {
 			cancel = true
 		}
-	}, [])
+	}, [api])
 
 	function buildParams() {
 		const params = new URLSearchParams()
@@ -95,7 +96,7 @@ export function AdminConsole() {
 			try {
 				const params = buildParams()
 				const suffix = params.toString() ? `?${params}` : ""
-				const response = await fetch(`/api/admin/tables/${encodeURIComponent(table)}${suffix}`, {
+				const response = await fetch(`${api}/tables/${encodeURIComponent(table)}${suffix}`, {
 					headers: { accept: "application/json" },
 				})
 				const body = await response.json()
@@ -121,7 +122,7 @@ export function AdminConsole() {
 	const options = result?.options || {}
 	const filtered = Boolean(applied || activeFilters.length)
 	const csvHref = table
-		? `/api/admin/tables/${encodeURIComponent(table)}.csv${csvParams.toString() ? `?${csvParams}` : ""}`
+		? `${api}/tables/${encodeURIComponent(table)}.csv${csvParams.toString() ? `?${csvParams}` : ""}`
 		: ""
 	const nouns = NOUNS[table]
 

@@ -71,6 +71,26 @@ Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `e
 
 Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on either list returns `403`. `npm test` covers these cases.
 
+## Discord
+
+Both parts are off until their secrets are set. Set them as Worker **secrets** (Workers & Pages > `hack-sw-website` > Settings > Variables and Secrets, type Secret), never in this repo.
+
+**Sign in with Discord at `/team/`.** `/admin/` keeps Cloudflare Access with email one-time PIN. `/team/` and `/api/team/*` show the same dashboard and data for Discord sign-in. They are not behind Access, so the Worker is the only gate there: no valid session means a sign-in page, never the dashboard. See `worker/discord-auth.js`.
+
+- `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`: from the Discord app's OAuth2 page. Redirect URI: `https://exehacks.excs.uk/auth/discord/callback`.
+- `SESSION_SECRET`: 32 or more random characters (`openssl rand -base64 48`). Changing it signs everyone out.
+- `DISCORD_ADMIN_IDS`: comma-separated Discord user IDs allowed in.
+- Optional role check: `DISCORD_GUILD_ID` (server ID) and `DISCORD_ADMIN_ROLE_IDS` (comma-separated role IDs). Anyone with one of those roles gets in.
+- Sessions last 8 hours. Removing an ID from `DISCORD_ADMIN_IDS` ends that person's session at once. Removing a role takes effect when the session expires.
+
+**Updates in a Discord channel.** `DISCORD_WEBHOOK_URL` (channel > Edit Channel > Integrations > Webhooks > New Webhook > Copy Webhook URL). The Worker posts:
+
+- "New hacker application. N / 150 so far." on each new application. Counts only, never names or answers.
+- "Blocking in <section>: <title>" when a tracker item is added as, or changed to, Blocking.
+- A daily digest from the cron in `wrangler.jsonc` (`0 9 * * *`, which is UTC: 9am London in winter, 10am in summer).
+
+Messages never ping anyone (`allowed_mentions` is empty).
+
 ## Getting Started
 
 First, run the development server:

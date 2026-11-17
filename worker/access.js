@@ -4,6 +4,8 @@
  * Certs come from https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs.
  */
 
+import { discordIdentity } from "./discord-auth.js"
+
 export const DEFAULT_ADMIN_EMAIL = "kazybekkhairulla@gmail.com"
 
 const certCache = { domain: "", exp: 0, keys: [] }
@@ -38,7 +40,19 @@ export function readAccessToken(request) {
 	return match ? decodeURIComponent(match[1]) : ""
 }
 
+/**
+ * Team check for /admin, /team and their APIs: a valid Cloudflare Access JWT for an
+ * allow-listed email, or a signed Discord session (see discord-auth.js).
+ */
 export async function authorizeAdmin(request, env) {
+	const access = await authorizeAccess(request, env)
+	if (access.ok) return access
+	const discord = await discordIdentity(request, env)
+	if (discord) return { ok: true, email: discord.email, via: "discord" }
+	return access
+}
+
+export async function authorizeAccess(request, env) {
 	const domain = accessTeamDomain(env)
 	const aud = typeof env?.ACCESS_AUD === "string" ? env.ACCESS_AUD.trim() : ""
 	if (!domain || !aud) {
@@ -60,7 +74,7 @@ export async function authorizeAdmin(request, env) {
 	if (!allowed.includes(identity.email)) {
 		return { ok: false, status: 403, error: "This account is not an admin." }
 	}
-	return { ok: true, email: identity.email }
+	return { ok: true, email: identity.email, via: "access" }
 }
 
 export async function verifyAccessJwt(token, { audience, issuer, keys }) {
