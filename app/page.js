@@ -613,27 +613,38 @@ export default function Home() {
 				<div className="wrap">
 					<div className="section-head reveal">
 						<span className="section-tag">Who runs this</span>
-						<h2 className="h-section">Meet the team.</h2>
-						<p className="lead">Two lead organisers, an academic organiser and an advisor.</p>
+						<h2 className="h-section">Core Team.</h2>
+						<p className="lead">The people running ExeHacks 2027. More roles coming soon.</p>
 					</div>
 
 					<div className="team-groups reveal d1">
 						<div className="team-group">
-							<span className="section-tag">Organisers</span>
 							<div className="team-grid">
 								<Profile
 									name="Kazybek Khairulla"
-									position="Lead Organiser"
+									position="Hackathon Director"
 									image="/team/kazybek.webp"
 								/>
 								<Profile
-									name="Piran Trevenna"
-									position="Lead Organiser"
+									name="Emre Acarsoy"
+									position="Tech Lead"
+									image="/team/emre.jpg"
 								/>
 								<Profile
-									name="Emre Acarsoy"
-									position="Academic Organiser"
-									image="/team/emre.jpg"
+									name="Matthew Hastie"
+									position="Tech (Judging & Website)"
+								/>
+								<Profile
+									name="Keira Heffernan"
+									position="Logistics"
+								/>
+								<Profile
+									name="Rose Burston"
+									position="Volunteer Coordinator"
+								/>
+								<Profile
+									name="Sam Carpenter"
+									position="Treasurer"
 								/>
 							</div>
 						</div>
