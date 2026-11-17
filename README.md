@@ -71,6 +71,20 @@ Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `e
 
 Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on either list returns `403`. `npm test` covers these cases.
 
+## Who sees what
+
+Two tiers, checked by the Worker on every page and API call:
+
+- **Team** (anyone signed in): the Command Centre tracker and aggregate counts only.
+- **Reviewers**: also Applications (decisions, notes, AI screener, email drafts, CSV), Check-in and All tables, which is everything with applicant personal data. Everyone else gets `403` on those pages and APIs, and the nav hides the links.
+
+Reviewer lists are Worker secrets:
+
+- `REVIEWER_EMAILS` (email sign-in): comma-separated. `kazybekkhairulla@gmail.com` is always a reviewer. Unset means only Kazy.
+- `DISCORD_REVIEWER_IDS` and optional `DISCORD_REVIEWER_ROLE_IDS` (Discord sign-in, role needs `DISCORD_GUILD_ID`). Unset means no Discord reviewers.
+
+A reviewer can always sign in, even if they are not on the team lists. Discord channel posts stay counts only for everyone.
+
 ## Applicant review
 
 `/admin/applications/` (and `/team/applications/`) lists every hacker application with search, filters (status, AI suggestion, experience, level of study, team, known connection), sorting and a CSV download. Pick one to see the full application and:

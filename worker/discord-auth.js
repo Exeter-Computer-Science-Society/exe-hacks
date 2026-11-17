@@ -11,11 +11,15 @@
  *
  * A Discord user gets in if their user ID is in DISCORD_ADMIN_IDS, or they have
  * one of DISCORD_ADMIN_ROLE_IDS in the server DISCORD_GUILD_ID.
+ * They are a reviewer (applicant data) only if their ID is in DISCORD_REVIEWER_IDS,
+ * or they have one of DISCORD_REVIEWER_ROLE_IDS. Reviewers can always get in.
+ * Neither set means no Discord reviewers (fail closed).
  *
  * Worker secrets (never in this repo):
  *   DISCORD_CLIENT_ID, DISCORD_CLIENT_SECRET, SESSION_SECRET (32+ random chars)
  *   DISCORD_ADMIN_IDS (comma-separated user IDs, optional)
  *   DISCORD_GUILD_ID + DISCORD_ADMIN_ROLE_IDS (optional role check)
+ *   DISCORD_REVIEWER_IDS, DISCORD_REVIEWER_ROLE_IDS (optional review group)
  * Missing client ID, client secret or SESSION_SECRET turns Discord sign-in off
  * and every Discord session is refused.
  */
@@ -40,10 +44,12 @@ export function discordConfig(env) {
 	const sessionSecret = String(env?.SESSION_SECRET || "")
 	const guildId = String(env?.DISCORD_GUILD_ID || "").trim()
 	const roleIds = listIds(env?.DISCORD_ADMIN_ROLE_IDS)
-	const userIds = listIds(env?.DISCORD_ADMIN_IDS)
-	const roleCheck = SNOWFLAKE.test(guildId) && roleIds.length > 0
+	const reviewerRoleIds = listIds(env?.DISCORD_REVIEWER_ROLE_IDS)
+	const reviewerIds = listIds(env?.DISCORD_REVIEWER_IDS)
+	const userIds = [...new Set([...listIds(env?.DISCORD_ADMIN_IDS), ...reviewerIds])]
+	const roleCheck = SNOWFLAKE.test(guildId) && (roleIds.length > 0 || reviewerRoleIds.length > 0)
 	const enabled = Boolean(clientId && clientSecret && sessionSecret.length >= 32 && (userIds.length || roleCheck))
-	return { enabled, clientId, clientSecret, sessionSecret, guildId, roleIds, userIds, roleCheck }
+	return { enabled, clientId, clientSecret, sessionSecret, guildId, roleIds, reviewerRoleIds, reviewerIds, userIds, roleCheck }
 }
 
 export function safeNext(value) {
@@ -115,12 +121,14 @@ export async function finishLogin(request, env) {
 		if (!SNOWFLAKE.test(id)) return text(401, "Could not read your Discord account. Try again.", { "set-cookie": clear })
 
 		let via = config.userIds.includes(id) ? "id" : ""
-		if (!via && config.roleCheck) {
+		let reviewerRole = false
+		if (config.roleCheck) {
 			const memberResponse = await fetch(`${DISCORD}/api/v10/users/@me/guilds/${config.guildId}/member`, { headers: auth })
 			if (memberResponse.ok) {
 				const member = await memberResponse.json()
 				const roles = Array.isArray(member?.roles) ? member.roles.map(String) : []
-				if (roles.some((role) => config.roleIds.includes(role))) via = "role"
+				reviewerRole = roles.some((role) => config.reviewerRoleIds.includes(role))
+				if (!via && (reviewerRole || roles.some((role) => config.roleIds.includes(role)))) via = "role"
 			}
 		}
 		if (!via) {
@@ -128,7 +136,7 @@ export async function finishLogin(request, env) {
 		}
 
 		const name = String(user.username || "").replace(/[^A-Za-z0-9_.]/g, "").slice(0, 40) || id
-		const session = await sign({ sub: id, name, via, exp: now() + SESSION_SECONDS }, config.sessionSecret)
+		const session = await sign({ sub: id, name, via, rr: reviewerRole, exp: now() + SESSION_SECONDS }, config.sessionSecret)
 		const headers = new Headers({ location: pending.next, "cache-control": "no-store" })
 		headers.append("set-cookie", clear)
 		headers.append("set-cookie", cookie(SESSION_COOKIE, session, SESSION_SECONDS))
@@ -159,7 +167,9 @@ export async function discordIdentity(request, env) {
 	if (session.via === "id" && !config.userIds.includes(session.sub)) return null
 	if (session.via === "role" && !config.roleCheck) return null
 	if (session.via !== "id" && session.via !== "role") return null
-	return { email: `discord:${session.name}`, discordId: session.sub }
+	// ID-based review access is checked live; role-based lasts until the session expires.
+	const reviewer = config.reviewerIds.includes(session.sub) || (session.rr === true && config.roleCheck && config.reviewerRoleIds.length > 0)
+	return { email: `discord:${session.name}`, discordId: session.sub, reviewer }
 }
 
 export async function sign(payload, secret) {

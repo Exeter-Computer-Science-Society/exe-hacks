@@ -104,7 +104,7 @@ export function daysUntil(iso, now = Date.now()) {
 	return Math.max(0, Math.ceil((target - now) / 86_400_000))
 }
 
-export async function readOverview(db, { applicationsOpen, email }) {
+export async function readOverview(db, { applicationsOpen, email, reviewer = false }) {
 	const [interest, team, hackers, items] = await Promise.all([
 		countTable(db, "interest"),
 		countTable(db, "team_applications"),
@@ -113,6 +113,7 @@ export async function readOverview(db, { applicationsOpen, email }) {
 	])
 	return {
 		viewer: email,
+		reviewer: Boolean(reviewer),
 		generatedAt: new Date().toISOString(),
 		event: { ...EVENT, daysToGo: daysUntil(EVENT.startsAt) },
 		applicationsOpen,

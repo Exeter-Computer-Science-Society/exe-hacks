@@ -56,7 +56,7 @@ async function setup(overrides = {}) {
 		DISCORD_CLIENT_ID: "111111111111111111",
 		DISCORD_CLIENT_SECRET: "x",
 		SESSION_SECRET: SECRET,
-		DISCORD_ADMIN_IDS: "222222222222222222",
+		DISCORD_REVIEWER_IDS: "222222222222222222",
 		...overrides,
 	}
 	const cookie = `${SESSION_COOKIE}=${session}`

@@ -41,16 +41,34 @@ export function readAccessToken(request) {
 }
 
 /**
- * Team check for /admin, /team and their APIs: a valid Cloudflare Access JWT for an
+ * Reviewers see applicant personal data. Kazy's email is always one. REVIEWER_EMAILS
+ * (Worker secret, comma-separated) adds more. Unset means only Kazy (fail closed).
+ */
+export function reviewerEmails(env) {
+	const extra = typeof env?.REVIEWER_EMAILS === "string" ? env.REVIEWER_EMAILS : ""
+	const emails = [DEFAULT_ADMIN_EMAIL, ...extra.split(/[,\s]+/)]
+		.map((item) => item.trim().toLowerCase())
+		.filter(Boolean)
+	return [...new Set(emails)]
+}
+
+/**
+ * Who is asking, for /admin, /team and their APIs: a valid Cloudflare Access JWT for an
  * allow-listed email, or a signed Discord session (see discord-auth.js).
+ * Returns { ok, email, via, reviewer }. Two tiers:
+ *   team      Command Centre tracker and aggregate counts only
+ *   reviewer  also applications, AI screener, notes, decisions, email drafts, CSV,
+ *             All tables and check-in (anything with applicant personal data)
  */
 export async function authorizeAdmin(request, env) {
 	const access = await authorizeAccess(request, env)
 	if (access.ok) return access
 	const discord = await discordIdentity(request, env)
-	if (discord) return { ok: true, email: discord.email, via: "discord" }
+	if (discord) return { ok: true, email: discord.email, via: "discord", reviewer: discord.reviewer }
 	return access
 }
+
+export const REVIEWER_ONLY = { ok: false, status: 403, error: "Only the review group can see applicant data." }
 
 export async function authorizeAccess(request, env) {
 	const domain = accessTeamDomain(env)
@@ -70,11 +88,12 @@ export async function authorizeAccess(request, env) {
 	})
 	if (!identity?.email) return { ok: false, status: 401, error: "Sign in with Cloudflare Access." }
 
-	const allowed = adminAllowList(env)
-	if (!allowed.includes(identity.email)) {
+	const reviewers = reviewerEmails(env)
+	const reviewer = reviewers.includes(identity.email)
+	if (!reviewer && !adminAllowList(env).includes(identity.email)) {
 		return { ok: false, status: 403, error: "This account is not an admin." }
 	}
-	return { ok: true, email: identity.email, via: "access" }
+	return { ok: true, email: identity.email, via: "access", reviewer }
 }
 
 export async function verifyAccessJwt(token, { audience, issuer, keys }) {

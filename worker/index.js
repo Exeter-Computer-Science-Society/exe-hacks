@@ -14,12 +14,16 @@
  * /admin/signups is the table console. /team and /api/team/* serve the same pages
  * and APIs for Discord sign-in (discord-auth.js). They are not behind Cloudflare
  * Access, so the Worker check is the only gate there.
+ * Two tiers: everyone on the team gets the Command Centre (tracker and aggregate counts).
+ * Only reviewers (access.js reviewerEmails, discord-auth.js DISCORD_REVIEWER_*) get routes
+ * with applicant personal data: /api/admin/tables*, /api/admin/applications*,
+ * /api/admin/email-templates* and the signups, applications and checkin pages.
  * /api/admin/applications* and /api/admin/email-templates* are applicant review,
  * the AI screener (suggestions only) and check-in (review.js, screener.js).
  * Discord webhook updates (notify.js) run after the response and on the daily cron.
  */
 
-import { authorizeAdmin } from "./access.js"
+import { authorizeAdmin, REVIEWER_ONLY } from "./access.js"
 import { listTables, readTable, readTableCsv } from "./admin.js"
 import { applicationsOpen, insertApplication, validateApplication } from "./apply.js"
 import { createItem, deleteItem, parseItemId, readOverview, updateItem, validateItem } from "./command-centre.js"
@@ -103,17 +107,26 @@ const worker = {
 			return applicationsApi(request, env, path)
 		}
 
+		if (path === "/api/admin/me") {
+			if (request.method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
+			const auth = await authorizeAdmin(request, env)
+			if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+			return json({ ok: true, email: auth.email, reviewer: Boolean(auth.reviewer) })
+		}
+
 		if (path.startsWith("/api/")) return json({ ok: false, error: "Not found." }, 404)
 
 		if (path === "/admin" || path.startsWith("/admin/")) {
 			const auth = await authorizeAdmin(request, env)
 			if (!auth.ok) return html(auth.status, auth.error)
+			if (reviewerPage(path) && !auth.reviewer) return html(REVIEWER_ONLY.status, REVIEWER_ONLY.error)
 			return env.ASSETS.fetch(request)
 		}
 
 		if (path === "/team" || path.startsWith("/team/")) {
 			const auth = await authorizeAdmin(request, env)
 			if (!auth.ok) return signInPage(auth.status, discordConfig(env).enabled, path)
+			if (reviewerPage(path) && !auth.reviewer) return html(REVIEWER_ONLY.status, REVIEWER_ONLY.error)
 			return env.ASSETS.fetch(request)
 		}
 
@@ -330,10 +343,16 @@ function consentGiven(value) {
 	return normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on"
 }
 
+// Pages that show applicant personal data. Reviewers only.
+function reviewerPage(path) {
+	return /^\/(admin|team)\/(signups|applications|checkin)(\/|$)/.test(path)
+}
+
 async function adminApi(request, env, path) {
 	if (request.method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
 	const auth = await authorizeAdmin(request, env)
 	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+	if (!auth.reviewer) return json({ ok: false, error: REVIEWER_ONLY.error }, REVIEWER_ONLY.status)
 
 	if (path === "/api/admin/tables") {
 		try {
@@ -406,7 +425,7 @@ async function commandCentreApi(request, env, path, later = () => {}) {
 	try {
 		if (path === "/api/admin/overview") {
 			if (method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
-			const overview = await readOverview(env.DB, { applicationsOpen: applicationsOpen(env), email: auth.email })
+			const overview = await readOverview(env.DB, { applicationsOpen: applicationsOpen(env), email: auth.email, reviewer: auth.reviewer })
 			return json({ ok: true, ...overview })
 		}
 
@@ -454,6 +473,7 @@ async function applicationsApi(request, env, path) {
 	if (writing && !sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
 	const auth = await authorizeAdmin(request, env)
 	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+	if (!auth.reviewer) return json({ ok: false, error: REVIEWER_ONLY.error }, REVIEWER_ONLY.status)
 	try {
 		return await reviewApi(request, env, path, { auth, json, readJson: readItemBody })
 	} catch (error) {
