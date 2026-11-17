@@ -151,9 +151,9 @@ export default function PastHackathon() {
 					<div className="hero-cta">
 						<Link
 							className="btn btn-primary"
-							href="/interested/"
+							href="/apply/"
 						>
-							Register your interest
+							Apply to hack
 						</Link>
 					</div>
 				</div>

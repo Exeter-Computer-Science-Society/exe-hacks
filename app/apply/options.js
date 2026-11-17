@@ -6,8 +6,6 @@
  * https://guide.mlh.com/general-information/managing-registrations/registrations
  */
 
-export const OPENS_LABEL = "Mon 9 Nov 2026"
-
 // ExeHacks is 18+ only (age on Sat 6 Feb 2027).
 export const MIN_AGE = 18
 export const AGE_MESSAGE = "ExeHacks is open to people aged 18+ on 6 Feb 2027."
@@ -108,9 +106,46 @@ export const MLH_LINKS = {
 
 export const GRADUATION_YEARS = Array.from({ length: 9 }, (_, i) => String(2026 + i))
 
-// Countdown target on the closed /apply page: Mon 9 Nov 2026, 12:00 UK time.
-// The UK is on GMT in November, so 12:00 London = 12:00 UTC.
-// This only drives the clock. The form opens when the Worker var APPLICATIONS_OPEN is "true".
-export const OPENS_AT_ISO = "2026-11-09T12:00:00Z"
-export const OPENS_AT = Date.parse(OPENS_AT_ISO)
-export const OPENS_TIME_LABEL = "12:00 UK time"
+const GITHUB_USER = /^[A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?$/
+
+/**
+ * Accept a GitHub username or profile/repo URL and return a canonical
+ * https://github.com/{user} profile URL. Empty input is allowed (optional field).
+ */
+export function normalizeGithub(input) {
+	const raw = String(input || "").trim()
+	if (!raw) return { ok: true, value: "" }
+	let value = raw.replace(/^@/, "")
+	value = value.replace(/^https?:\/\//i, "")
+	value = value.replace(/^www\./i, "")
+	let username = value
+	if (/^github\.com\//i.test(value)) {
+		username = value.replace(/^github\.com\//i, "").split(/[/?#]/)[0]
+	} else if (value.includes("/") || value.includes(".")) {
+		return { ok: false, value: "" }
+	}
+	if (!GITHUB_USER.test(username)) return { ok: false, value: "" }
+	return { ok: true, value: `https://github.com/${username}` }
+}
+
+/**
+ * Accept a LinkedIn profile URL, with or without a scheme, and return a
+ * canonical https://www.linkedin.com/... URL. Empty input is allowed.
+ */
+export function normalizeLinkedin(input) {
+	const raw = String(input || "").trim()
+	if (!raw) return { ok: true, value: "" }
+	const withScheme = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`
+	let url
+	try {
+		url = new URL(withScheme)
+	} catch {
+		return { ok: false, value: "" }
+	}
+	const host = url.hostname.toLowerCase()
+	const isLinkedin = host === "linkedin.com" || host === "www.linkedin.com" || /^[a-z]{2,3}\.linkedin\.com$/.test(host)
+	if (!isLinkedin) return { ok: false, value: "" }
+	const path = url.pathname.replace(/\/+$/, "")
+	if (!path || path === "/") return { ok: false, value: "" }
+	return { ok: true, value: `https://www.linkedin.com${path}` }
+}

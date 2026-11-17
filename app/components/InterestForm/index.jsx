@@ -1,5 +1,6 @@
 "use client"
 
+import Link from "next/link"
 import { useState } from "react"
 
 import { CONTACT_EMAIL } from "../../config"
@@ -57,7 +58,10 @@ export function InterestForm() {
 		return (
 			<div className="sponsor-form sent" role="status">
 				<p className="mono sponsor-form-kicker">You&apos;re on the list</p>
-				<p>Thanks. We&apos;ll email you as soon as applications open (Mon 9 Nov 2026).</p>
+				<p>
+					Thanks. We&apos;ll email you with updates about ExeHacks 2027. If you haven&apos;t applied yet, you can{" "}
+					<Link href="/apply/">apply for a place now</Link>.
+				</p>
 				<button
 					type="button"
 					className="btn btn-ghost"

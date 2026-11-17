@@ -20,7 +20,8 @@ export function Footer() {
 
 					<div className="foot-col">
 						<h5>Event</h5>
-						<Link href="/interested/">Register your interest</Link>
+						<Link href="/apply/">Apply to hack</Link>
+						<Link href="/interested/">Get updates</Link>
 						<Link href="/#about">About</Link>
 						<Link href="/#events">Events</Link>
 						<Link href="/#team">Team</Link>
