@@ -4,17 +4,25 @@
  * Certs come from https://<ACCESS_TEAM_DOMAIN>/cdn-cgi/access/certs.
  */
 
+import { discordIdentity } from "./discord-auth.js"
+
 export const DEFAULT_ADMIN_EMAIL = "kazybekkhairulla@gmail.com"
 
 const certCache = { domain: "", exp: 0, keys: [] }
 
+/**
+ * ADMIN_EMAILS (var in wrangler.jsonc) plus ADMIN_TEAM_EMAILS (a Worker secret,
+ * so teammates' addresses stay out of this public repo). Both are comma-separated.
+ */
 export function adminAllowList(env) {
 	const configured = typeof env?.ADMIN_EMAILS === "string" ? env.ADMIN_EMAILS.trim() : ""
-	const source = configured || DEFAULT_ADMIN_EMAIL
-	return source
-		.split(",")
+	const team = typeof env?.ADMIN_TEAM_EMAILS === "string" ? env.ADMIN_TEAM_EMAILS.trim() : ""
+	const source = [configured || DEFAULT_ADMIN_EMAIL, team].filter(Boolean).join(",")
+	const emails = source
+		.split(/[,\s]+/)
 		.map((item) => item.trim().toLowerCase())
 		.filter(Boolean)
+	return [...new Set(emails)]
 }
 
 export function accessTeamDomain(env) {
@@ -32,7 +40,37 @@ export function readAccessToken(request) {
 	return match ? decodeURIComponent(match[1]) : ""
 }
 
+/**
+ * Reviewers see applicant personal data. Kazy's email is always one. REVIEWER_EMAILS
+ * (Worker secret, comma-separated) adds more. Unset means only Kazy (fail closed).
+ */
+export function reviewerEmails(env) {
+	const extra = typeof env?.REVIEWER_EMAILS === "string" ? env.REVIEWER_EMAILS : ""
+	const emails = [DEFAULT_ADMIN_EMAIL, ...extra.split(/[,\s]+/)]
+		.map((item) => item.trim().toLowerCase())
+		.filter(Boolean)
+	return [...new Set(emails)]
+}
+
+/**
+ * Who is asking, for /admin, /team and their APIs: a valid Cloudflare Access JWT for an
+ * allow-listed email, or a signed Discord session (see discord-auth.js).
+ * Returns { ok, email, via, reviewer }. Two tiers:
+ *   team      Command Centre tracker and aggregate counts only
+ *   reviewer  also applications, AI screener, notes, decisions, email drafts, CSV,
+ *             All tables and check-in (anything with applicant personal data)
+ */
 export async function authorizeAdmin(request, env) {
+	const access = await authorizeAccess(request, env)
+	if (access.ok) return access
+	const discord = await discordIdentity(request, env)
+	if (discord) return { ok: true, email: discord.email, via: "discord", reviewer: discord.reviewer }
+	return access
+}
+
+export const REVIEWER_ONLY = { ok: false, status: 403, error: "Only the review group can see applicant data." }
+
+export async function authorizeAccess(request, env) {
 	const domain = accessTeamDomain(env)
 	const aud = typeof env?.ACCESS_AUD === "string" ? env.ACCESS_AUD.trim() : ""
 	if (!domain || !aud) {
@@ -50,11 +88,12 @@ export async function authorizeAdmin(request, env) {
 	})
 	if (!identity?.email) return { ok: false, status: 401, error: "Sign in with Cloudflare Access." }
 
-	const allowed = adminAllowList(env)
-	if (!allowed.includes(identity.email)) {
+	const reviewers = reviewerEmails(env)
+	const reviewer = reviewers.includes(identity.email)
+	if (!reviewer && !adminAllowList(env).includes(identity.email)) {
 		return { ok: false, status: 403, error: "This account is not an admin." }
 	}
-	return { ok: true, email: identity.email }
+	return { ok: true, email: identity.email, via: "access", reviewer }
 }
 
 export async function verifyAccessJwt(token, { audience, issuer, keys }) {

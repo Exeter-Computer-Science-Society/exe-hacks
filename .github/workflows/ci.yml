@@ -1,7 +1,7 @@
 name: CI
 
-# Checks that the static export installs, passes the dependency audit and
-# builds. It does not deploy anything: the live site (https://exehacks.excs.uk)
+# Checks that the static export installs, passes the dependency audit, the
+# Worker tests (npm test) and builds. It does not deploy anything: the live site (https://exehacks.excs.uk)
 # is the Cloudflare Worker `hack-sw-website`, deployed on push to main by
 # the "Deploy to Cloudflare (EXCS)" workflow in cloudflare.yml.
 # GitHub Pages is disabled on this repo.
@@ -35,6 +35,9 @@ jobs:
 
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
+
+      - name: Worker tests
+        run: npm test
 
       - name: Build static export
         run: npm run build

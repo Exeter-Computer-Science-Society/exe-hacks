@@ -1,10 +1,13 @@
-import { AdminConsole } from "../components/AdminConsole"
+import { AdminNav } from "../components/AdminNav"
+import { CommandCentre } from "../components/CommandCentre"
 
 export const metadata = {
-	title: "Admin: ExeHacks",
+	title: "Command Centre: ExeHacks admin",
 	robots: { index: false, follow: false },
 }
 
+// Static shell only. Everything on this page loads from /api/admin/overview after
+// Cloudflare Access and the Worker allow-list have checked who is asking.
 export default function AdminPage() {
 	return (
 		<div className="w-full h-fit">
@@ -12,13 +15,13 @@ export default function AdminPage() {
 				<div className="wrap sponsor-page">
 					<div className="section-head">
 						<span className="section-tag">ExeHacks admin</span>
-						<h1 className="h-section">Signups</h1>
+						<h1 className="h-section">Command Centre</h1>
 						<p className="lead">
-							Interest registrations, core-team applications (team_applications) and hacker applications (hacker_applications), newest first. Pick a table to view or
-							download it as CSV. Other D1 tables show up here when they exist.
+							Everything for ExeHacks 2027 in one place. Counts are live from the site database. Anyone on the team can add, tick off or edit items below.
 						</p>
 					</div>
-					<AdminConsole />
+					<AdminNav base="/admin" current="" />
+					<CommandCentre />
 				</div>
 			</section>
 		</div>

@@ -9,12 +9,27 @@
  * POST /api/interest stores a row in D1. A repeated email is still 200, so the
  * response does not say whether that address was already on the list.
  * GET /api/interest/export.csv needs Authorization: Bearer $EXPORT_TOKEN.
- * /admin and /api/admin/* need a Cloudflare Access JWT for an ADMIN_EMAILS address.
+ * /admin and /api/admin/* need a Cloudflare Access JWT for an address on
+ * ADMIN_EMAILS or ADMIN_TEAM_EMAILS. /admin is the Command Centre (command-centre.js);
+ * /admin/signups is the table console. /team and /api/team/* serve the same pages
+ * and APIs for Discord sign-in (discord-auth.js). They are not behind Cloudflare
+ * Access, so the Worker check is the only gate there.
+ * Two tiers: everyone on the team gets the Command Centre (tracker and aggregate counts).
+ * Only reviewers (access.js reviewerEmails, discord-auth.js DISCORD_REVIEWER_*) get routes
+ * with applicant personal data: /api/admin/tables*, /api/admin/applications*,
+ * /api/admin/email-templates* and the signups, applications and checkin pages.
+ * /api/admin/applications* and /api/admin/email-templates* are applicant review,
+ * the AI screener (suggestions only) and check-in (review.js, screener.js).
+ * Discord webhook updates (notify.js) run after the response and on the daily cron.
  */
 
-import { authorizeAdmin } from "./access.js"
+import { authorizeAdmin, REVIEWER_ONLY } from "./access.js"
 import { listTables, readTable, readTableCsv } from "./admin.js"
 import { applicationsOpen, insertApplication, validateApplication } from "./apply.js"
+import { createItem, deleteItem, parseItemId, readOverview, updateItem, validateItem } from "./command-centre.js"
+import { discordConfig, finishLogin, logout, startLogin } from "./discord-auth.js"
+import { dailyDigest, notifyBlocking, notifyNewApplication } from "./notify.js"
+import { reviewApi } from "./review.js"
 import { toCsv } from "./csv.js"
 
 const LIMITS = {
@@ -27,9 +42,24 @@ const LIMITS = {
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 const worker = {
-	async fetch(request, env) {
+	async scheduled(controller, env, ctx) {
+		ctx.waitUntil(dailyDigest(env))
+	},
+
+	async fetch(request, env, ctx) {
 		const url = new URL(request.url)
-		const path = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, "") : url.pathname
+		let path = url.pathname.length > 1 ? url.pathname.replace(/\/+$/, "") : url.pathname
+		const later = (promise) => {
+			const guarded = Promise.resolve(promise).catch((error) => console.error("background task failed", error instanceof Error ? error.name : "error"))
+			if (ctx && typeof ctx.waitUntil === "function") ctx.waitUntil(guarded)
+		}
+
+		if (path === "/auth/discord/login") return request.method === "GET" ? startLogin(request, env) : json({ ok: false, error: "Method not allowed." }, 405)
+		if (path === "/auth/discord/callback") return request.method === "GET" ? finishLogin(request, env) : json({ ok: false, error: "Method not allowed." }, 405)
+		if (path === "/auth/logout") return logout()
+
+		// /api/team/* is the same API as /api/admin/* for people who signed in with Discord.
+		if (path === "/api/team" || path.startsWith("/api/team/")) path = `/api/admin${path.slice("/api/team".length)}`
 
 		if (path === "/api/interest") {
 			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
@@ -51,7 +81,7 @@ const worker = {
 
 		if (path === "/api/apply") {
 			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
-			return postApply(request, env)
+			return postApply(request, env, later)
 		}
 
 		if (path === "/api/interest/export.csv") {
@@ -63,11 +93,40 @@ const worker = {
 			return adminApi(request, env, path)
 		}
 
+		if (path === "/api/admin/overview" || path === "/api/admin/items" || path.startsWith("/api/admin/items/")) {
+			return commandCentreApi(request, env, path, later)
+		}
+
+		if (
+			path === "/api/admin/applications" ||
+			path === "/api/admin/applications.csv" ||
+			path.startsWith("/api/admin/applications/") ||
+			path === "/api/admin/email-templates" ||
+			path.startsWith("/api/admin/email-templates/")
+		) {
+			return applicationsApi(request, env, path)
+		}
+
+		if (path === "/api/admin/me") {
+			if (request.method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
+			const auth = await authorizeAdmin(request, env)
+			if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+			return json({ ok: true, email: auth.email, reviewer: Boolean(auth.reviewer) })
+		}
+
 		if (path.startsWith("/api/")) return json({ ok: false, error: "Not found." }, 404)
 
 		if (path === "/admin" || path.startsWith("/admin/")) {
 			const auth = await authorizeAdmin(request, env)
 			if (!auth.ok) return html(auth.status, auth.error)
+			if (reviewerPage(path) && !auth.reviewer) return html(REVIEWER_ONLY.status, REVIEWER_ONLY.error)
+			return env.ASSETS.fetch(request)
+		}
+
+		if (path === "/team" || path.startsWith("/team/")) {
+			const auth = await authorizeAdmin(request, env)
+			if (!auth.ok) return signInPage(auth.status, discordConfig(env).enabled, path)
+			if (reviewerPage(path) && !auth.reviewer) return html(REVIEWER_ONLY.status, REVIEWER_ONLY.error)
 			return env.ASSETS.fetch(request)
 		}
 
@@ -120,7 +179,7 @@ async function postInterest(request, env) {
 	return json({ ok: true })
 }
 
-async function postApply(request, env) {
+async function postApply(request, env, later = () => {}) {
 	if (!sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
 	if (!applicationsOpen(env)) {
 		return json({ ok: false, closed: true, error: "Applications aren't open yet. Register your interest and we'll email you when they open." }, 403)
@@ -153,6 +212,7 @@ async function postApply(request, env) {
 		console.error("hacker application insert failed", error instanceof Error ? error.name : "error")
 		return json({ ok: false, error: "We couldn't save that. Try again in a moment." }, 500)
 	}
+	later(notifyNewApplication(env))
 	return json({ ok: true })
 }
 
@@ -283,10 +343,16 @@ function consentGiven(value) {
 	return normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on"
 }
 
+// Pages that show applicant personal data. Reviewers only.
+function reviewerPage(path) {
+	return /^\/(admin|team)\/(signups|applications|checkin)(\/|$)/.test(path)
+}
+
 async function adminApi(request, env, path) {
 	if (request.method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
 	const auth = await authorizeAdmin(request, env)
 	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+	if (!auth.reviewer) return json({ ok: false, error: REVIEWER_ONLY.error }, REVIEWER_ONLY.status)
 
 	if (path === "/api/admin/tables") {
 		try {
@@ -348,10 +414,105 @@ async function adminApi(request, env, path) {
 	}
 }
 
+async function commandCentreApi(request, env, path, later = () => {}) {
+	const method = request.method
+	const writing = method === "POST" || method === "PATCH" || method === "DELETE"
+	if (writing && !sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
+
+	const auth = await authorizeAdmin(request, env)
+	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+
+	try {
+		if (path === "/api/admin/overview") {
+			if (method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
+			const overview = await readOverview(env.DB, { applicationsOpen: applicationsOpen(env), email: auth.email, reviewer: auth.reviewer })
+			return json({ ok: true, ...overview })
+		}
+
+		if (path === "/api/admin/items") {
+			if (method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
+			const body = await readItemBody(request)
+			if (!body.ok) return json({ ok: false, error: body.error }, body.status)
+			const checked = validateItem(body.data)
+			if (!checked.ok) return json({ ok: false, error: checked.error }, 400)
+			const created = await createItem(env.DB, checked.item, auth.email)
+			if (!created.ok) return json({ ok: false, error: created.error }, created.status)
+			if (created.item?.tone === "danger") later(notifyBlocking(env, created.item, auth.email))
+			return json({ ok: true, item: created.item }, 201)
+		}
+
+		const id = parseItemId(path)
+		if (!id) return json({ ok: false, error: "Not found." }, 404)
+		if (method === "PATCH") {
+			const body = await readItemBody(request)
+			if (!body.ok) return json({ ok: false, error: body.error }, body.status)
+			const checked = validateItem(body.data, { partial: true })
+			if (!checked.ok) return json({ ok: false, error: checked.error }, 400)
+			const updated = await updateItem(env.DB, id, checked.item, auth.email)
+			if (!updated.ok) return json({ ok: false, error: updated.error }, updated.status)
+			if (updated.item?.tone === "danger" && !updated.item.done && updated.previousTone !== "danger") {
+				later(notifyBlocking(env, updated.item, auth.email))
+			}
+			return json({ ok: true, item: updated.item })
+		}
+		if (method === "DELETE") {
+			const removed = await deleteItem(env.DB, id)
+			if (!removed.ok) return json({ ok: false, error: removed.error }, removed.status)
+			return json({ ok: true })
+		}
+		return json({ ok: false, error: "Method not allowed." }, 405)
+	} catch (error) {
+		console.error("command centre failed", error instanceof Error ? error.name : "error")
+		return json({ ok: false, error: "Could not reach the tracker. Try again in a moment." }, 500)
+	}
+}
+
+async function applicationsApi(request, env, path) {
+	const method = request.method
+	const writing = method !== "GET" && method !== "HEAD"
+	if (writing && !sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
+	const auth = await authorizeAdmin(request, env)
+	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+	if (!auth.reviewer) return json({ ok: false, error: REVIEWER_ONLY.error }, REVIEWER_ONLY.status)
+	try {
+		return await reviewApi(request, env, path, { auth, json, readJson: readItemBody })
+	} catch (error) {
+		console.error("applications api failed", error instanceof Error ? error.name : "error")
+		return json({ ok: false, error: "Could not reach the applications. Try again in a moment." }, 500)
+	}
+}
+
+async function readItemBody(request) {
+	const length = Number(request.headers.get("content-length") || 0)
+	if (length > 10_000) return { ok: false, status: 413, error: "That item is too long." }
+	const type = (request.headers.get("content-type") || "").toLowerCase()
+	if (!type.includes("application/json")) return { ok: false, status: 415, error: "Send JSON." }
+	const parsed = await readBody(request)
+	if (parsed.error) return { ok: false, status: 400, error: "Check the item and try again." }
+	return { ok: true, data: parsed.data }
+}
+
 function clampInt(value, fallback, min, max) {
+	// Number(null) is 0, so a missing parameter must fall back before parsing.
+	if (value === null || value === undefined || value === "") return fallback
 	const parsed = Number(value)
 	if (!Number.isInteger(parsed)) return fallback
 	return Math.min(max, Math.max(min, parsed))
+}
+
+function signInPage(status, discordEnabled, path) {
+	const next = encodeURIComponent(`${path}/`)
+	const discord = discordEnabled
+		? `<p><a class="btn" href="/auth/discord/login?next=${next}">Sign in with Discord</a></p>`
+		: `<p>Discord sign-in is not set up yet.</p>`
+	const note = status === 403 ? "<p>You are signed in, but this account is not on the ExeHacks team list.</p>" : ""
+	const body = `<!doctype html><html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Sign in: ExeHacks team</title>
+<style>body{background:#08080c;color:#ecedf3;font-family:ui-monospace,monospace;display:grid;place-items:center;min-height:100vh;margin:0}main{max-width:28rem;padding:2rem}h1{font-size:1.4rem}a{color:#05ff61}.btn{display:inline-block;padding:.8rem 1.2rem;border:1px solid #05ff61;text-decoration:none}</style>
+<main><h1>ExeHacks team sign-in</h1>${note}${discord}<p><a href="/admin/">Sign in with email instead</a></p></main></html>`
+	return new Response(body, {
+		status,
+		headers: { "content-type": "text/html; charset=utf-8", "cache-control": "private, no-store", "x-content-type-options": "nosniff" },
+	})
 }
 
 function html(status, message) {

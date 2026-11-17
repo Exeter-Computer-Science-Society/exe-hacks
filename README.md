@@ -52,15 +52,68 @@ npm run build && npx wrangler dev --var APPLICATIONS_OPEN:true
 
 ## Admin
 
-`/admin/` lists every D1 table (newest first, with search and a CSV download). `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
+`/admin/` is the ExeHacks 2027 Command Centre: live counts from D1 (interest sign-ups, core-team applications, hacker applications by status, days to go) plus a shared tracker (next actions, venue, MLH, judges, sponsors, core team, website, inbox, links). Anyone on the allow-list can add, edit, tick off or remove tracker items. Each edit records who made it.
 
-Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`, and allow `kazybekkhairulla@gmail.com`. The Worker still checks the `Cf-Access-Jwt-Assertion` JWT:
+- Tracker items live in the D1 table `command_centre_items` (migration `0005_command_centre.sql`), not in this repo, because the repo is public and items name real people and contacts.
+- Section names, order and the event facts (dates, capacity) live in `app/admin/tracker.js`. Change them with a PR.
+- The overview API returns counts only. Applicant names and emails are only on `/admin/signups/`.
 
-- `ACCESS_TEAM_DOMAIN` — team hostname, with or without `https://`
-- `ACCESS_AUD` — the Access application's audience (AUD) tag
-- `ADMIN_EMAILS` — optional comma-separated allow-list. The default in `wrangler.jsonc` is `kazybekkhairulla@gmail.com`. A non-empty value replaces that default.
+`/admin/signups/` ("All tables") lists every D1 table (newest first, with search and a CSV download). `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
 
-Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on the list returns `403`.
+Admin API: `GET /api/admin/overview`, `POST /api/admin/items`, `PATCH /api/admin/items/<id>`, `DELETE /api/admin/items/<id>`. Writes must come from the site's own origin.
+
+Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`, and allow each team member's email. The Worker still checks the `Cf-Access-Jwt-Assertion` JWT, so the pages stay closed even if Access is misconfigured:
+
+- `ACCESS_TEAM_DOMAIN`: team hostname, with or without `https://`
+- `ACCESS_AUD`: the Access application's audience (AUD) tag
+- `ADMIN_EMAILS`: comma-separated allow-list in `wrangler.jsonc`. Defaults to `kazybekkhairulla@gmail.com`.
+- `ADMIN_TEAM_EMAILS`: optional Worker secret, comma-separated. Added to `ADMIN_EMAILS`, so teammates' addresses never land in this public repo. Set it with `npx wrangler secret put ADMIN_TEAM_EMAILS` or in the dashboard (Worker > Settings > Variables and Secrets, type Secret).
+
+Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on either list returns `403`. `npm test` covers these cases.
+
+## Who sees what
+
+Two tiers, checked by the Worker on every page and API call:
+
+- **Team** (anyone signed in): the Command Centre tracker and aggregate counts only.
+- **Reviewers**: also Applications (decisions, notes, AI screener, email drafts, CSV), Check-in and All tables, which is everything with applicant personal data. Everyone else gets `403` on those pages and APIs, and the nav hides the links.
+
+Reviewer lists are Worker secrets:
+
+- `REVIEWER_EMAILS` (email sign-in): comma-separated. `kazybekkhairulla@gmail.com` is always a reviewer. Unset means only Kazy.
+- `DISCORD_REVIEWER_IDS` and optional `DISCORD_REVIEWER_ROLE_IDS` (Discord sign-in, role needs `DISCORD_GUILD_ID`). Unset means no Discord reviewers.
+
+A reviewer can always sign in, even if they are not on the team lists. Discord channel posts stay counts only for everyone.
+
+## Applicant review
+
+`/admin/applications/` (and `/team/applications/`) lists every hacker application with search, filters (status, AI suggestion, experience, level of study, team, known connection), sorting and a CSV download. Pick one to see the full application and:
+
+- **Decide:** set the status (pending, accepted, waitlisted, rejected, confirmed, declined). The page records who decided and when (`application_reviews`). Reviewer notes and a "known connection" flag are team-only.
+- **AI suggestion:** "Run AI screener" scores the application out of 100 with a short rationale (`worker/screener.js`). The score is made of answer quality (up to 50, rated by Workers AI), GitHub (up to 30, public GitHub API), experience (up to 10), LinkedIn link given (up to 5) and the reviewer's connection flag (up to 5). It only ever suggests accept, waitlist or a closer look. **It never changes a status.** The model only sees the answer text and is told to ignore grammar and fluency. It needs the Workers AI binding `AI` (in `wrangler.jsonc`, free allocation 10,000 Neurons a day, roughly 25 to 50 per screening). Without it the button says the screener is unavailable and stores nothing. Optional secret `GITHUB_TOKEN` (a token with no scopes) raises the GitHub API limit from 60 to 5,000 lookups an hour.
+- **Email draft:** accept, waitlist and reject templates, editable by the team on the same page (`email_templates`). Placeholders: `{first_name}`, `{last_name}`, `{full_name}`, `{event_name}`, `{event_dates}`. Copy the text or open it in your mail app. **The site never sends email.**
+
+`/admin/checkin/` (and `/team/checkin/`) is for event day: search by name or email, check people in or undo. It shows accepted and confirmed hackers by default.
+
+## Discord
+
+Both parts are off until their secrets are set. Set them as Worker **secrets** (Workers & Pages > `hack-sw-website` > Settings > Variables and Secrets, type Secret), never in this repo.
+
+**Sign in with Discord at `/team/`.** `/admin/` keeps Cloudflare Access with email one-time PIN. `/team/` and `/api/team/*` show the same dashboard and data for Discord sign-in. They are not behind Access, so the Worker is the only gate there: no valid session means a sign-in page, never the dashboard. See `worker/discord-auth.js`.
+
+- `DISCORD_CLIENT_ID`, `DISCORD_CLIENT_SECRET`: from the Discord app's OAuth2 page. Redirect URI: `https://exehacks.excs.uk/auth/discord/callback`.
+- `SESSION_SECRET`: 32 or more random characters (`openssl rand -base64 48`). Changing it signs everyone out.
+- `DISCORD_ADMIN_IDS`: comma-separated Discord user IDs allowed in.
+- Optional role check: `DISCORD_GUILD_ID` (server ID) and `DISCORD_ADMIN_ROLE_IDS` (comma-separated role IDs). Anyone with one of those roles gets in.
+- Sessions last 8 hours. Removing an ID from `DISCORD_ADMIN_IDS` ends that person's session at once. Removing a role takes effect when the session expires.
+
+**Updates in a Discord channel.** `DISCORD_WEBHOOK_URL` (channel > Edit Channel > Integrations > Webhooks > New Webhook > Copy Webhook URL). The Worker posts:
+
+- "New hacker application. N / 150 so far." on each new application. Counts only, never names or answers.
+- "Blocking in <section>: <title>" when a tracker item is added as, or changed to, Blocking.
+- A daily digest from the cron in `wrangler.jsonc` (`0 9 * * *`, which is UTC: 9am London in winter, 10am in summer).
+
+Messages never ping anyone (`allowed_mentions` is empty).
 
 ## Getting Started
 
