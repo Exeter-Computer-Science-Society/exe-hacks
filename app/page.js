@@ -27,8 +27,8 @@ export default function Home() {
 
 	// 6–7 February 2027 is the locked weekend. Hacking starts Sat 6 Feb 2027 at
 	// 11:00 UK time (Run of Show draft); the UK is on GMT then, so 11:00 UTC.
-	// Set to null to hide the countdown. Tickets are not on sale yet: the hero
-	// and the other register buttons collect interest at /interested/.
+	// Set to null to hide the countdown. The hero and other primary buttons
+	// go to /apply/ now that hacker applications are open.
 	const event_date = Date.parse("2027-02-06T11:00:00Z") // hacking starts. Drives the countdown.
 	const event_window = "6–7 February 2027"
 
@@ -49,6 +49,11 @@ export default function Home() {
 			answer: "6–7 February 2027. Venue TBC (University of Exeter). Saturday into Sunday, 24 hours."
 		},
 		{
+			id: 16,
+			question: "How do I apply?",
+			answer: "Applications are open now. Fill in the form on the apply page. We review applications in waves and email you with a decision. You must be 18 or over on 6 February 2027."
+		},
+		{
 			id: 3,
 			question: "Isn't this event called Hack South West?",
 			answer: "It was. Same society, same venue, same event, new name, and the person who started it is still on the team. Every edition has been held in Exeter, so the old name claimed more ground than the event covered. You'll still find us under the old name on LinkedIn, Instagram and Devpost while the rebrand settles in."
@@ -61,7 +66,7 @@ export default function Home() {
 		{
 			id: 4,
 			question: "Who can attend?",
-			answer: "Everyone. Whether you study at Exeter, at another university, or you're working in industry, come along for a weekend of building and learning."
+			answer: "Anyone aged 18 or over on 6 February 2027. Whether you study at Exeter, at another university, or you're working in industry, come along for a weekend of building and learning."
 		},
 		{
 			id: 5,
@@ -282,7 +287,7 @@ export default function Home() {
 							id="register"
 						>
 							<div className="gcard interest-callout">
-								<p>Tickets and more details coming soon!</p>
+								<p>Applications are open. Apply for a place at ExeHacks 2027.</p>
 								<RegistrationButton />
 							</div>
 
@@ -729,7 +734,7 @@ export default function Home() {
 							</span>
 							?
 						</h2>
-						<p>Tickets and more details are coming soon. Leave your details and we&apos;ll email you. See you {event_window}.</p>
+						<p>Applications are open. Apply for a place, and we&apos;ll email you with a decision. See you {event_window}.</p>
 						<div className="hero-cta">
 							<RegistrationButton />
 						</div>

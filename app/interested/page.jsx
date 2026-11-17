@@ -5,7 +5,7 @@ import { InterestForm } from "../components/InterestForm"
 export const metadata = {
 	title: "Register your interest: ExeHacks 2027",
 	description:
-		"Leave your details and we'll let you know as soon as ExeHacks 2027 applications open (Mon 9 Nov 2026). 6–7 February 2027 in Exeter.",
+		"Leave your details for updates about ExeHacks 2027, or apply for a place. Sat 6 to Sun 7 February 2027 in Exeter, for about 150 hackers, 18+.",
 }
 
 export default function InterestedPage() {
@@ -17,9 +17,15 @@ export default function InterestedPage() {
 						<span className="section-tag">ExeHacks 2027 · 6–7 February · Exeter</span>
 						<h1 className="h-section">Register your interest</h1>
 						<p className="lead">
-							Leave your details and we&apos;ll let you know as soon as applications open (Mon 9 Nov 2026).
+							Applications for ExeHacks 2027 are open. Apply for a place, or leave your email if you just want updates.
 						</p>
 					</div>
+
+					<p className="sponsor-form-actions" style={{ marginBottom: "1.5rem" }}>
+						<Link href="/apply/" className="btn btn-primary">
+							Apply to hack
+						</Link>
+					</p>
 
 					<InterestForm />
 

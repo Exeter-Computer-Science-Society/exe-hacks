@@ -22,12 +22,12 @@ export default function JoinPage() {
 					<div className="sponsor-form sent" role="status">
 						<p className="mono sponsor-form-kicker">Applications are now closed</p>
 						<p>
-							If you already applied, we&apos;ll be in touch about next steps. Want to come and hack? Register your interest
-							and we&apos;ll email you when tickets open.
+							If you already applied, we&apos;ll be in touch about next steps. Want to come and hack? Applications for
+							ExeHacks 2027 are open.
 						</p>
 						<div className="sponsor-form-actions">
-							<Link href="/interested/" className="btn btn-primary">
-								Register your interest
+							<Link href="/apply/" className="btn btn-primary">
+								Apply to hack
 							</Link>
 						</div>
 					</div>

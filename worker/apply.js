@@ -5,7 +5,8 @@
  * POST /api/apply         -> validates and stores one row in hacker_applications.
  *
  * The form is closed unless the Worker var APPLICATIONS_OPEN is exactly "true".
- * wrangler.jsonc ships it as "false"; flip it there (or in the dashboard) on opening day.
+ * wrangler.jsonc ships it as "true" so a deploy of main opens applications.
+ * Set it back to "false" and redeploy to close the form.
  */
 
 import {
@@ -20,13 +21,13 @@ import {
 	LEVELS_OF_STUDY,
 	TEAM_STATUSES,
 	TSHIRT_SIZES,
+	normalizeGithub,
+	normalizeLinkedin,
 } from "../app/apply/options.js"
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const PHONE = /^[0-9+()\s-]{7,30}$/
 const DISCORD = /^@?[A-Za-z0-9_.]{2,32}(#[0-9]{4})?$/
-const LINKEDIN = /^https?:\/\/([a-z]{2,3}\.)?linkedin\.com\/\S+$/i
-const GITHUB = /^(https?:\/\/(www\.)?github\.com\/)?[A-Za-z0-9](?:[A-Za-z0-9-]{0,38})\/?$/i
 
 const values = (list) => new Set(list.map((item) => (typeof item === "string" ? item : item.value)))
 const ALLOWED = {
@@ -93,8 +94,10 @@ export function validateApplication(data, { clip, clipLong, field, fieldRaw, con
 	if (!ALLOWED.hackathons.has(v.hackathons)) return { ok: false, error: "Tell us how many hackathons you've been to." }
 	if (!ALLOWED.experience.has(v.experience)) return { ok: false, error: "Choose your experience level." }
 	if (!ALLOWED.team.has(v.team)) return { ok: false, error: "Tell us about your team." }
-	if (v.github && !GITHUB.test(v.github)) return { ok: false, error: "Check your GitHub username or link." }
-	if (v.linkedin && !LINKEDIN.test(v.linkedin)) return { ok: false, error: "Check your LinkedIn link." }
+	const github = normalizeGithub(v.github)
+	if (!github.ok) return { ok: false, error: "Check your GitHub username or link." }
+	const linkedin = normalizeLinkedin(v.linkedin)
+	if (!linkedin.ok) return { ok: false, error: "Check your LinkedIn link." }
 	if (v.discord && !DISCORD.test(v.discord)) return { ok: false, error: "Check your Discord username." }
 	if (!v.why) return { ok: false, error: "Tell us why you want to come to ExeHacks." }
 	if (!ALLOWED.heard.has(v.heard)) return { ok: false, error: "Tell us how you heard about ExeHacks." }
@@ -129,8 +132,8 @@ export function validateApplication(data, { clip, clipLong, field, fieldRaw, con
 			hackathons_attended: v.hackathons,
 			experience_level: v.experience,
 			team_status: v.team,
-			github: v.github || null,
-			linkedin: v.linkedin || null,
+			github: github.value || null,
+			linkedin: linkedin.value || null,
 			discord: v.discord ? v.discord.replace(/^@/, "") : null,
 			why: v.why,
 			heard_from: v.heard,

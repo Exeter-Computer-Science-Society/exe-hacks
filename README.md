@@ -41,13 +41,13 @@ A missing or wrong token gets `401`. The same address can register again; the AP
 
 `/apply/` is the ExeHacks 2027 hacker application. It posts to `POST /api/apply`, which stores one row per email in `hacker_applications` (`migrations/0004_hacker_applications.sql`). A repeat email gets a friendly 409 and is not stored twice. New rows start with `status = 'pending'`; set `accepted`, `waitlisted`, `rejected`, `confirmed` or `declined` per acceptance wave. Allowed values for every dropdown live in `app/apply/options.js`, shared by the form and the Worker.
 
-The form is **closed by default**. `GET /api/apply/status` returns `{ open }` from the Worker var `APPLICATIONS_OPEN` (`"false"` in `wrangler.jsonc`). While closed, `/apply/` shows "Applications open Mon 9 Nov 2026" with a link to `/interested/`, and `POST /api/apply` returns 403. `/apply/?preview=1` shows the form for checking, but submissions are still refused. To open: apply the migration remotely, set `APPLICATIONS_OPEN` to `"true"`, and redeploy.
+The form is open when the Worker var `APPLICATIONS_OPEN` is `"true"` (the default in `wrangler.jsonc`). `GET /api/apply/status` returns `{ open }`. While closed, `/apply/` points people to `/interested/` for updates, and `POST /api/apply` returns 403. `/apply/?preview=1` shows the form for checking, but submissions are still refused. To close the form, set `APPLICATIONS_OPEN` to `"false"` and redeploy. The `hacker_applications` migration (`0004_hacker_applications.sql`) is already applied on the live D1 database.
 
 ```bash
 npx wrangler d1 migrations apply exehacks-interest --remote
-# local test with the form open:
+# local test:
 npx wrangler d1 migrations apply exehacks-interest --local
-npm run build && npx wrangler dev --var APPLICATIONS_OPEN:true
+npm run build && npm run preview
 ```
 
 ## Admin

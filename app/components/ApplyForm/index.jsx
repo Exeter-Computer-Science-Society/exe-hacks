@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
-import { useCallback, useEffect, useState } from "react"
+import { useEffect, useState } from "react"
 
 import {
 	AGES,
@@ -13,15 +13,11 @@ import {
 	HEARD_FROM,
 	LEVELS_OF_STUDY,
 	MLH_LINKS,
-	OPENS_AT,
-	OPENS_LABEL,
-	OPENS_TIME_LABEL,
 	SCHOOL_SUGGESTIONS,
 	TEAM_STATUSES,
 	TSHIRT_SIZES,
 } from "../../apply/options"
 import { CONTACT_EMAIL } from "../../config"
-import { ClockCountdown } from "../ClockCountdown"
 
 const DIETARY = ["Vegetarian", "Vegan", "Halal", "Kosher", "Gluten-free / Coeliac", "Dairy-free", "Nut allergy"]
 
@@ -43,9 +39,6 @@ export function ApplyForm() {
 	const [duplicate, setDuplicate] = useState(false)
 	const [dietary, setDietary] = useState([])
 
-	// true once the countdown has hit zero but the Worker flag has not been flipped yet.
-	const [opening, setOpening] = useState(false)
-
 	useEffect(() => {
 		let cancel = false
 		// ?preview=1 shows the form while closed so it can be checked. The Worker still refuses submissions.
@@ -59,24 +52,6 @@ export function ApplyForm() {
 			cancel = true
 		}
 	}, [])
-
-	// When the clock reaches zero, poll the Worker every 30 s until APPLICATIONS_OPEN is "true".
-	const onCountdownDone = useCallback(() => setOpening(true), [])
-	useEffect(() => {
-		if (!opening || state === "open") return undefined
-		let cancel = false
-		const check = () =>
-			fetchOpen().then((open) => {
-				if (!cancel && open) setState("open")
-			})
-		const first = setTimeout(check, 0)
-		const id = setInterval(check, 30_000)
-		return () => {
-			cancel = true
-			clearTimeout(first)
-			clearInterval(id)
-		}
-	}, [opening, state])
 
 	async function onSubmit(event) {
 		event.preventDefault()
@@ -141,29 +116,26 @@ export function ApplyForm() {
 		}
 	}
 
-	// While the status check is in flight, show the closed panel (the likely answer) so the page doesn't jump.
-	if (state === "loading" || (state === "closed" && !preview)) {
+	if (state === "loading") {
+		return (
+			<div className="sponsor-form sent apply-closed" role="status">
+				<p className="mono sponsor-form-kicker">Loading the form</p>
+				<p>Just a moment.</p>
+			</div>
+		)
+	}
+
+	if (state === "closed" && !preview) {
 		return (
 			<div className="sponsor-form sent apply-closed">
-				<p className="mono sponsor-form-kicker">
-					{opening ? "Applications are opening" : `Applications open ${OPENS_LABEL}, ${OPENS_TIME_LABEL}`}
+				<p className="mono sponsor-form-kicker">Applications aren&apos;t open right now</p>
+				<p>
+					Hacker applications for ExeHacks 2027 aren&apos;t open at the moment. Leave your email and we&apos;ll let you know
+					about the next update.
 				</p>
-				{opening ? (
-					<p role="status">
-						Applications are opening now. This page will switch to the form automatically, or refresh in a minute.
-					</p>
-				) : (
-					<>
-						<ClockCountdown target={OPENS_AT} label="Applications open in" onDone={onCountdownDone} />
-						<p>
-							Hacker applications for ExeHacks 2027 aren&apos;t open yet. Register your interest and we&apos;ll email you
-							the moment they open.
-						</p>
-					</>
-				)}
 				<div className="sponsor-form-actions">
 					<Link href="/interested/" className="btn btn-primary">
-						Register your interest
+						Get updates
 					</Link>
 				</div>
 			</div>
@@ -174,7 +146,7 @@ export function ApplyForm() {
 		<form className="sponsor-form" onSubmit={onSubmit} noValidate={false}>
 			{state === "closed" && preview ? (
 				<p className="mono apply-preview" role="note">
-					Preview only. Applications open {OPENS_LABEL}; submissions are not saved yet.
+					Preview only. Submissions are not saved while applications are closed.
 				</p>
 			) : null}
 
@@ -309,18 +281,21 @@ export function ApplyForm() {
 					</select>
 				</label>
 				<label className="sponsor-field" htmlFor="apply-github">
-					<span>GitHub username or URL (optional)</span>
-					<input id="apply-github" type="text" name="github" maxLength={200} pattern="(https?://(www\.)?github\.com/)?[A-Za-z0-9](?:[A-Za-z0-9\-]{0,38})/?" title="A GitHub username or github.com link" />
+					<span>GitHub username or URL (recommended)</span>
+					<input id="apply-github" type="text" name="github" maxLength={200} autoComplete="off" placeholder="https://github.com/your-username" title="A GitHub username or github.com link" />
 				</label>
 				<label className="sponsor-field" htmlFor="apply-linkedin">
-					<span>LinkedIn URL (optional)</span>
-					<input id="apply-linkedin" type="url" name="linkedin" maxLength={200} pattern="https?://([a-z]{2,3}\.)?linkedin\.com/.+" title="A linkedin.com link" placeholder="https://www.linkedin.com/in/…" />
+					<span>LinkedIn URL (recommended)</span>
+					<input id="apply-linkedin" type="text" name="linkedin" maxLength={200} autoComplete="off" placeholder="https://www.linkedin.com/in/your-name" title="A linkedin.com profile link" />
 				</label>
 				<label className="sponsor-field" htmlFor="apply-discord">
 					<span>Discord username (optional)</span>
 					<input id="apply-discord" type="text" name="discord" maxLength={37} pattern="@?[A-Za-z0-9_.]{2,32}(#[0-9]{4})?" title="Your Discord username, e.g. exehacks_fan" />
 				</label>
 			</div>
+			<p className="apply-note">
+				A GitHub or LinkedIn profile helps us review your application. You can skip either if you do not have one.
+			</p>
 			<label className="sponsor-field" htmlFor="apply-why">
 				<span>Why do you want to come to ExeHacks? (a few sentences is plenty)</span>
 				<textarea id="apply-why" name="why" maxLength={1500} required />
