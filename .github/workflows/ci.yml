@@ -2,8 +2,8 @@ name: CI
 
 # Checks that the static export installs, passes the dependency audit and
 # builds. It does not deploy anything: the live site (https://exehacks.excs.uk)
-# is the Cloudflare Worker `hack-sw-website`, deployed by Workers Builds or by
-# the manual "Deploy to Cloudflare (EXCS)" workflow in cloudflare.yml.
+# is the Cloudflare Worker `hack-sw-website`, deployed on push to main by
+# the "Deploy to Cloudflare (EXCS)" workflow in cloudflare.yml.
 # GitHub Pages is disabled on this repo.
 
 on:

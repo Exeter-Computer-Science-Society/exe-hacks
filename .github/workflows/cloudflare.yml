@@ -1,15 +1,26 @@
-# Deploys the Worker to the EXCS Cloudflare account.
+# Deploys the Worker to the EXCS Cloudflare account on every push to main,
+# and when started by hand.
+#
 # A local wrangler login can be the wrong Cloudflare account
 # (id d058c8ec4c5caeadbd55cf293f3d2d32), so a bare `wrangler deploy` would
 # create hack-sw-website there.
 #
-# Run this only after GitHub secrets are from the EXCS account:
-#   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN,
+# Required secrets, from the EXCS account (org secrets scoped to this repo):
+#   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
+# Optional:
 #   FORMSPREE_DEPLOY_KEY, NEXT_PUBLIC_FORMSPREE_PROJECT_ID
+# Missing Formspree secrets skip the Formspree publish step and still
+# deploy the Worker. The sponsor form will not submit until
+# NEXT_PUBLIC_FORMSPREE_PROJECT_ID is set.
 name: Deploy to Cloudflare (EXCS)
 
 on:
+  push:
+    branches: [main]
   workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: cloudflare-excs
@@ -20,7 +31,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v5
         with:
