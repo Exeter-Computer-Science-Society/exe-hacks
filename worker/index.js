@@ -9,12 +9,15 @@
  * POST /api/interest stores a row in D1. A repeated email is still 200, so the
  * response does not say whether that address was already on the list.
  * GET /api/interest/export.csv needs Authorization: Bearer $EXPORT_TOKEN.
- * /admin and /api/admin/* need a Cloudflare Access JWT for an ADMIN_EMAILS address.
+ * /admin and /api/admin/* need a Cloudflare Access JWT for an address on
+ * ADMIN_EMAILS or ADMIN_TEAM_EMAILS. /admin is the Command Centre (command-centre.js);
+ * /admin/signups is the table console.
  */
 
 import { authorizeAdmin } from "./access.js"
 import { listTables, readTable, readTableCsv } from "./admin.js"
 import { applicationsOpen, insertApplication, validateApplication } from "./apply.js"
+import { createItem, deleteItem, parseItemId, readOverview, updateItem, validateItem } from "./command-centre.js"
 import { toCsv } from "./csv.js"
 
 const LIMITS = {
@@ -61,6 +64,10 @@ const worker = {
 
 		if (path === "/api/admin/tables" || path.startsWith("/api/admin/tables/")) {
 			return adminApi(request, env, path)
+		}
+
+		if (path === "/api/admin/overview" || path === "/api/admin/items" || path.startsWith("/api/admin/items/")) {
+			return commandCentreApi(request, env, path)
 		}
 
 		if (path.startsWith("/api/")) return json({ ok: false, error: "Not found." }, 404)
@@ -346,6 +353,65 @@ async function adminApi(request, env, path) {
 		console.error("admin read failed", error instanceof Error ? error.name : "error")
 		return json({ ok: false, error: "Could not load that table." }, 500)
 	}
+}
+
+async function commandCentreApi(request, env, path) {
+	const method = request.method
+	const writing = method === "POST" || method === "PATCH" || method === "DELETE"
+	if (writing && !sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
+
+	const auth = await authorizeAdmin(request, env)
+	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+
+	try {
+		if (path === "/api/admin/overview") {
+			if (method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
+			const overview = await readOverview(env.DB, { applicationsOpen: applicationsOpen(env), email: auth.email })
+			return json({ ok: true, ...overview })
+		}
+
+		if (path === "/api/admin/items") {
+			if (method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
+			const body = await readItemBody(request)
+			if (!body.ok) return json({ ok: false, error: body.error }, body.status)
+			const checked = validateItem(body.data)
+			if (!checked.ok) return json({ ok: false, error: checked.error }, 400)
+			const created = await createItem(env.DB, checked.item, auth.email)
+			if (!created.ok) return json({ ok: false, error: created.error }, created.status)
+			return json({ ok: true, item: created.item }, 201)
+		}
+
+		const id = parseItemId(path)
+		if (!id) return json({ ok: false, error: "Not found." }, 404)
+		if (method === "PATCH") {
+			const body = await readItemBody(request)
+			if (!body.ok) return json({ ok: false, error: body.error }, body.status)
+			const checked = validateItem(body.data, { partial: true })
+			if (!checked.ok) return json({ ok: false, error: checked.error }, 400)
+			const updated = await updateItem(env.DB, id, checked.item, auth.email)
+			if (!updated.ok) return json({ ok: false, error: updated.error }, updated.status)
+			return json({ ok: true, item: updated.item })
+		}
+		if (method === "DELETE") {
+			const removed = await deleteItem(env.DB, id)
+			if (!removed.ok) return json({ ok: false, error: removed.error }, removed.status)
+			return json({ ok: true })
+		}
+		return json({ ok: false, error: "Method not allowed." }, 405)
+	} catch (error) {
+		console.error("command centre failed", error instanceof Error ? error.name : "error")
+		return json({ ok: false, error: "Could not reach the tracker. Try again in a moment." }, 500)
+	}
+}
+
+async function readItemBody(request) {
+	const length = Number(request.headers.get("content-length") || 0)
+	if (length > 10_000) return { ok: false, status: 413, error: "That item is too long." }
+	const type = (request.headers.get("content-type") || "").toLowerCase()
+	if (!type.includes("application/json")) return { ok: false, status: 415, error: "Send JSON." }
+	const parsed = await readBody(request)
+	if (parsed.error) return { ok: false, status: 400, error: "Check the item and try again." }
+	return { ok: true, data: parsed.data }
 }
 
 function clampInt(value, fallback, min, max) {

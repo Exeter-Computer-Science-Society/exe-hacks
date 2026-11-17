@@ -52,15 +52,24 @@ npm run build && npx wrangler dev --var APPLICATIONS_OPEN:true
 
 ## Admin
 
-`/admin/` lists every D1 table (newest first, with search and a CSV download). `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
+`/admin/` is the ExeHacks 2027 Command Centre: live counts from D1 (interest sign-ups, core-team applications, hacker applications by status, days to go) plus a shared tracker (next actions, venue, MLH, judges, sponsors, core team, website, inbox, links). Anyone on the allow-list can add, edit, tick off or remove tracker items. Each edit records who made it.
 
-Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`, and allow `kazybekkhairulla@gmail.com`. The Worker still checks the `Cf-Access-Jwt-Assertion` JWT:
+- Tracker items live in the D1 table `command_centre_items` (migration `0005_command_centre.sql`), not in this repo, because the repo is public and items name real people and contacts.
+- Section names, order and the event facts (dates, capacity) live in `app/admin/tracker.js`. Change them with a PR.
+- The overview API returns counts only. Applicant names and emails are only on `/admin/signups/`.
 
-- `ACCESS_TEAM_DOMAIN` — team hostname, with or without `https://`
-- `ACCESS_AUD` — the Access application's audience (AUD) tag
-- `ADMIN_EMAILS` — optional comma-separated allow-list. The default in `wrangler.jsonc` is `kazybekkhairulla@gmail.com`. A non-empty value replaces that default.
+`/admin/signups/` lists every D1 table (newest first, with search and a CSV download). `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
 
-Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on the list returns `403`.
+Admin API: `GET /api/admin/overview`, `POST /api/admin/items`, `PATCH /api/admin/items/<id>`, `DELETE /api/admin/items/<id>`. Writes must come from the site's own origin.
+
+Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`, and allow each team member's email. The Worker still checks the `Cf-Access-Jwt-Assertion` JWT, so the pages stay closed even if Access is misconfigured:
+
+- `ACCESS_TEAM_DOMAIN`: team hostname, with or without `https://`
+- `ACCESS_AUD`: the Access application's audience (AUD) tag
+- `ADMIN_EMAILS`: comma-separated allow-list in `wrangler.jsonc`. Defaults to `kazybekkhairulla@gmail.com`.
+- `ADMIN_TEAM_EMAILS`: optional Worker secret, comma-separated. Added to `ADMIN_EMAILS`, so teammates' addresses never land in this public repo. Set it with `npx wrangler secret put ADMIN_TEAM_EMAILS` or in the dashboard (Worker > Settings > Variables and Secrets, type Secret).
+
+Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on either list returns `403`. `npm test` covers these cases.
 
 ## Getting Started
 

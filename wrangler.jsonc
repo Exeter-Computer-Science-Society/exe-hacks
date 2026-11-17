@@ -19,6 +19,7 @@
 	//     npx wrangler secret put EXPORT_TOKEN
 	//     npx wrangler secret put ACCESS_TEAM_DOMAIN
 	//     npx wrangler secret put ACCESS_AUD
+	//     npx wrangler secret put ADMIN_TEAM_EMAILS   (comma-separated teammate emails for /admin)
 	//
 	// Do not run `wrangler deploy` from the wrong Cloudflare account
 	// (id d058c8ec4c5caeadbd55cf293f3d2d32). `wrangler whoami` must show the

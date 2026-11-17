@@ -8,13 +8,19 @@ export const DEFAULT_ADMIN_EMAIL = "kazybekkhairulla@gmail.com"
 
 const certCache = { domain: "", exp: 0, keys: [] }
 
+/**
+ * ADMIN_EMAILS (var in wrangler.jsonc) plus ADMIN_TEAM_EMAILS (a Worker secret,
+ * so teammates' addresses stay out of this public repo). Both are comma-separated.
+ */
 export function adminAllowList(env) {
 	const configured = typeof env?.ADMIN_EMAILS === "string" ? env.ADMIN_EMAILS.trim() : ""
-	const source = configured || DEFAULT_ADMIN_EMAIL
-	return source
-		.split(",")
+	const team = typeof env?.ADMIN_TEAM_EMAILS === "string" ? env.ADMIN_TEAM_EMAILS.trim() : ""
+	const source = [configured || DEFAULT_ADMIN_EMAIL, team].filter(Boolean).join(",")
+	const emails = source
+		.split(/[,\s]+/)
 		.map((item) => item.trim().toLowerCase())
 		.filter(Boolean)
+	return [...new Set(emails)]
 }
 
 export function accessTeamDomain(env) {
