@@ -1,3 +1,4 @@
+import { AdminNav } from "../components/AdminNav"
 import { CommandCentre } from "../components/CommandCentre"
 
 export const metadata = {
@@ -18,6 +19,7 @@ export default function TeamPage() {
 							Everything for ExeHacks 2027 in one place. Counts are live from the site database. Anyone on the team can add, tick off or edit items below.
 						</p>
 					</div>
+					<AdminNav base="/team" current="" />
 					<CommandCentre base="/team" />
 				</div>
 			</section>

@@ -58,7 +58,7 @@ npm run build && npx wrangler dev --var APPLICATIONS_OPEN:true
 - Section names, order and the event facts (dates, capacity) live in `app/admin/tracker.js`. Change them with a PR.
 - The overview API returns counts only. Applicant names and emails are only on `/admin/signups/`.
 
-`/admin/signups/` lists every D1 table (newest first, with search and a CSV download). `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
+`/admin/signups/` ("All tables") lists every D1 table (newest first, with search and a CSV download). `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
 
 Admin API: `GET /api/admin/overview`, `POST /api/admin/items`, `PATCH /api/admin/items/<id>`, `DELETE /api/admin/items/<id>`. Writes must come from the site's own origin.
 
@@ -70,6 +70,16 @@ Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `e
 - `ADMIN_TEAM_EMAILS`: optional Worker secret, comma-separated. Added to `ADMIN_EMAILS`, so teammates' addresses never land in this public repo. Set it with `npx wrangler secret put ADMIN_TEAM_EMAILS` or in the dashboard (Worker > Settings > Variables and Secrets, type Secret).
 
 Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on either list returns `403`. `npm test` covers these cases.
+
+## Applicant review
+
+`/admin/applications/` (and `/team/applications/`) lists every hacker application with search, filters (status, AI suggestion, experience, level of study, team, known connection), sorting and a CSV download. Pick one to see the full application and:
+
+- **Decide:** set the status (pending, accepted, waitlisted, rejected, confirmed, declined). The page records who decided and when (`application_reviews`). Reviewer notes and a "known connection" flag are team-only.
+- **AI suggestion:** "Run AI screener" scores the application out of 100 with a short rationale (`worker/screener.js`). The score is made of answer quality (up to 50, rated by Workers AI), GitHub (up to 30, public GitHub API), experience (up to 10), LinkedIn link given (up to 5) and the reviewer's connection flag (up to 5). It only ever suggests accept, waitlist or a closer look. **It never changes a status.** The model only sees the answer text and is told to ignore grammar and fluency. It needs the Workers AI binding `AI` (in `wrangler.jsonc`, free allocation 10,000 Neurons a day, roughly 25 to 50 per screening). Without it the button says the screener is unavailable and stores nothing. Optional secret `GITHUB_TOKEN` (a token with no scopes) raises the GitHub API limit from 60 to 5,000 lookups an hour.
+- **Email draft:** accept, waitlist and reject templates, editable by the team on the same page (`email_templates`). Placeholders: `{first_name}`, `{last_name}`, `{full_name}`, `{event_name}`, `{event_dates}`. Copy the text or open it in your mail app. **The site never sends email.**
+
+`/admin/checkin/` (and `/team/checkin/`) is for event day: search by name or email, check people in or undo. It shows accepted and confirmed hackers by default.
 
 ## Discord
 

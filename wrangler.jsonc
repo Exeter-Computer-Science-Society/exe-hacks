@@ -55,6 +55,13 @@
 		"crons": ["0 9 * * *"]
 	},
 
+	// Workers AI for the applicant screener (worker/screener.js). Suggestions only.
+	// Free allocation is 10,000 Neurons a day; one screening is roughly 50.
+	// Without this binding the screener button reports "not available".
+	"ai": {
+		"binding": "AI"
+	},
+
 	"d1_databases": [
 		{
 			"binding": "DB",

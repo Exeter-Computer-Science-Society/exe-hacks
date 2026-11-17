@@ -14,6 +14,8 @@
  * /admin/signups is the table console. /team and /api/team/* serve the same pages
  * and APIs for Discord sign-in (discord-auth.js). They are not behind Cloudflare
  * Access, so the Worker check is the only gate there.
+ * /api/admin/applications* and /api/admin/email-templates* are applicant review,
+ * the AI screener (suggestions only) and check-in (review.js, screener.js).
  * Discord webhook updates (notify.js) run after the response and on the daily cron.
  */
 
@@ -23,6 +25,7 @@ import { applicationsOpen, insertApplication, validateApplication } from "./appl
 import { createItem, deleteItem, parseItemId, readOverview, updateItem, validateItem } from "./command-centre.js"
 import { discordConfig, finishLogin, logout, startLogin } from "./discord-auth.js"
 import { dailyDigest, notifyBlocking, notifyNewApplication } from "./notify.js"
+import { reviewApi } from "./review.js"
 import { toCsv } from "./csv.js"
 
 const LIMITS = {
@@ -88,6 +91,16 @@ const worker = {
 
 		if (path === "/api/admin/overview" || path === "/api/admin/items" || path.startsWith("/api/admin/items/")) {
 			return commandCentreApi(request, env, path, later)
+		}
+
+		if (
+			path === "/api/admin/applications" ||
+			path === "/api/admin/applications.csv" ||
+			path.startsWith("/api/admin/applications/") ||
+			path === "/api/admin/email-templates" ||
+			path.startsWith("/api/admin/email-templates/")
+		) {
+			return applicationsApi(request, env, path)
 		}
 
 		if (path.startsWith("/api/")) return json({ ok: false, error: "Not found." }, 404)
@@ -435,6 +448,20 @@ async function commandCentreApi(request, env, path, later = () => {}) {
 	}
 }
 
+async function applicationsApi(request, env, path) {
+	const method = request.method
+	const writing = method !== "GET" && method !== "HEAD"
+	if (writing && !sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
+	const auth = await authorizeAdmin(request, env)
+	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+	try {
+		return await reviewApi(request, env, path, { auth, json, readJson: readItemBody })
+	} catch (error) {
+		console.error("applications api failed", error instanceof Error ? error.name : "error")
+		return json({ ok: false, error: "Could not reach the applications. Try again in a moment." }, 500)
+	}
+}
+
 async function readItemBody(request) {
 	const length = Number(request.headers.get("content-length") || 0)
 	if (length > 10_000) return { ok: false, status: 413, error: "That item is too long." }
@@ -446,6 +473,8 @@ async function readItemBody(request) {
 }
 
 function clampInt(value, fallback, min, max) {
+	// Number(null) is 0, so a missing parameter must fall back before parsing.
+	if (value === null || value === undefined || value === "") return fallback
 	const parsed = Number(value)
 	if (!Number.isInteger(parsed)) return fallback
 	return Math.min(max, Math.max(min, parsed))

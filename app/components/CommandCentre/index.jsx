@@ -240,13 +240,6 @@ export function CommandCentre({ base = "/admin" }) {
 				<button type="button" className="cc-link" onClick={load} disabled={busy}>
 					Refresh
 				</button>{" "}
-				· <a href={`${base}/signups/`}>Signups and applicant data</a>
-				{base === "/team" ? (
-					<>
-						{" "}
-						· <a href="/auth/logout">Sign out</a>
-					</>
-				) : null}
 			</p>
 
 			<div className="cc-metrics">

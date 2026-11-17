@@ -1,3 +1,4 @@
+import { AdminNav } from "../../components/AdminNav"
 import { AdminConsole } from "../../components/AdminConsole"
 
 export const metadata = {
@@ -20,6 +21,7 @@ export default function TeamSignupsPage() {
 							download it as CSV. Other D1 tables show up here when they exist.
 						</p>
 					</div>
+					<AdminNav base="/team" current="/signups" />
 					<AdminConsole base="/team" />
 				</div>
 			</section>

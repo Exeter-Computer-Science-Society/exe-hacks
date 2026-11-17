@@ -1,3 +1,4 @@
+import { AdminNav } from "../components/AdminNav"
 import { CommandCentre } from "../components/CommandCentre"
 
 export const metadata = {
@@ -19,6 +20,7 @@ export default function AdminPage() {
 							Everything for ExeHacks 2027 in one place. Counts are live from the site database. Anyone on the team can add, tick off or edit items below.
 						</p>
 					</div>
+					<AdminNav base="/admin" current="" />
 					<CommandCentre />
 				</div>
 			</section>
