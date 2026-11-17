@@ -8,11 +8,11 @@ Worker `hack-sw-website`** on the EXCS Cloudflare account (`server: cloudflare`)
 Repo: `github.com/Exeter-Computer-Science-Society/exe-hacks` (renamed from
 `hack-sw-2`).
 
-**GitHub Pages is gone.** As of 2026-11-14 Pages is disabled on the repo, the
-old domain `hack-south-west.excs.uk` no longer resolves (NXDOMAIN), and the old
-`deploy.yml` Pages workflow has been replaced by a build-only `ci.yml`. Anything
-that still says "the push to `main` is the deploy" or mentions
-`exeter-computer-science-society.github.io` is out of date.
+**GitHub Pages is gone.** As of 2026-11-14 Pages is disabled on the repo and
+the old `deploy.yml` Pages workflow has been replaced by a build-only `ci.yml`.
+A push to `main` now deploys the Cloudflare Worker `hack-sw-website` via
+`cloudflare.yml`. Mentions of `exeter-computer-science-society.github.io` are
+out of date.
 
 > The `@AGENTS.md` import on line 1 is not decoration. `next dev` writes and
 > re-adds that file, and it warns that this Next.js version has breaking changes
@@ -47,11 +47,9 @@ back to the human as questions.
 | merge into `main` and `git push origin main` | yes |
 
 A push to `main` runs `ci.yml` (install, `npm audit --omit=dev
---audit-level=high`, build). **It does not deploy.** Whether `main` reaches the
-live site on its own depends on whether Workers Builds is connected to this repo
-in the EXCS Cloudflare dashboard. That was **not verified** as of 2026-11-14.
-After merging, check https://exehacks.excs.uk for the change. If it hasn't
-appeared, tell the human; don't deploy it yourself.
+--audit-level=high`, build) and `cloudflare.yml`, which builds the static
+export and deploys the Worker `hack-sw-website` to the EXCS account. After
+merging, check https://exehacks.excs.uk for the change.
 
 **This repo is `main`-only.** No `develop` branch and no staging environment — a
 feature branch merges straight to `main`. Do not create `develop` to make it
@@ -59,8 +57,9 @@ match the Gitflow projects in this folder.
 
 **Ask the human first — these sit outside the standing authorization:**
 
-- **Any production deploy.** That includes running the `cloudflare.yml`
-  workflow, which also applies D1 migrations to the remote database.
+- **A manual production deploy** from this machine (`wrangler deploy`, or
+  running `cloudflare.yml` by hand). Merging to `main` already deploys via
+  Actions. A manual run also applies D1 migrations to the remote database.
 - **Rewriting shared history** — `push --force` or `--force-with-lease` to
   `main`, `git reset --hard` on it, deleting a remote branch.
 - **Merging somebody else's open feature branch.** Whether their work is ready
@@ -92,8 +91,8 @@ on two files.
 | workflow | trigger | does |
 |---|---|---|
 | `ci.yml` | push to `main`, pull requests | install, audit, build. **No deploy.** |
-| `cloudflare.yml` | **`workflow_dispatch` only** | Formspree forms, build, `d1 migrations apply --remote`, `wrangler deploy` to the **EXCS** account |
-| Workers Builds (Cloudflare dashboard) | push, if connected | unverified, see above |
+| `cloudflare.yml` | push to `main`, and `workflow_dispatch` | optional Formspree publish, build, `d1 migrations apply --remote`, `wrangler deploy` to the **EXCS** account |
+| Workers Builds (Cloudflare dashboard) | unused; deploys go through Actions | not required |
 
 The CI audit step blocks on new advisories even when your change is unrelated.
 It failed every push from #8 to #12 because of advisories against `next`. The fix
@@ -105,7 +104,11 @@ is usually `npm audit fix` without `--force`, which changes only
 `d058c8ec4c5caeadbd55cf293f3d2d32`), so a bare `npm run deploy` would create
 `hack-sw-website` there instead of Exeter Computer Science Society. Pin
 `CLOUDFLARE_ACCOUNT_ID` to the EXCS account first, or let the GitHub workflow do
-it — its secrets are already the EXCS ones.
+it. The workflow uses the org secrets `CLOUDFLARE_ACCOUNT_ID` and
+`CLOUDFLARE_API_TOKEN`, already scoped to this repo. `FORMSPREE_DEPLOY_KEY` and
+`NEXT_PUBLIC_FORMSPREE_PROJECT_ID` are optional: if they are missing, Formspree
+publish is skipped and the Worker still deploys. The sponsor form will not
+submit until `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` is set.
 
 `wrangler.jsonc` sets `main` to `worker/index.js`. The Worker runs first for
 `/api/*` and `/admin*` (`assets.run_worker_first`); every other path is still the

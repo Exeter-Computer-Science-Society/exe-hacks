@@ -4,7 +4,7 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 `/interested/` posts to `POST /api/interest` on the Cloudflare Worker `hack-sw-website`. Rows go into the D1 database `exehacks-interest` (`fca01d5a-1608-4881-a6a0-3a9af696b6b2`). The sponsor enquiry form still uses Formspree. The live site is https://exehacks.excs.uk, served by that Worker: `/api/*` and `/admin*` run Worker code, and every other path is the static export in `./out`. GitHub Pages is disabled on this repo.
 
-Deploy from the **Exeter Computer Science Society** Cloudflare account. A login on the wrong Cloudflare account (id `d058c8ec4c5caeadbd55cf293f3d2d32`) would publish `hack-sw-website` there. `wrangler whoami` must show EXCS. Set `CLOUDFLARE_ACCOUNT_ID` to the EXCS account, or run the **Deploy to Cloudflare (EXCS)** GitHub Action (`.github/workflows/cloudflare.yml`), which already uses the EXCS secrets.
+Deploy from the **Exeter Computer Science Society** Cloudflare account. A login on the wrong Cloudflare account (id `d058c8ec4c5caeadbd55cf293f3d2d32`) would publish `hack-sw-website` there. `wrangler whoami` must show EXCS. Set `CLOUDFLARE_ACCOUNT_ID` to the EXCS account, or let the **Deploy to Cloudflare (EXCS)** GitHub Action (`.github/workflows/cloudflare.yml`) do it. That Action runs on every push to `main`, and can also be started by hand. It uses the org secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Formspree secrets are optional: if they are missing, the Action skips publishing Formspree forms and still deploys the Worker. The sponsor form will not submit until `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` is set.
 
 ```bash
 npm ci
