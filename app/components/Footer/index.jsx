@@ -1,20 +1,14 @@
 import Link from "next/link"
 
+import { BrandMark } from "../BrandMark"
+
 export function Footer() {
 	return (
 		<footer className="foot">
 			<div className="wrap">
 				<div className="foot-grid">
 					<div className="foot-brand">
-						<Link
-							className="brand"
-							href="/"
-						>
-							<span className="mk" />
-							<b>
-								Exe<span className="sw">Hacks</span>
-							</b>
-						</Link>
+						<BrandMark />
 						<p>Exeter&apos;s student hackathon, run by the Exeter Computer Science Society. Formerly Hack South West.</p>
 					</div>
 

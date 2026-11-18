@@ -1,8 +1,6 @@
 import Image from "next/image"
 import Link from "next/link"
 
-import { PageWindow } from "../../components/chrome/PageWindow"
-
 export const metadata = {
 	title: "Hack South West, February 2024: ExeHacks archive",
 	description:
@@ -22,6 +20,7 @@ const photos = [
 	{ src: "/images/presentation.JPEG", alt: "A team presenting to the judges" },
 	{ src: "/images/organisers.JPEG", alt: "The 2024 organising team" },
 	{ src: "/images/pizza.JPEG", alt: "Food at the 2024 hackathon" },
+	{ src: "/images/winners.JPEG", alt: "A team in front of the Hack South West backdrop" },
 ]
 
 // Podium order is second, first, third so the winner sits in the middle.
@@ -33,13 +32,18 @@ const winners = [
 
 export default function PastHackathon() {
 	return (
-		<PageWindow title="hsw-2024.txt">
+		<div className="w-full h-fit">
 			{/* ============ HEADER ============ */}
 			<section className="band">
 				<div className="wrap">
 					<div className="section-head">
 						<span className="section-tag">Archive · February 2024</span>
-						<h1 className="h-section">Hack South West, 2024.</h1>
+						<h2
+							className="h-section"
+							style={{ margin: "1rem 0 1.2rem" }}
+						>
+							Hack South West, <span className="grad-text">2024</span>.
+						</h2>
 						<p className="lead">
 							The February 2024 edition, back when the event still carried the old name. Attendees came from Exeter, Bristol,
 							Plymouth, Bournemouth and Cardiff.
@@ -83,10 +87,9 @@ export default function PastHackathon() {
 							>
 								<Image
 									src={p.src}
+									width={500}
+									height={500}
 									alt={p.alt}
-									fill
-									sizes="(max-width: 768px) 50vw, 220px"
-									style={{ objectFit: "cover" }}
 								/>
 							</div>
 						))}
@@ -156,6 +159,6 @@ export default function PastHackathon() {
 					</div>
 				</div>
 			</section>
-		</PageWindow>
+		</div>
 	)
 }

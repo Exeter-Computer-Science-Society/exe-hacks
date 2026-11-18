@@ -3,6 +3,7 @@
 import Link from "next/link"
 import { useEffect, useState } from "react"
 
+import { BrandMark } from "../BrandMark"
 import { RegistrationButton } from "../RegistrationButton"
 
 export function TopBar() {
@@ -18,16 +19,7 @@ export function TopBar() {
 	return (
 		<header className={`nav ${scrolled ? "scrolled" : ""}`}>
 			<div className="wrap nav-inner">
-				<Link
-					className="brand"
-					href="/"
-					aria-label="ExeHacks home"
-				>
-					<span className="mk" />
-					<b>
-						Exe<span className="sw">Hacks</span>
-					</b>
-				</Link>
+				<BrandMark />
 
 				<div className="nav-right">
 					<nav className="nav-links">
@@ -57,7 +49,7 @@ export function TopBar() {
 						</Link>
 					</nav>
 
-					<RegistrationButton />
+					<RegistrationButton label="Register" ariaLabel="Register your interest" />
 				</div>
 			</div>
 		</header>

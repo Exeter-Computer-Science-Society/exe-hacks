@@ -1,7 +1,6 @@
 import Link from "next/link"
 
 import { ApplyForm } from "../components/ApplyForm"
-import { PageWindow } from "../components/chrome/PageWindow"
 
 export const metadata = {
 	title: "Apply to hack: ExeHacks 2027",
@@ -11,10 +10,11 @@ export const metadata = {
 
 export default function ApplyPage() {
 	return (
-		<PageWindow title="apply.form">
-			<div className="sponsor-page">
+		<div className="w-full h-fit">
+			<section className="band">
+				<div className="wrap sponsor-page">
 					<div className="section-head">
-						<span className="section-tag">ExeHacks 2027 · 6–7 February · Exeter</span>
+						<span className="section-tag">ExeHacks 2027 · 6-7 February · Exeter</span>
 						<h1 className="h-section">Apply to hack</h1>
 						<p className="lead">
 							ExeHacks 2027 is a free 24-hour student hackathon at the Innovation Centre, Exeter, Sat 6 to Sun 7 February 2027,
@@ -29,9 +29,10 @@ export default function ApplyPage() {
 					<ApplyForm />
 
 					<p className="mono sponsor-page-back">
-						<Link href="/">Back to ExeHacks</Link>
+						<Link href="/">← Back to ExeHacks</Link>
 					</p>
-			</div>
-		</PageWindow>
+				</div>
+			</section>
+		</div>
 	)
 }

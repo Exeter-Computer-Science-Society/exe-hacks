@@ -73,7 +73,7 @@ export default function Sponsor() {
 	const sponsors = Object.values(info)
 
 	return (
-		<section className="w-full">
+		<div className="w-full">
 			<CurrentSponsors ctaHref="#enquiry" />
 
 			<div className="section-head">
@@ -82,16 +82,18 @@ export default function Sponsor() {
 				<p className="lead">These organisations backed the event when it ran as Hack South West.</p>
 			</div>
 
-			<div className="sponsor-grid">
-				{sponsors.map((s) => (
-					<SponsorCard
-						key={s.name}
-						sName={s.name}
-						sSite={s.site}
-						sImage={s.image}
-						sLevel={s.level}
-					/>
-				))}
+			<div className="mx-auto max-w-7xl">
+				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-4 lg:p-6">
+					{sponsors.map((s) => (
+						<SponsorCard
+							key={s.name}
+							sName={s.name}
+							sSite={s.site}
+							sImage={s.image}
+							sLevel={s.level}
+						/>
+					))}
+				</div>
 			</div>
 
 			<div className="section-head">
@@ -99,19 +101,21 @@ export default function Sponsor() {
 				<h2 className="h-section">Past partners.</h2>
 			</div>
 
-			<div className="sponsor-grid">
-				<SponsorCard
-					sName={"Encode Club"}
-					sSite={"https://www.encodeclub.com/"}
-					sImage={"/images/sponsors/encode.webp"}
-					sLevel={"partner"}
-				/>
-				<SponsorCard
-					sName={"Hackathons UK"}
-					sSite={"https://www.hackathons.org.uk/"}
-					sImage={"/images/sponsors/hackathonsUk.png"}
-					sLevel={"partner"}
-				/>
+			<div className="mx-auto max-w-7xl">
+				<div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2 sm:gap-3 lg:gap-4 p-2 sm:p-4 lg:p-6">
+					<SponsorCard
+						sName={"Encode Club"}
+						sSite={"https://www.encodeclub.com/"}
+						sImage={"/images/sponsors/encode.webp"}
+						sLevel={"partner"}
+					/>
+					<SponsorCard
+						sName={"Hackathons UK"}
+						sSite={"https://www.hackathons.org.uk/"}
+						sImage={"/images/sponsors/hackathonsUk.png"}
+						sLevel={"partner"}
+					/>
+				</div>
 			</div>
 
 			<div className="section-head">
@@ -126,7 +130,7 @@ export default function Sponsor() {
 					<li>Logo here, on slides, and at the venue</li>
 					<li>Optional workshop, booth, or judging seat</li>
 				</ul>
-				<p className="mono" style={{ color: "var(--muted)", marginTop: "0.8rem" }}>
+				<p className="mono" style={{ color: "var(--text-dim)", marginTop: "0.8rem" }}>
 					Powered by{" "}
 					<a
 						href="https://excs.uk/"
@@ -143,6 +147,6 @@ export default function Sponsor() {
 			<div id="enquiry">
 				<SponsorForm />
 			</div>
-		</section>
+		</div>
 	)
 }

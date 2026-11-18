@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { PageWindow } from "../components/chrome/PageWindow"
 import { InterestForm } from "../components/InterestForm"
 
 export const metadata = {
@@ -11,10 +10,11 @@ export const metadata = {
 
 export default function InterestedPage() {
 	return (
-		<PageWindow title="interest.form">
-			<div className="sponsor-page">
+		<div className="w-full h-fit">
+			<section className="band">
+				<div className="wrap sponsor-page">
 					<div className="section-head">
-						<span className="section-tag">ExeHacks 2027 · 6–7 February · Exeter</span>
+						<span className="section-tag">ExeHacks 2027 · 6-7 February · Exeter</span>
 						<h1 className="h-section">Register your interest</h1>
 						<p className="lead">
 							Leave your details and we&apos;ll let you know as soon as applications open (Mon 9 Nov 2026).
@@ -24,9 +24,10 @@ export default function InterestedPage() {
 					<InterestForm />
 
 					<p className="mono sponsor-page-back">
-						<Link href="/">Back to ExeHacks</Link>
+						<Link href="/">← Back to ExeHacks</Link>
 					</p>
-			</div>
-		</PageWindow>
+				</div>
+			</section>
+		</div>
 	)
 }

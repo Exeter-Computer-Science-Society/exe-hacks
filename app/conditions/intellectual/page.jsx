@@ -1,12 +1,10 @@
-import { PageWindow } from "../../components/chrome/PageWindow"
-
 export default function intellectual() {
 	return (
-		<PageWindow title="ip.txt">
-			<div className="legal">
-				<h1 className="h-section">Intellectual Property</h1>
+		<div className="bg-HSWprimary w-full h-fit flex flex-col pt-20">
+			<div className="flex flex-col gap-4 items-center justify-center w-full h-fit py-[5%] px-5 md:px-[18%]">
+				<p className="text-4xl text-HSWaccent font-extrabold">Intellectual Property</p>
 
-				<div className="legal-copy">
+				<div className="flex flex-col gap-4 justify-center">
 					<p className="text-center">
 						<small className="font-bold text-md text-HSWaccent">Ownership:</small> All intellectual property developed during Hack South West will be owned by
 						the original creators or their respective organisations, unless otherwise agreed upon by all
@@ -69,7 +67,8 @@ export default function intellectual() {
 						regarding intellectual property rights, please consult with the organisers for clarification
 					</p>
 				</div>
+
 			</div>
-		</PageWindow>
+		</div>
 	)
 }

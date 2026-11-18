@@ -2,13 +2,10 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { ClockCountdown } from "./components/ClockCountdown"
-import { Question } from "./components/Question"
-import { RegistrationButton } from "./components/RegistrationButton"
-import { DesktopIcons } from "./components/chrome/DesktopIcons"
 import { ErrorDialog } from "./components/chrome/ErrorDialog"
 import { ProgramIcon } from "./components/chrome/ProgramIcon"
-import { ProgressBar } from "./components/chrome/ProgressBar"
-import { Window } from "./components/chrome/Window"
+import { Question } from "./components/Question"
+import { RegistrationButton } from "./components/RegistrationButton"
 import Sponsor from "./components/General/Sponsor"
 import { Profile } from "./components/Team/Profiles"
 import { CONTACT_EMAIL } from "./config"
@@ -18,8 +15,8 @@ import { CONTACT_EMAIL } from "./config"
 const EVENT_DATE = Date.parse("2027-02-06T11:00:00Z")
 const EVENT_WINDOW = "6-7 February 2027"
 
-const TICKER =
-	"Beginners welcome   ·   6-7 Feb 2027   ·   Free food all weekend   ·   24 hours   ·   Workshops and mentors   ·   About 150 hackers   ·   Innovation Centre"
+const FILES =
+	"https://guildgroupssetup-my.sharepoint.com/:f:/g/personal/excs_groups_exeterguild_com/Ej3uvzjcOhxJshyqPG-i7A4Bj-Vd2GYqpygapE_MtUPqgA?e=Xwt0sm"
 
 const QUESTIONS = [
 	{
@@ -170,9 +167,6 @@ const HACK_SUNDAY = [
 	{ time: "15:00", what: "Venue Closes" },
 ]
 
-const FILES =
-	"https://guildgroupssetup-my.sharepoint.com/:f:/g/personal/excs_groups_exeterguild_com/Ej3uvzjcOhxJshyqPG-i7A4Bj-Vd2GYqpygapE_MtUPqgA?e=Xwt0sm"
-
 function ScheduleList({ day, rows }) {
 	return (
 		<>
@@ -187,318 +181,367 @@ function ScheduleList({ day, rows }) {
 	)
 }
 
-function EventPhoto({ src, alt, sizes }) {
-	return (
-		<figure className="crt-photo">
-			<Image src={src} alt={alt} fill sizes={sizes} style={{ objectFit: "cover" }} />
-		</figure>
-	)
-}
-
 export default function Home() {
 	return (
-		<div className="desk-page">
-			<div className="desk-stage">
-				<div className="desk-main">
-					<div className="hero-stack">
-						<Window title="ExeHacks 2027 Setup" shadow className="setup">
-							<div className="setup-body">
-								<ProgramIcon size={148} />
+		<div className="w-full h-fit">
+			<section className="hero" id="top">
+				<div className="hero-bg" aria-hidden="true">
+					<div className="glowA" />
+					<div className="glowB" />
+					<div className="hero-grid" />
+				</div>
+
+				<div className="wrap hero-stage">
+					<article className="wizard" aria-labelledby="wizard-title">
+						<p className="wizard-bar" id="wizard-title">
+							ExeHacks 2027 Setup
+						</p>
+						<div className="wizard-body">
+							<div className="wizard-head">
+								<ProgramIcon size={64} />
+								<h1 className="wordmark">.EXEHACKS</h1>
+							</div>
+							<p className="wizard-tag">build something that shouldn&apos;t exist yet</p>
+							<dl className="facts">
 								<div>
-									<h1 className="wordmark">.EXEHACKS</h1>
-									<p className="slede">
-										Setup will install <b>24 hours of building</b> on your weekend.
-									</p>
-									<p className="tagline">build something that shouldn&apos;t exist yet</p>
-									<p className="hero-energy">
-										Whether you&apos;re writing your first line of code or you&apos;ve shipped projects before, ExeHacks is 24
-										hours, free, with food, for about 150 hackers. Run by <b>EXCS</b>.
-									</p>
-									<ul className="chips">
-										<li>Beginners welcome</li>
-										<li>Free, food included</li>
-										<li>About 150 hackers</li>
-										<li>Workshops and mentors</li>
-									</ul>
-									<div className="facts">
-										<div>
-											<small>When</small>
-											<b>6-7 Feb 2027</b>
-										</div>
-										<div>
-											<small>Where</small>
-											<b>Innovation Centre</b>
-											<span className="fact-place">Uni of Exeter</span>
-										</div>
-										<div>
-											<small>Who</small>
-											<b>UK-wide</b>
-										</div>
-									</div>
+									<dt>When</dt>
+									<dd>6-7 Feb 2027</dd>
 								</div>
-							</div>
-							<ProgressBar />
-							<div className="sfoot">
-								<p className="url">exehacks.excs.uk</p>
-								<div className="sbtns">
-									<button type="button" className="btn" disabled>
-										{"< Back"}
-									</button>
-									<RegistrationButton label="Register >" />
+								<div>
+									<dt>Where</dt>
+									<dd>
+										Innovation Centre
+										<span className="fact-place">Uni of Exeter</span>
+									</dd>
 								</div>
+								<div>
+									<dt>Who</dt>
+									<dd>UK-wide</dd>
+								</div>
+							</dl>
+							<div className="wizard-actions" id="register">
+								<RegistrationButton label="Register" ariaLabel="Register your interest" />
 							</div>
-							<p className="setup-note">Tickets and more details coming soon. This registers your interest.</p>
-						</Window>
-						<ErrorDialog className="err-pop" />
-					</div>
-
-					<div className="ticker">
-						<div className="ticker-track">
-							<span className="ticker-item">{TICKER}</span>
-							<span className="ticker-item" aria-hidden="true">
-								{TICKER}
-							</span>
 						</div>
-					</div>
+					</article>
 
-					{EVENT_DATE ? (
-						<Window title="countdown.exe" id="countdown">
-							<span className="section-tag">Sat 6 Feb 2027, 11:00 UK</span>
-							<h2 className="h-section">The countdown to hacking is on.</h2>
-							<p className="lead">Doors at 9:00. Hacking starts at 11:00 UK.</p>
+					<ErrorDialog />
+				</div>
+			</section>
+
+			<div className="ticker" aria-hidden="true">
+				<div className="ticker-track">
+					{[0, 1].map((i) => (
+						<span className="ticker-item" key={i}>
+							<span className="star">*</span> BEGINNERS WELCOME <span className="star">*</span> <em>6-7 FEB 2027</em>{" "}
+							<span className="star">*</span> FREE FOOD ALL WEEKEND <span className="star">*</span> <em>24 HOURS</em>{" "}
+							<span className="star">*</span> WORKSHOPS AND MENTORS <span className="star">*</span> <em>ABOUT 150 HACKERS</em>{" "}
+							<span className="star">*</span> BUILD ANYTHING <span className="star">*</span>
+						</span>
+					))}
+				</div>
+			</div>
+
+			<section className="band" id="countdown">
+				<div className="wrap countdown-row">
+					<div className="countdown-main">
+						<span className="section-tag">Sat 6 Feb 2027, 11:00 UK</span>
+						<h2 className="h-section" style={{ maxWidth: "18ch" }}>
+							The countdown to <span className="grad-text">hacking</span> is on.
+						</h2>
+						<p className="lead" style={{ margin: "0 auto" }}>
+							Doors at 9:00. Hacking starts at 11:00 UK.
+						</p>
+						<div className="clock-center">
 							<ClockCountdown target={EVENT_DATE} label="Hacking starts in" prompt="$ ./hack --starts-in" dayDigits={3} />
-						</Window>
-					) : null}
-
-					<Window title="about.txt" id="about">
-						<div className="welcome-grid">
-							<div>
-								<span className="section-tag">What is this?</span>
-								<h2 className="h-section">24 hours. A team of four. Whatever you can ship.</h2>
-								<p>
-									ExeHacks is the University of Exeter&apos;s student hackathon, run by <b>EXCS</b>. You get 24 hours, a team of up
-									to four, and whatever you can ship in a weekend. Beginners are welcome. We run workshops and put mentors on
-									the floor.
-								</p>
-								<p>
-									We run it once a year. Next date: <b>{EVENT_WINDOW}</b>. It ran as Hack South West before this one. Here&apos;s
-									what came before.
-								</p>
-								<ul className="past-list">
-									{PAST_EVENTS.map((event) => (
-										<li className="past-row" key={`${event.when}-${event.name}`}>
-											<span className="pe-when">{event.when}</span>
-											<span className="pe-name">
-												{event.href ? <Link href={event.href}>{event.name}</Link> : event.name}
-											</span>
-											<span className="pe-what">{event.what}</span>
-										</li>
-									))}
-								</ul>
-								<div className="hero-cta">
-									<a className="btn" href={FILES} target="_blank" rel="noopener noreferrer">
-										Pictures from previous events
-									</a>
-								</div>
-							</div>
-							<div className="photo-pair">
-								{ABOUT_PHOTOS.map((photo) => (
-									<EventPhoto key={photo.src} {...photo} sizes="(max-width: 768px) 46vw, 280px" />
-								))}
-							</div>
 						</div>
-					</Window>
+					</div>
+					<ErrorDialog title="nap.exe" message="nap.exe is not installed. Sunday can wait." />
+				</div>
+			</section>
 
-					<Window title="hsw-2024.txt" id="hsw-2024">
+			<section className="band band-alt" id="about">
+				<div className="wrap welcome-grid">
+					<div className="welcome-copy">
+						<span className="section-tag">What is this?</span>
+						<h2 className="h-section" style={{ margin: "1rem 0 1.4rem" }}>
+							24 hours. A team of four. <span className="grad-text">Whatever you can ship.</span>
+						</h2>
+						<p>
+							ExeHacks is the University of Exeter&apos;s student hackathon, run by <b>EXCS</b>. You get 24 hours, a team of up to
+							four, and whatever you can ship in a weekend. Beginners are welcome. We run workshops and put mentors on the floor.
+							It is free, with food, for about 150 hackers.
+						</p>
+						<p>
+							We run it once a year. Next date: <b>{EVENT_WINDOW}</b>. It ran as Hack South West before this one. Here&apos;s what
+							came before.
+						</p>
+						<ul className="past-list">
+							{PAST_EVENTS.map((event) => (
+								<li className="past-row" key={`${event.when}-${event.name}`}>
+									<span className="pe-when">{event.when}</span>
+									<span className="pe-name">
+										{event.href ? <Link href={event.href}>{event.name}</Link> : event.name}
+									</span>
+									<span className="pe-what">{event.what}</span>
+								</li>
+							))}
+						</ul>
+						<div className="hero-cta mt-8">
+							<a className="btn btn-ghost" href={FILES} target="_blank" rel="noopener noreferrer">
+								Pictures from previous events
+							</a>
+						</div>
+					</div>
+					<div className="grid grid-cols-2 gap-3">
+						{ABOUT_PHOTOS.map((photo) => (
+							<div className="crt-photo relative aspect-[3/4] overflow-hidden border border-[color:var(--line)]" key={photo.src}>
+								<Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 768px) 46vw, 280px" className="object-cover" />
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
+
+			<section className="band" id="hsw-2024">
+				<div className="wrap">
+					<div className="section-head">
 						<span className="section-tag">February 2024</span>
 						<h2 className="h-section">Last time we ran it.</h2>
 						<p className="lead">
 							The February 2024 edition, when the event was still called Hack South West. People came from Exeter, Bristol,
 							Plymouth, Bournemouth and Cardiff.
 						</p>
-						<div className="stat-grid">
-							{PAST_STATS.map((stat) => (
-								<div className="stat" key={stat.lab}>
-									<div className="num">{stat.num}</div>
-									<div className="lab">{stat.lab}</div>
-								</div>
-							))}
-						</div>
-						<div className="gallery">
-							{GALLERY_PHOTOS.map((photo) => (
-								<div className="ph" key={photo.src}>
-									<Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 768px) 46vw, 180px" style={{ objectFit: "cover" }} />
-								</div>
-							))}
-							<Link className="ph ph-more" href="/past/hsw-2024-feb/">
-								<span>Full 2024 archive</span>
-							</Link>
-						</div>
-						<div className="sched-past">
-							<h3>Winners</h3>
-							<p className="lead">Every podium team went home with Raspberry Pi Zeros.</p>
-						</div>
-						<div className="podium">
-							{WINNERS.map((winner) => (
-								<div className={`pcol ${winner.cls}`} key={winner.cls}>
-									{winner.cls === "first" ? <span className="topline" /> : null}
-									<div className="rank">{winner.rank}</div>
-									<div className="amt">{winner.team}</div>
-									<div className="perk">{winner.project}</div>
-								</div>
-							))}
-						</div>
-					</Window>
+					</div>
+					<div className="stat-grid">
+						{PAST_STATS.map((stat) => (
+							<div className="stat" key={stat.lab}>
+								<div className="num">{stat.num}</div>
+								<div className="lab">{stat.lab}</div>
+							</div>
+						))}
+					</div>
+					<div className="gallery fit">
+						{GALLERY_PHOTOS.map((photo) => (
+							<div className="ph" key={photo.src}>
+								<Image src={photo.src} alt={photo.alt} width={500} height={500} />
+							</div>
+						))}
+						<Link className="ph ph-more" href="/past/hsw-2024-feb/">
+							<span>Full 2024 archive</span>
+						</Link>
+					</div>
+					<div className="sched-past">
+						<h3>Winners</h3>
+						<p className="lead">Every podium team went home with Raspberry Pi Zeros.</p>
+					</div>
+					<div className="podium">
+						{WINNERS.map((winner) => (
+							<div className={`pcol ${winner.cls}`} key={winner.cls}>
+								{winner.cls === "first" ? <span className="topline" /> : null}
+								<div className="rank">{winner.rank}</div>
+								<div className="amt">{winner.team}</div>
+								<div className="perk">{winner.project}</div>
+							</div>
+						))}
+					</div>
+				</div>
+			</section>
 
-					<Window title="readme.txt" id="rebrand">
-						<div className="note-copy">
-							<span className="section-tag">We&apos;ve rebranded</span>
-							<h2 className="h-section">Hack South West is now ExeHacks.</h2>
-							<p className="lead">
-								Every edition has been held in Exeter, so the old name claimed more ground than the event covered. The new one
-								says where it is, and puts us next to SotonHacks, HackNotts, DurHack and the rest of the UK student circuit.
-								Same organisers, same venue, same event. If you came before, you already know this one.
-							</p>
-						</div>
-					</Window>
+			<section className="band band-alt" id="rebrand">
+				<div className="wrap">
+					<div className="gcard note-panel">
+						<span className="section-tag">We&apos;ve rebranded</span>
+						<h2 className="h-section">Hack South West is now ExeHacks.</h2>
+						<p className="lead">
+							Every edition has been held in Exeter, so the old name claimed more ground than the event covered. The new one says
+							where it is, and puts us next to SotonHacks, HackNotts, DurHack and the rest of the UK student circuit. Same
+							organisers, same venue, same event. If you came before, you already know this one.
+						</p>
+					</div>
+				</div>
+			</section>
 
-					<Window title="excs.cfg" id="excs">
+			<section className="band" id="excs">
+				<div className="wrap">
+					<div className="welcome-copy" style={{ maxWidth: "56ch" }}>
 						<span className="section-tag">Who runs it</span>
-						<h2 className="h-section">Powered by EXCS.</h2>
+						<h2 className="h-section" style={{ margin: "1rem 0 1.4rem" }}>
+							Powered by <span className="grad-text">EXCS</span>.
+						</h2>
 						<p>
 							ExeHacks is run by the <b>Exeter Computer Science Society</b>. Start to finish. Same society that ran Hack South
 							West, still with the person who started it. That part doesn&apos;t change.
 						</p>
-					</Window>
+					</div>
+				</div>
+			</section>
 
-					<Window title="event.exe" id="events">
+			<section className="band band-alt" id="events">
+				<div className="wrap">
+					<div className="section-head">
 						<span className="section-tag">One weekend a year</span>
 						<h2 className="h-section">The event.</h2>
 						<p className="lead">24 hours to build something. These are the tracks we&apos;re planning.</p>
-						<p>
-							<b>{EVENT_WINDOW}</b> at the <b>Innovation Centre, Exeter</b>. Food, workshops, teams of up to four. Build
-							whatever you want. The tracks below are how you win, not a brief you have to follow.
-						</p>
-						<div className="ev-facts">
-							<div className="ev-fact">
-								<span className="k">When</span> {EVENT_WINDOW}
+					</div>
+					<div className="events-grid single">
+						<article className="gcard event">
+							<div className="event-top">
+								<span className="event-kicker">{EVENT_WINDOW}</span>
+								<span className="event-pill soon">Flagship hackathon</span>
 							</div>
-							<div className="ev-fact">
-								<span className="k">Where</span> Innovation Centre, Exeter
-							</div>
-							<div className="ev-fact">
-								<span className="k">Teams</span> Up to 4 people
-							</div>
-							<div className="ev-fact">
-								<span className="k">Perks</span> Food, workshops, mentors
-							</div>
-						</div>
-						<div className={SHOW_SCHEDULE ? "event-split" : undefined}>
-							<div>
-								<span className="section-tag">Tracks we&apos;re planning</span>
-								<div className="tracks">
-									{PRIZE_TRACKS.map((track) => (
-										<article className="track" key={track.title}>
-											<h3>{track.title}</h3>
-											<p>{track.blurb}</p>
-										</article>
-									))}
+							<h3>
+								<span>The 24-Hour </span>
+								<span className="grad-text">Hackathon</span>
+							</h3>
+							<p className="ev-desc">
+								<b>{EVENT_WINDOW}</b> at the <b>Innovation Centre, Exeter</b>. Food, workshops, teams of up to four. Build
+								whatever you want. The tracks below are how you win, not a brief you have to follow.
+							</p>
+							<div className="ev-facts">
+								<div className="ev-fact">
+									<span className="k">When</span> {EVENT_WINDOW}
+								</div>
+								<div className="ev-fact">
+									<span className="k">Where</span> Innovation Centre, Exeter
+								</div>
+								<div className="ev-fact">
+									<span className="k">Teams</span> Up to 4 people
+								</div>
+								<div className="ev-fact">
+									<span className="k">Perks</span> Food, workshops, mentors
 								</div>
 							</div>
-							{SHOW_SCHEDULE ? (
-								<div className="sched">
-									<span className="section-tag">Schedule</span>
-									<ScheduleList day="Saturday 6 Feb" rows={HACK_SATURDAY} />
-									<ScheduleList day="Sunday 7 Feb" rows={HACK_SUNDAY} />
+							<div className={SHOW_SCHEDULE ? "event-body" : "event-body event-body-solo"}>
+								<div className="event-copy">
+									<span className="section-tag">Tracks we&apos;re planning</span>
+									<div className="tracks">
+										{PRIZE_TRACKS.map((track) => (
+											<article className="track" key={track.title}>
+												<h4>{track.title}</h4>
+												<p>{track.blurb}</p>
+											</article>
+										))}
+									</div>
 								</div>
-							) : null}
-						</div>
-						<div className="hero-cta">
-							<RegistrationButton />
-						</div>
-						<p>Food and refreshments provided throughout the weekend.</p>
-					</Window>
+								{SHOW_SCHEDULE ? (
+									<div className="event-side">
+										<span className="section-tag">Schedule</span>
+										<div className="sched mt-4">
+											<ScheduleList day="Saturday 6 Feb" rows={HACK_SATURDAY} />
+											<ScheduleList day="Sunday 7 Feb" rows={HACK_SUNDAY} />
+										</div>
+									</div>
+								) : null}
+							</div>
+							<div className="hero-cta">
+								<RegistrationButton />
+							</div>
+						</article>
+					</div>
+					<p className="mono text-center mt-10" style={{ color: "var(--text-dim)" }}>
+						Food and refreshments provided throughout the weekend.
+					</p>
+				</div>
+			</section>
 
-					<Window title="schedule.exe" id="schedule">
+			<section className="band" id="schedule">
+				<div className="wrap">
+					<div className="section-head">
 						<span className="section-tag">Run of show</span>
 						<h2 className="h-section">Schedule.</h2>
 						<p className="lead">Doors at 9:00. Hacking starts at 11:00 UK. The rest of the 2027 timetable is TBA.</p>
+					</div>
+					<div className="sched">
+						<ScheduleList day="Saturday 6 Feb 2027" rows={HACK_2027_SATURDAY} />
+						<ScheduleList day="Sunday 7 Feb 2027" rows={HACK_2027_SUNDAY} />
+					</div>
+					<div className="sched-past">
+						<h3>February 2024 timetable</h3>
+						<p className="lead">What the previous edition looked like. These times are not the 2027 plan.</p>
 						<div className="sched">
-							<ScheduleList day="Saturday 6 Feb 2027" rows={HACK_2027_SATURDAY} />
-							<ScheduleList day="Sunday 7 Feb 2027" rows={HACK_2027_SUNDAY} />
+							<ScheduleList day="Saturday" rows={HACK_SATURDAY} />
+							<ScheduleList day="Sunday" rows={HACK_SUNDAY} />
 						</div>
-						<div className="sched-past">
-							<h3>February 2024 timetable</h3>
-							<p className="lead">What the previous edition looked like. These times are not the 2027 plan.</p>
-							<div className="sched">
-								<ScheduleList day="Saturday" rows={HACK_SATURDAY} />
-								<ScheduleList day="Sunday" rows={HACK_SUNDAY} />
-							</div>
-						</div>
-					</Window>
+					</div>
+				</div>
+			</section>
 
-					<Window title="team.cfg" id="team">
+			<section className="band band-alt" id="team">
+				<div className="wrap">
+					<div className="section-head">
 						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">Meet the team.</h2>
 						<p className="lead">The lead organiser, an academic organiser and an advisor.</p>
-						<div className="team-groups">
-							<div className="team-group">
-								<span className="section-tag">Organisers</span>
-								<div className="team-grid">
-									<Profile name="Kazybek Khairulla" position="Lead Organiser" image="/team/kazybek.webp" />
-									<Profile name="Emre Acarsoy" position="Academic Organiser" image="/team/emre.jpg" />
-								</div>
-							</div>
-							<div className="team-group">
-								<span className="section-tag">Advisor</span>
-								<div className="team-grid">
-									<Profile name="Wiktor Wiejak" position="Advisor" image="/team/wiktor.webp" />
-								</div>
+					</div>
+					<div className="team-groups">
+						<div className="team-group">
+							<span className="section-tag">Organisers</span>
+							<div className="team-grid">
+								<Profile name="Kazybek Khairulla" position="Lead Organiser" image="/team/kazybek.webp" />
+								<Profile name="Emre Acarsoy" position="Academic Organiser" image="/team/emre.jpg" />
 							</div>
 						</div>
-					</Window>
-
-					<Window title="sponsors.dll" id="sponsors">
-						<Sponsor />
-					</Window>
-
-					<Window title="faq.txt" id="faq">
-						<div className="faq-grid">
-							<div>
-								<span className="section-tag">Good to know</span>
-								<h2 className="h-section">Questions, answered.</h2>
-								<p className="lead">
-									Have questions? Here you&apos;ll find all the answers. If something is missing, reach out via{" "}
-									<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
-								</p>
-								<div className="faq-side-links">
-									<Link href="/past/hsw-2024-feb/">Past editions</Link>
-									<Link href="/conditions/intellectual/">Intellectual Property</Link>
-									<Link href="/conditions/terms/">Terms &amp; Conditions</Link>
-									<a href={FILES} target="_blank" rel="noopener noreferrer">
-										Access Files
-									</a>
-								</div>
-							</div>
-							<div className="faq-list">
-								{QUESTIONS.map((question) => (
-									<Question key={question.id} info={question} />
-								))}
+						<div className="team-group">
+							<span className="section-tag">Advisor</span>
+							<div className="team-grid">
+								<Profile name="Wiktor Wiejak" position="Advisor" image="/team/wiktor.webp" />
 							</div>
 						</div>
-					</Window>
+					</div>
+				</div>
+			</section>
 
-					<Window title="register.exe" id="register">
-						<span className="section-tag">Innovation Centre, Exeter</span>
-						<h2 className="h-section">Ready to build?</h2>
+			<section className="band" id="sponsors">
+				<div className="wrap">
+					<Sponsor />
+				</div>
+			</section>
+
+			<section className="band band-alt" id="faq">
+				<div className="wrap faq-grid">
+					<div>
+						<span className="section-tag">Good to know</span>
+						<h2 className="h-section" style={{ marginTop: "1rem" }}>
+							Questions, answered.
+						</h2>
+						<p className="lead" style={{ marginTop: "1.2rem" }}>
+							Have questions? Here you&apos;ll find the answers. If something is missing, reach out via{" "}
+							<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+						</p>
+						<div className="faq-side-links">
+							<Link href="/past/hsw-2024-feb/">Past editions</Link>
+							<Link href="/conditions/intellectual/">Intellectual Property</Link>
+							<Link href="/conditions/terms/">Terms and Conditions</Link>
+							<a href={FILES} target="_blank" rel="noopener noreferrer">
+								Access Files
+							</a>
+						</div>
+					</div>
+					<div className="faq-list">
+						{QUESTIONS.map((question) => (
+							<Question key={question.id} info={question} />
+						))}
+					</div>
+				</div>
+			</section>
+
+			<section className="band finalcta">
+				<div className="wrap">
+					<div className="panel">
+						<span className="eyebrow" style={{ display: "block", marginBottom: "1.2rem" }}>
+							Innovation Centre, Exeter
+						</span>
+						<h2>
+							Ready to <span className="grad-text">build</span>?
+						</h2>
 						<p>Tickets and more details are coming soon. Leave your details and we&apos;ll email you. See you {EVENT_WINDOW}.</p>
 						<div className="hero-cta">
 							<RegistrationButton />
 						</div>
-					</Window>
+					</div>
 				</div>
-				<DesktopIcons />
-			</div>
+			</section>
 		</div>
 	)
 }

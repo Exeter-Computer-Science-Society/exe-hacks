@@ -1,6 +1,5 @@
 import Link from "next/link"
 
-import { PageWindow } from "../../components/chrome/PageWindow"
 import { CONTACT_EMAIL } from "../../config"
 
 export const metadata = {
@@ -10,10 +9,11 @@ export const metadata = {
 
 export default function ApplyThanksPage() {
 	return (
-		<PageWindow title="apply.ok">
-			<div className="sponsor-page">
+		<div className="w-full h-fit">
+			<section className="band">
+				<div className="wrap sponsor-page">
 					<div className="section-head">
-						<span className="section-tag">ExeHacks 2027 · 6–7 February · Exeter</span>
+						<span className="section-tag">ExeHacks 2027 · 6-7 February · Exeter</span>
 						<h1 className="h-section">Application received</h1>
 						<p className="lead">Thanks for applying to ExeHacks 2027.</p>
 					</div>
@@ -25,9 +25,10 @@ export default function ApplyThanksPage() {
 						</p>
 					</div>
 					<p className="mono sponsor-page-back">
-						<Link href="/">Back to ExeHacks</Link>
+						<Link href="/">← Back to ExeHacks</Link>
 					</p>
-			</div>
-		</PageWindow>
+				</div>
+			</section>
+		</div>
 	)
 }
