@@ -1,36 +1,30 @@
 import { DocumentCard } from "../components/General/DocumentCard"
+import { PageWindow } from "../components/chrome/PageWindow"
 
 export default function DocumentsPage() {
-
 	const documents = [
 		{
 			name: "Terms & Conditions",
 			description: "The terms and conditions of the event",
 			image: "/images/terms/terms.jpg",
-			link: "/conditions/terms"
+			link: "/conditions/terms/",
 		},
 		{
 			name: "Intellectual Property",
 			description: "The intellectual property rights of the event",
 			image: "/images/terms/intellectual.jpg",
-			link: "/conditions/intellectual"
-		}
+			link: "/conditions/intellectual/",
+		},
 	]
 
 	return (
-		<div className="bg-HSWprimary w-full h-screen flex flex-col">
-			<div className="w-full h-full flex flex-col items-center justify-center gap-8 pb-72">
-
-				<p className="text-2xl font-extrabold">Documents Page</p>
-
-				<div className="grid grid-flow-row grid-cols-2 gap-8">
-					{
-						documents.map((doc, index) => (
-							<DocumentCard key={index} document={doc} />
-						))
-					}
-				</div>
+		<PageWindow title="docs.txt">
+			<h1 className="h-section">Documents</h1>
+			<div className="doc-grid">
+				{documents.map((doc) => (
+					<DocumentCard key={doc.link} document={doc} />
+				))}
 			</div>
-		</div>
+		</PageWindow>
 	)
 }

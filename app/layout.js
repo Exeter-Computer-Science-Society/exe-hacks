@@ -1,31 +1,43 @@
-import { Bricolage_Grotesque, JetBrains_Mono, Pixelify_Sans, VT323 } from "next/font/google"
+import { JetBrains_Mono, Pixelify_Sans, Silkscreen } from "next/font/google"
+import Script from "next/script"
+
 import "./globals.css"
+import "./tokens.css"
 import "./exehacks.css"
 import { FormspreeProvider } from "./components/FormspreeProvider"
-import { TopBar } from "./components/TopBar"
-import { Footer } from "./components/Footer"
+import { Taskbar } from "./components/chrome/Taskbar"
+import { THEME_BOOT } from "./components/chrome/theme"
 
-// The ExeHacks design system reaches for these through CSS custom properties
-// (--font-display / --font-mono in the base theme, --font-pixel / --font-term
-// under data-theme="retro"), so each one only needs to expose a variable.
-const bricolage = Bricolage_Grotesque({ subsets: ["latin"], display: "swap", variable: "--font-bricolage" })
-const jetbrains = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-jetbrains" })
-const pixelify = Pixelify_Sans({ subsets: ["latin"], display: "swap", variable: "--font-pixelify" })
-const vt323 = VT323({ weight: "400", subsets: ["latin"], display: "swap", variable: "--font-vt323" })
+const jetbrains = JetBrains_Mono({
+	subsets: ["latin"],
+	weight: ["400", "500", "700"],
+	display: "swap",
+	variable: "--font-jetbrains",
+})
+const pixelify = Pixelify_Sans({
+	subsets: ["latin"],
+	weight: ["600", "700"],
+	display: "swap",
+	variable: "--font-pixelify",
+})
+const silkscreen = Silkscreen({
+	subsets: ["latin"],
+	weight: "400",
+	display: "swap",
+	variable: "--font-silkscreen",
+})
 
-const fontVars = [bricolage.variable, jetbrains.variable, pixelify.variable, vt323.variable].join(" ")
+const fontVars = [jetbrains.variable, pixelify.variable, silkscreen.variable].join(" ")
 
 const siteTitle = "ExeHacks: Exeter's student hackathon"
 const siteDescription =
-	"ExeHacks is the University of Exeter's student hackathon, 6–7 February 2027. Venue TBC (University of Exeter). Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West."
+	"ExeHacks is the University of Exeter's student hackathon, 6-7 February 2027 at the Innovation Centre, Exeter. Build something that shouldn't exist yet. Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West."
 
-// Link preview card for WhatsApp, Discord, LinkedIn, X etc. 1200x630, made from
-// the site's own wordmark/palette. Child pages inherit it via the root layout.
 const ogImage = {
-	url: "/images/og/exehacks-og.png",
-	width: 1200,
-	height: 630,
-	alt: "ExeHacks: 6–7 February 2027. University of Exeter, 24-hour student hackathon. exehacks.excs.uk",
+	url: "/hero/exehacks-hero-dark-1920x1080.png",
+	width: 1920,
+	height: 1080,
+	alt: "ExeHacks 2027 setup window. 6-7 February 2027, Innovation Centre, Exeter. exehacks.excs.uk",
 }
 
 export const metadata = {
@@ -47,37 +59,31 @@ export const metadata = {
 		description: siteDescription,
 		images: [ogImage],
 	},
-	// Sized favicons from public/images/icons/. public/favicon.ico is the same
-	// mark so browsers that still request /favicon.ico get the new icon.
 	icons: {
 		icon: [
-			{ url: "/images/icons/exehacks-favicon-purple-16.png", sizes: "16x16", type: "image/png" },
-			{ url: "/images/icons/exehacks-favicon-purple-32.png", sizes: "32x32", type: "image/png" },
+			{ url: "/favicon/favicon-16.png", sizes: "16x16", type: "image/png" },
+			{ url: "/favicon/favicon-32.png", sizes: "32x32", type: "image/png" },
+			{ url: "/favicon/favicon-64.png", sizes: "64x64", type: "image/png" },
 		],
-		shortcut: "/images/icons/exehacks-favicon-purple-32.png",
-		apple: "/images/icons/exehacks-icon.png",
+		shortcut: "/favicon/favicon-32.png",
+		apple: "/favicon/apple-touch-icon.png",
 	},
 }
 
 export default function RootLayout({ children }) {
 	return (
-		<html
-			lang="en"
-			data-theme="retro"
-			className={`w-full h-full ${fontVars}`}
-		>
-			<body className="w-full h-fit">
+		<html lang="en" suppressHydrationWarning className={fontVars}>
+			<body>
+				<Script id="exehacks-theme" strategy="beforeInteractive">
+					{THEME_BOOT}
+				</Script>
+				<a className="skip" href="#content">
+					Skip to content
+				</a>
 				<FormspreeProvider>
-					<TopBar />
-					{children}
-					<Footer />
+					<div id="content">{children}</div>
+					<Taskbar />
 				</FormspreeProvider>
-
-				{/* CRT scanline overlay. Retro theme only, styled in exehacks.css */}
-				<div
-					className="scanlines"
-					aria-hidden="true"
-				/>
 			</body>
 		</html>
 	)

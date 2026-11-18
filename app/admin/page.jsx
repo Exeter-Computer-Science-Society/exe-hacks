@@ -1,4 +1,5 @@
 import { AdminConsole } from "../components/AdminConsole"
+import { PageWindow } from "../components/chrome/PageWindow"
 
 export const metadata = {
 	title: "Admin: ExeHacks",
@@ -7,9 +8,8 @@ export const metadata = {
 
 export default function AdminPage() {
 	return (
-		<div className="w-full h-fit">
-			<section className="band">
-				<div className="wrap sponsor-page">
+		<PageWindow title="admin.exe">
+			<div className="sponsor-page">
 					<div className="section-head">
 						<span className="section-tag">ExeHacks admin</span>
 						<h1 className="h-section">Signups</h1>
@@ -19,8 +19,7 @@ export default function AdminPage() {
 						</p>
 					</div>
 					<AdminConsole />
-				</div>
-			</section>
-		</div>
+			</div>
+		</PageWindow>
 	)
 }
