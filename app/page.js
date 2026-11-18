@@ -37,7 +37,7 @@ const QUESTIONS = [
 	{
 		id: 15,
 		question: "When is ExeHacks?",
-		answer: "6-7 February 2027. Venue TBC (University of Exeter). Saturday into Sunday, 24 hours.",
+		answer: "6-7 February 2027 at the Innovation Centre, Exeter. Saturday into Sunday, 24 hours. Doors at 9:00, hacking starts at 11:00 UK time on Saturday.",
 	},
 	{
 		id: 3,
@@ -57,7 +57,7 @@ const QUESTIONS = [
 	{
 		id: 5,
 		question: "Where is ExeHacks Happening?",
-		answer: "Venue TBC (University of Exeter). We will confirm the exact venue and address before the event.",
+		answer: "Innovation Centre, Exeter, at the University of Exeter.",
 	},
 	{
 		id: 6,
@@ -227,7 +227,8 @@ export default function Home() {
 										</div>
 										<div>
 											<small>Where</small>
-											<b>Uni of Exeter</b>
+											<b>Innovation Centre</b>
+											<span className="fact-place">Uni of Exeter</span>
 										</div>
 										<div>
 											<small>Who</small>
@@ -255,6 +256,7 @@ export default function Home() {
 						<Window title="countdown.exe" id="countdown">
 							<span className="section-tag">Sat 6 Feb 2027, 11:00 UK</span>
 							<h2 className="h-section">The countdown to hacking is on.</h2>
+							<p className="lead">Doors at 9:00. Hacking starts at 11:00 UK.</p>
 							<ClockCountdown target={EVENT_DATE} label="Hacking starts in" prompt="$ ./hack --starts-in" dayDigits={3} />
 						</Window>
 					) : null}
@@ -341,7 +343,7 @@ export default function Home() {
 						<h2 className="h-section">The event.</h2>
 						<p className="lead">24 hours to build something. These are the tracks we&apos;re planning.</p>
 						<p>
-							<b>{EVENT_WINDOW}</b> at <b>Venue TBC (University of Exeter)</b>. Food, workshops, teams of up to four. Build
+							<b>{EVENT_WINDOW}</b> at the <b>Innovation Centre, Exeter</b>. Food, workshops, teams of up to four. Build
 							whatever you want. The tracks below are how you win, not a brief you have to follow.
 						</p>
 						<div className="ev-facts">
@@ -349,7 +351,7 @@ export default function Home() {
 								<span className="k">When</span> {EVENT_WINDOW}
 							</div>
 							<div className="ev-fact">
-								<span className="k">Where</span> Venue TBC (University of Exeter)
+								<span className="k">Where</span> Innovation Centre, Exeter
 							</div>
 							<div className="ev-fact">
 								<span className="k">Teams</span> Up to 4 people
@@ -394,8 +396,8 @@ export default function Home() {
 							</div>
 						) : (
 							<p className="lead">
-								TBA. The 2027 timetable is not final. Hacking starts Sat 6 Feb 2027 at 11:00 UK time. Saturday into Sunday, 24
-								hours.
+								The rest of the 2027 timetable is TBA. Doors open at 9:00 on Sat 6 Feb. Hacking starts at 11:00 UK time.
+								Saturday into Sunday, 24 hours.
 							</p>
 						)}
 					</Window>
@@ -453,7 +455,7 @@ export default function Home() {
 					</Window>
 
 					<Window title="register.exe" id="register">
-						<span className="section-tag">Venue TBC (University of Exeter)</span>
+						<span className="section-tag">Innovation Centre, Exeter</span>
 						<h2 className="h-section">Ready to build?</h2>
 						<p>Tickets and more details are coming soon. Leave your details and we&apos;ll email you. See you {EVENT_WINDOW}.</p>
 						<div className="hero-cta">

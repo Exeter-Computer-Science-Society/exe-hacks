@@ -6,7 +6,7 @@ import { InterestForm } from "../components/InterestForm"
 export const metadata = {
 	title: "Register your interest: ExeHacks 2027",
 	description:
-		"Leave your details and we'll let you know as soon as ExeHacks 2027 applications open (Mon 9 Nov 2026). 6–7 February 2027 in Exeter.",
+		"Leave your details and we'll let you know as soon as ExeHacks 2027 applications open (Mon 9 Nov 2026). 6-7 February 2027 at the Innovation Centre, Exeter.",
 }
 
 export default function InterestedPage() {

@@ -409,6 +409,7 @@ a.dicon.sel .dicon-label {
 	margin-bottom: 4px;
 }
 .facts b { font-family: var(--font-pixel); font-weight: 600; font-size: clamp(1rem, 2.2vw, 1.6rem); }
+.facts .fact-place { display: block; margin-top: 2px; font-family: var(--font-mono); font-size: 0.82rem; font-weight: 500; color: var(--muted); }
 .prog {
 	display: flex;
 	align-items: center;

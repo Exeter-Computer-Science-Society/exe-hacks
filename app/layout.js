@@ -31,13 +31,13 @@ const fontVars = [jetbrains.variable, pixelify.variable, silkscreen.variable].jo
 
 const siteTitle = "ExeHacks: Exeter's student hackathon"
 const siteDescription =
-	"ExeHacks is the University of Exeter's student hackathon, 6-7 February 2027. Build something that shouldn't exist yet. Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West."
+	"ExeHacks is the University of Exeter's student hackathon, 6-7 February 2027 at the Innovation Centre, Exeter. Build something that shouldn't exist yet. Run by the Exeter Computer Science Society (EXCS). Formerly Hack South West."
 
 const ogImage = {
 	url: "/hero/exehacks-hero-dark-1920x1080.png",
 	width: 1920,
 	height: 1080,
-	alt: "ExeHacks 2027 setup window. 6-7 February 2027, University of Exeter. exehacks.excs.uk",
+	alt: "ExeHacks 2027 setup window. 6-7 February 2027, Innovation Centre, Exeter. exehacks.excs.uk",
 }
 
 export const metadata = {
