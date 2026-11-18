@@ -77,6 +77,44 @@ export default function Sponsor() {
 			<CurrentSponsors ctaHref="#enquiry" />
 
 			<div className="section-head">
+				<span className="section-tag">Who has backed us</span>
+				<h2 className="h-section">Past sponsors.</h2>
+				<p className="lead">These organisations backed the event when it ran as Hack South West.</p>
+			</div>
+
+			<div className="sponsor-grid">
+				{sponsors.map((s) => (
+					<SponsorCard
+						key={s.name}
+						sName={s.name}
+						sSite={s.site}
+						sImage={s.image}
+						sLevel={s.level}
+					/>
+				))}
+			</div>
+
+			<div className="section-head">
+				<span className="section-tag">Who we have worked with</span>
+				<h2 className="h-section">Past partners.</h2>
+			</div>
+
+			<div className="sponsor-grid">
+				<SponsorCard
+					sName={"Encode Club"}
+					sSite={"https://www.encodeclub.com/"}
+					sImage={"/images/sponsors/encode.webp"}
+					sLevel={"partner"}
+				/>
+				<SponsorCard
+					sName={"Hackathons UK"}
+					sSite={"https://www.hackathons.org.uk/"}
+					sImage={"/images/sponsors/hackathonsUk.png"}
+					sLevel={"partner"}
+				/>
+			</div>
+
+			<div className="section-head">
 				<span className="section-tag">Partner with us</span>
 				<h2 className="h-section">Put your name on a track.</h2>
 				<p className="lead">
@@ -105,72 +143,6 @@ export default function Sponsor() {
 			<div id="enquiry">
 				<SponsorForm />
 			</div>
-
-			<div className="section-head mt-16">
-				<span className="section-tag">Who has backed us</span>
-				<h2 className="h-section">Past sponsors.</h2>
-				<p className="lead">These organisations backed the event when it ran as Hack South West.</p>
-			</div>
-
-			<div className="mx-auto max-w-7xl">
-				<div
-					className="
-					grid
-					grid-cols-2
-					sm:grid-cols-3
-					lg:grid-cols-4
-					xl:grid-cols-5
-					gap-2
-					sm:gap-3
-					lg:gap-4
-					p-2 sm:p-4 lg:p-6
-				"
-				>
-					{sponsors.map((s, index) => (
-						<SponsorCard
-							key={index}
-							sName={s.name}
-							sSite={s.site}
-							sImage={s.image}
-							sLevel={s.level}
-						/>
-					))}
-				</div>
-			</div>
-
-			<div className="section-head mt-16">
-				<span className="section-tag">Who we have worked with</span>
-				<h2 className="h-section">Past partners.</h2>
-			</div>
-
-            <div className="mx-auto max-w-7xl">
-                <div
-                    className="
-                    grid
-                    grid-cols-2
-                    sm:grid-cols-3
-                    lg:grid-cols-4
-                    xl:grid-cols-5
-                    gap-2
-                    sm:gap-3
-                    lg:gap-4
-                    p-2 sm:p-4 lg:p-6
-                "
-                >
-                    <SponsorCard
-                        sName={"Encode Club"}
-                        sSite={"https://www.encodeclub.com/"}
-                        sImage={"/images/sponsors/encode.webp"}
-                        sLevel={"partner"}
-                    />
-                    <SponsorCard
-                        sName={"Hackathons UK"}
-                        sSite={"https://www.hackathons.org.uk/"}
-                        sImage={"/images/sponsors/hackathonsUk.png"}
-                        sLevel={"partner"}
-                    />
-                </div>
-            </div>
 		</section>
 	)
 }

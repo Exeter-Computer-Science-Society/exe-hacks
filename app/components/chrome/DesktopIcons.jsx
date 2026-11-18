@@ -3,12 +3,12 @@
 import { useEffect, useState } from "react"
 
 const ICONS = [
-	{ id: "about", href: "/#about", ext: "TXT", label: "about.txt" },
-	{ id: "events", href: "/#events", ext: "EXE", label: "event.exe" },
-	{ id: "schedule", href: "/#schedule", ext: "EXE", label: "schedule.exe" },
-	{ id: "sponsors", href: "/#sponsors", ext: "DLL", label: "sponsors.dll" },
-	{ id: "team", href: "/#team", ext: "CFG", label: "team.cfg" },
-	{ id: "faq", href: "/#faq", ext: "TXT", label: "faq.txt" },
+	{ id: "about", href: "/#about", ext: "TXT", label: "about.txt", short: "About" },
+	{ id: "events", href: "/#events", ext: "EXE", label: "event.exe", short: "Event" },
+	{ id: "schedule", href: "/#schedule", ext: "EXE", label: "schedule.exe", short: "Times" },
+	{ id: "sponsors", href: "/#sponsors", ext: "DLL", label: "sponsors.dll", short: "Sponsors" },
+	{ id: "team", href: "/#team", ext: "CFG", label: "team.cfg", short: "Team" },
+	{ id: "faq", href: "/#faq", ext: "TXT", label: "faq.txt", short: "FAQ" },
 ]
 
 export function DesktopIcons() {
@@ -35,7 +35,10 @@ export function DesktopIcons() {
 						<span className="dicon-file" aria-hidden="true">
 							<b>.{icon.ext}</b>
 						</span>
-						<span className="dicon-label">{icon.label}</span>
+						<span className="dicon-label">
+							<span className="dicon-label-full">{icon.label}</span>
+							<span className="dicon-label-short">{icon.short}</span>
+						</span>
 					</a>
 				)
 			})}
