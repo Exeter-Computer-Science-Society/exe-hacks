@@ -1,10 +1,13 @@
+import { PageWindow } from "../../components/chrome/PageWindow"
+import { CONTACT_EMAIL } from "../../config"
+
 export default function terms() {
 	return (
-		<div className="bg-HSWprimary w-full h-fit flex flex-col">
-			<div className="flex flex-col gap-4 items-center justify-center w-full h-fit py-[5%] px-[30%]">
-				<p className="text-4xl text-HSWaccent font-extrabold">Terms & Conditions</p>
+		<PageWindow title="terms.txt">
+			<div className="legal">
+				<h1 className="h-section">Terms &amp; Conditions</h1>
 
-				<div className="flex flex-col gap-2 justify-center">
+				<div className="legal-copy">
 					<p className="text-center">
 						<small className="font-bold text-md text-HSWaccent">Respect</small> Treat all participants, organisers, sponsors, mentors, and judges with respect
 						and consideration. Be mindful of your words and actions, and avoid behaviour that could be
@@ -58,8 +61,8 @@ export default function terms() {
 					<p className="text-center">
 						<small className="font-bold text-md text-HSWaccent">Reporting Procedures</small> If you experience or witness any behaviour that violates this
 						code of conduct, or if you have any concerns or questions, please report it to an Organiser
-						or Guru immediately. Reports can be made in person or via email:
-						excs@groups.exeterguild.com.
+						or Guru immediately. Reports can be made in person or via email:{" "}
+						<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
 					</p>
 
 					<p className="text-center">
@@ -68,8 +71,7 @@ export default function terms() {
 						inclusive experience for all participant
 					</p>
 				</div>
-
 			</div>
-		</div>
+		</PageWindow>
 	)
 }

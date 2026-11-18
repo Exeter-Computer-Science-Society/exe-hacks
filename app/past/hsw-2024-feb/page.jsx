@@ -1,6 +1,8 @@
 import Image from "next/image"
 import Link from "next/link"
 
+import { PageWindow } from "../../components/chrome/PageWindow"
+
 export const metadata = {
 	title: "Hack South West, February 2024: ExeHacks archive",
 	description:
@@ -31,18 +33,13 @@ const winners = [
 
 export default function PastHackathon() {
 	return (
-		<div className="w-full h-fit">
+		<PageWindow title="hsw-2024.txt">
 			{/* ============ HEADER ============ */}
 			<section className="band">
 				<div className="wrap">
 					<div className="section-head">
 						<span className="section-tag">Archive · February 2024</span>
-						<h2
-							className="h-section"
-							style={{ margin: "1rem 0 1.2rem" }}
-						>
-							Hack South West, <span className="grad-text">2024</span>.
-						</h2>
+						<h1 className="h-section">Hack South West, 2024.</h1>
 						<p className="lead">
 							The February 2024 edition, back when the event still carried the old name. Attendees came from Exeter, Bristol,
 							Plymouth, Bournemouth and Cardiff.
@@ -158,6 +155,6 @@ export default function PastHackathon() {
 					</div>
 				</div>
 			</section>
-		</div>
+		</PageWindow>
 	)
 }

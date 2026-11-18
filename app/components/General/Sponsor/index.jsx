@@ -2,8 +2,9 @@
 
 import Link from "next/link"
 
-import SponsorCard from "./Card"
+import { CurrentSponsors } from "../../CurrentSponsors"
 import { SponsorForm } from "../../SponsorForm"
+import SponsorCard from "./Card"
 
 const info = {
 	liminal: {
@@ -73,11 +74,13 @@ export default function Sponsor() {
 
 	return (
 		<section className="w-full">
+			<CurrentSponsors ctaHref="#enquiry" />
+
 			<div className="section-head">
 				<span className="section-tag">Partner with us</span>
 				<h2 className="h-section">Put your name on a track.</h2>
 				<p className="lead">
-					We&apos;re raising the 6–7 February 2027 weekend now. A partner gets a named prize track on this page, a logo on the site and in
+					We&apos;re raising the 6-7 February 2027 weekend now. A partner gets a named prize track on this page, a logo on the site and in
 					the room, and a slot to talk to the teams.
 				</p>
 				<ul className="partner-offer">
@@ -85,27 +88,23 @@ export default function Sponsor() {
 					<li>Logo here, on slides, and at the venue</li>
 					<li>Optional workshop, booth, or judging seat</li>
 				</ul>
-				<p className="mono" style={{ color: "var(--text-dim)", marginTop: "0.8rem" }}>
+				<p className="mono" style={{ color: "var(--muted)", marginTop: "0.8rem" }}>
 					Powered by{" "}
 					<a
 						href="https://excs.uk/"
 						target="_blank"
-						rel="noopener"
-						style={{ color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}
+						rel="noopener noreferrer"
 					>
-						the Exeter Computer Science Society ↗
+						the Exeter Computer Science Society
 					</a>
 					{" · "}
-					<Link
-						href="/sponsor"
-						style={{ color: "var(--green)", textDecoration: "underline", textUnderlineOffset: "3px" }}
-					>
-						Share this form
-					</Link>
+					<Link href="/sponsor/">Share this form</Link>
 				</p>
 			</div>
 
-			<SponsorForm />
+			<div id="enquiry">
+				<SponsorForm />
+			</div>
 
 			<div className="section-head mt-16">
 				<span className="section-tag">Who has backed us</span>

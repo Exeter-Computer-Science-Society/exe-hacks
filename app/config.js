@@ -3,7 +3,7 @@
  */
 
 // Where people are pointed for sponsorship and data questions.
-export const CONTACT_EMAIL = "excs@groups.exeterguild.com"
+export const CONTACT_EMAIL = "sponsors@exehacks.excs.uk"
 
 // Formspree CLI project for the sponsor enquiry only. Interest signups go to
 // D1 via POST /api/interest, not Formspree. The form key must match formspree.json.
