@@ -7,7 +7,6 @@ import { RegistrationButton } from "./components/RegistrationButton"
 import { DesktopIcons } from "./components/chrome/DesktopIcons"
 import { ErrorDialog } from "./components/chrome/ErrorDialog"
 import { ProgramIcon } from "./components/chrome/ProgramIcon"
-import { ProgressBar } from "./components/chrome/ProgressBar"
 import { Window } from "./components/chrome/Window"
 import Sponsor from "./components/General/Sponsor"
 import { Profile } from "./components/Team/Profiles"
@@ -18,8 +17,15 @@ import { CONTACT_EMAIL } from "./config"
 const EVENT_DATE = Date.parse("2027-02-06T11:00:00Z")
 const EVENT_WINDOW = "6-7 February 2027"
 
-const TICKER =
-	"Beginners welcome   ·   6-7 Feb 2027   ·   Free food all weekend   ·   24 hours   ·   Workshops and mentors   ·   About 150 hackers   ·   Innovation Centre"
+const TICKER = [
+	"Beginners welcome",
+	"6-7 Feb 2027",
+	"Free food all weekend",
+	"24 hours",
+	"Workshops and mentors",
+	"About 150 hackers",
+	"Innovation Centre",
+]
 
 const QUESTIONS = [
 	{
@@ -203,70 +209,68 @@ export default function Home() {
 					<div className="hero-stack">
 						<Window title="ExeHacks 2027 Setup" shadow className="setup">
 							<div className="setup-body">
-								<ProgramIcon size={148} />
-								<div>
-									<h1 className="wordmark">.EXEHACKS</h1>
-									<p className="slede">
-										Setup will install <b>24 hours of building</b> on your weekend.
-									</p>
-									<p className="tagline">build something that shouldn&apos;t exist yet</p>
-									<p className="hero-energy">
-										Whether you&apos;re writing your first line of code or you&apos;ve shipped projects before, ExeHacks is 24
-										hours, free, with food, for about 150 hackers. Run by <b>EXCS</b>.
-									</p>
-									<ul className="chips">
-										<li>Beginners welcome</li>
-										<li>Free, food included</li>
-										<li>About 150 hackers</li>
-										<li>Workshops and mentors</li>
-									</ul>
-									<div className="facts">
-										<div>
-											<small>When</small>
-											<b>6-7 Feb 2027</b>
-										</div>
-										<div>
-											<small>Where</small>
-											<b>Innovation Centre</b>
-											<span className="fact-place">Uni of Exeter</span>
-										</div>
-										<div>
-											<small>Who</small>
-											<b>UK-wide</b>
-										</div>
+								<div className="setup-head">
+									<ProgramIcon size={112} />
+									<div className="setup-title">
+										<h1 className="wordmark" aria-label="ExeHacks">
+											<span className="glitch" aria-hidden="true" data-text=".EXEHACKS">
+												.EXEHACKS
+											</span>
+										</h1>
+										<p className="tagline">build something that shouldn&apos;t exist yet</p>
 									</div>
 								</div>
-							</div>
-							<ProgressBar />
-							<div className="sfoot">
-								<p className="url">exehacks.excs.uk</p>
-								<div className="sbtns">
-									<button type="button" className="btn" disabled>
-										{"< Back"}
-									</button>
-									<RegistrationButton label="Register >" />
+								<dl className="facts">
+									<div>
+										<dt>When</dt>
+										<dd>6-7 Feb 2027</dd>
+									</div>
+									<div>
+										<dt>Where</dt>
+										<dd>
+											Innovation Centre
+											<span className="fact-place">Uni of Exeter</span>
+										</dd>
+									</div>
+									<div>
+										<dt>Who</dt>
+										<dd>UK-wide</dd>
+									</div>
+								</dl>
+								<div className="setup-cta">
+									<RegistrationButton label="Register" />
+									<p className="setup-note">Registers your interest. Tickets and details are coming soon.</p>
 								</div>
 							</div>
-							<p className="setup-note">Tickets and more details coming soon. This registers your interest.</p>
 						</Window>
 						<ErrorDialog className="err-pop" />
 					</div>
 
-					<div className="ticker">
+					<div className="ticker" aria-hidden="true">
 						<div className="ticker-track">
-							<span className="ticker-item">{TICKER}</span>
-							<span className="ticker-item" aria-hidden="true">
-								{TICKER}
-							</span>
+							{[0, 1].map((copy) => (
+								<span className="ticker-item" key={copy}>
+									{TICKER.map((item) => (
+										<span className="ticker-bit" key={item}>
+											<span className="star">✦</span>
+											{item}
+										</span>
+									))}
+								</span>
+							))}
 						</div>
 					</div>
 
 					{EVENT_DATE ? (
-						<Window title="countdown.exe" id="countdown">
+						<Window title="countdown.exe" id="countdown" className="win-center">
 							<span className="section-tag">Sat 6 Feb 2027, 11:00 UK</span>
-							<h2 className="h-section">The countdown to hacking is on.</h2>
+							<h2 className="h-section">
+								The countdown to <span className="grad-text">hacking</span> is on.
+							</h2>
 							<p className="lead">Doors at 9:00. Hacking starts at 11:00 UK.</p>
-							<ClockCountdown target={EVENT_DATE} label="Hacking starts in" prompt="$ ./hack --starts-in" dayDigits={3} />
+							<div className="clock-center">
+								<ClockCountdown target={EVENT_DATE} label="Hacking starts in" prompt="$ ./hack --starts-in" dayDigits={3} />
+							</div>
 						</Window>
 					) : null}
 
@@ -274,11 +278,13 @@ export default function Home() {
 						<div className="welcome-grid">
 							<div>
 								<span className="section-tag">What is this?</span>
-								<h2 className="h-section">24 hours. A team of four. Whatever you can ship.</h2>
+								<h2 className="h-section">
+									24 hours. A team of four. <span className="grad-text">Whatever you can ship.</span>
+								</h2>
 								<p>
 									ExeHacks is the University of Exeter&apos;s student hackathon, run by <b>EXCS</b>. You get 24 hours, a team of up
 									to four, and whatever you can ship in a weekend. Beginners are welcome. We run workshops and put mentors on
-									the floor.
+									the floor. It is free, with food, for about 150 hackers.
 								</p>
 								<p>
 									We run it once a year. Next date: <b>{EVENT_WINDOW}</b>. It ran as Hack South West before this one. Here&apos;s
@@ -350,26 +356,30 @@ export default function Home() {
 						</div>
 					</Window>
 
-					<Window title="readme.txt" id="rebrand">
-						<div className="note-copy">
-							<span className="section-tag">We&apos;ve rebranded</span>
-							<h2 className="h-section">Hack South West is now ExeHacks.</h2>
-							<p className="lead">
-								Every edition has been held in Exeter, so the old name claimed more ground than the event covered. The new one
-								says where it is, and puts us next to SotonHacks, HackNotts, DurHack and the rest of the UK student circuit.
-								Same organisers, same venue, same event. If you came before, you already know this one.
-							</p>
-						</div>
-					</Window>
+					<div className="desk-row">
+						<Window title="readme.txt" id="rebrand">
+							<div className="note-copy">
+								<span className="section-tag">We&apos;ve rebranded</span>
+								<h2 className="h-section">Hack South West is now ExeHacks.</h2>
+								<p className="lead">
+									Every edition has been held in Exeter, so the old name claimed more ground than the event covered. The new
+									one says where it is, and puts us next to SotonHacks, HackNotts, DurHack and the rest of the UK student
+									circuit. Same organisers, same venue, same event. If you came before, you already know this one.
+								</p>
+							</div>
+						</Window>
 
-					<Window title="excs.cfg" id="excs">
-						<span className="section-tag">Who runs it</span>
-						<h2 className="h-section">Powered by EXCS.</h2>
-						<p>
-							ExeHacks is run by the <b>Exeter Computer Science Society</b>. Start to finish. Same society that ran Hack South
-							West, still with the person who started it. That part doesn&apos;t change.
-						</p>
-					</Window>
+						<Window title="excs.cfg" id="excs">
+							<span className="section-tag">Who runs it</span>
+							<h2 className="h-section">
+								Powered by <span className="grad-text">EXCS</span>.
+							</h2>
+							<p className="lead">
+								ExeHacks is run by the <b>Exeter Computer Science Society</b>. Start to finish. Same society that ran Hack
+								South West, still with the person who started it. That part doesn&apos;t change.
+							</p>
+						</Window>
+					</div>
 
 					<Window title="event.exe" id="events">
 						<span className="section-tag">One weekend a year</span>
@@ -488,9 +498,11 @@ export default function Home() {
 						</div>
 					</Window>
 
-					<Window title="register.exe" id="register">
+					<Window title="register.exe" id="register" className="win-center">
 						<span className="section-tag">Innovation Centre, Exeter</span>
-						<h2 className="h-section">Ready to build?</h2>
+						<h2 className="h-section">
+							Ready to <span className="grad-text">build</span>?
+						</h2>
 						<p>Tickets and more details are coming soon. Leave your details and we&apos;ll email you. See you {EVENT_WINDOW}.</p>
 						<div className="hero-cta">
 							<RegistrationButton />

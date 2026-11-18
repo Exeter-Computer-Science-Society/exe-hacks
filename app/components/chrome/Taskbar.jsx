@@ -5,7 +5,6 @@ import { useEffect, useId, useRef, useState } from "react"
 
 import { CONTACT_EMAIL } from "../../config"
 import { ProgramIcon } from "./ProgramIcon"
-import { currentTheme, storeTheme } from "./theme"
 
 const HACK_START = Date.parse("2027-02-06T11:00:00Z")
 
@@ -15,8 +14,9 @@ const PRIMARY = [
 	{ href: "/#team", label: "Team" },
 	{ href: "/#faq", label: "FAQ" },
 	{ href: "/sponsor/", label: "Sponsor" },
-	{ href: "/interested/", label: "Register" },
 ]
+
+const REGISTER = { href: "/interested/", label: "Register your interest" }
 
 const MORE = [
 	{ href: "/#excs", label: "Who runs it" },
@@ -102,11 +102,6 @@ export function Taskbar() {
 		return () => window.removeEventListener("keydown", onKey)
 	}, [open])
 
-	function toggleTheme() {
-		const next = currentTheme() === "dark" ? "light" : "dark"
-		storeTheme(next)
-	}
-
 	const spoken =
 		days == null ? "UK clock" : `UK time ${clock}. ${days} ${days === 1 ? "day" : "days"} until ExeHacks.`
 
@@ -114,7 +109,7 @@ export function Taskbar() {
 		<footer className="taskbar" ref={barRef}>
 			<Link className="task-brand" href="/">
 				<ProgramIcon size={28} />
-				<span>EXEHACKS.EXE</span>
+				<span className="task-word">.EXEHACKS</span>
 			</Link>
 
 			<nav className="task-primary" aria-label="Event">
@@ -124,6 +119,9 @@ export function Taskbar() {
 			</nav>
 
 			<div className="task-end">
+				<Link className="btn btn-primary task-register" href="/interested/" aria-label="Register your interest">
+					Register
+				</Link>
 				<button
 					type="button"
 					className="btn task-menu-btn"
@@ -133,10 +131,6 @@ export function Taskbar() {
 				>
 					<span className="task-menu-short">Menu</span>
 					<span className="task-menu-wide">More</span>
-				</button>
-				<button type="button" className="btn theme-toggle" aria-label="Toggle colour theme" onClick={toggleTheme}>
-					<span className="theme-label-light">Light</span>
-					<span className="theme-label-dark">Dark</span>
 				</button>
 				<div className="task-time" aria-label={spoken}>
 					<span aria-hidden="true">
@@ -148,7 +142,7 @@ export function Taskbar() {
 
 			{open ? (
 				<nav id={menuId} className="task-panel" aria-label="More">
-					{[...PRIMARY, ...MORE].map((item) => (
+					{[...PRIMARY, REGISTER, ...MORE].map((item) => (
 						<MenuLink key={item.href + item.label} item={item} onNavigate={() => setOpen(false)} />
 					))}
 				</nav>

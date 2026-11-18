@@ -1,86 +1,74 @@
 /*
  * ExeHacks colour tokens. This is the only place colours are defined.
- * To swap the palette (for example University of Exeter green #00c896 / #003c3c),
- * change the accent tokens below. Theme surfaces live in the light and dark blocks.
+ * The desktop uses the dark terminal palette from the pre-desktop site:
+ * near-black canvas, green phosphor ink, and a purple accent.
  * Do not hard-code hex colours in component CSS.
  */
 
 :root {
-	--green: #4ade80;
-	--green-dark: #15803d;
-	--green-hi: #b6f5cc;
-	--purple: #8b3dff;
-	--purple-dark: #5b21b6;
-	--warn: #facc15;
-	--on-accent: #06120b;
-	--title-fg: #ffffff;
-	--on-purple: #ffffff;
-	--icon-screen: #0a0f0d;
-	--icon-ink: #14161a;
-	--focus: var(--purple);
-}
+	/* accents */
+	--green: #3dff88;
+	--green-hi: #7dffb0;
+	--green-dark: #1f9e55;
+	--purple: #e264ff;
+	--purple-hi: #f29bff;
+	--cyan: #28ecd6;
+	--warn: #f5d90a;
+	--danger: #ff8a95;
 
-:root,
-[data-theme="light"] {
-	--desk: #e4ded0;
-	--desk-dot: #cfc7b5;
-	--paper: #f4f1ea;
-	--ink: #14161a;
-	--bevel-hi: #ffffff;
-	--bevel-lo: #8a8475;
-	--muted: #4a463d;
-	--field: #ffffff;
-	--label: #5b21b6;
-	--wordmark: var(--ink);
-	--wordmark-shadow: var(--green);
-	--err-bar: var(--ink);
-	--on-err: #f4f1ea;
-	--err-shadow: var(--ink);
-	--btn-ring: var(--ink);
-	--link: #5b21b6;
-	--danger: #9f1239;
-}
+	/* ink that sits on an accent fill */
+	--on-accent: #06140a;
+	--on-purple: #1a0614;
 
-[data-theme="dark"] {
-	--desk: #0a0f0d;
-	--desk-dot: #1d2b24;
-	--paper: #171c19;
-	--ink: #e6f2ea;
-	--bevel-hi: #2a332e;
-	--bevel-lo: #000000;
-	--muted: #a8bfb2;
-	--field: #0f1411;
-	--label: #c4a1ff;
+	/* surfaces */
+	--desk: #0a0b0a;
+	--desk-line: rgba(61, 255, 136, 0.055);
+	--paper: #11160f;
+	--field: #0c100c;
+	--raised: #161d14;
+	--bar: #172117;
+	--shade: rgba(0, 0, 0, 0.35);
+	--taskbar: rgba(10, 11, 10, 0.94);
+	--plate: #eef5ee;
+
+	/* ink */
+	--ink: #d6f7da;
+	--muted: #8cc497;
+	--label: #7dffb0;
+	--link: #3dff88;
 	--wordmark: var(--green);
 	--wordmark-shadow: var(--purple);
-	--err-bar: #000000;
-	--on-err: #e6f2ea;
-	--err-shadow: var(--purple);
-	--btn-ring: #000000;
-	--link: #c4a1ff;
-	--danger: #fecdd3;
-}
 
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme="light"]) {
-		--desk: #0a0f0d;
-		--desk-dot: #1d2b24;
-		--paper: #171c19;
-		--ink: #e6f2ea;
-		--bevel-hi: #2a332e;
-		--bevel-lo: #000000;
-		--muted: #a8bfb2;
-		--field: #0f1411;
-		--label: #c4a1ff;
-		--wordmark: var(--green);
-		--wordmark-shadow: var(--purple);
-		--err-bar: #000000;
-		--on-err: #e6f2ea;
-		--err-shadow: var(--purple);
-		--btn-ring: #000000;
-		--link: #c4a1ff;
-		--danger: #fecdd3;
-	}
+	/* rules and window edges */
+	--edge: #3dff88;
+	--line: rgba(61, 255, 136, 0.26);
+	--line-2: rgba(61, 255, 136, 0.13);
+	--tint: rgba(61, 255, 136, 0.05);
+	--tint-purple: rgba(226, 100, 255, 0.12);
+
+	/* hard offset shadows and phosphor glow */
+	--drop: rgba(226, 100, 255, 0.28);
+	--drop-strong: rgba(226, 100, 255, 0.45);
+	--drop-green: rgba(61, 255, 136, 0.2);
+	--glow: rgba(61, 255, 136, 0.18);
+	--glow-strong: rgba(61, 255, 136, 0.45);
+	--glow-wash-a: rgba(61, 255, 136, 0.16);
+	--glow-wash-b: rgba(226, 100, 255, 0.17);
+	--scan: rgba(0, 0, 0, 0.16);
+	--vignette: rgba(0, 0, 0, 0.42);
+
+	/* program icon: the screen stays near-black on any surface */
+	--icon-screen: #060a06;
+	--icon-ink: #06140a;
+
+	--focus: var(--purple-hi);
+
+	/* type */
+	--font-display: var(--font-bricolage), system-ui, sans-serif;
+	--font-pixel: var(--font-pixelify), "Pixelify Sans", sans-serif;
+	--font-sys: var(--font-vt323), ui-monospace, monospace;
+	--font-mono: var(--font-vt323), ui-monospace, monospace;
+	--font-code: var(--font-jetbrains), ui-monospace, monospace;
 }
 
 /* Names older components still read. They point at the tokens above. */
@@ -88,15 +76,10 @@
 	--bg: var(--desk);
 	--bg-2: var(--field);
 	--surface: var(--paper);
-	--surface-2: var(--field);
+	--surface-2: var(--raised);
 	--text: var(--ink);
 	--text-dim: var(--muted);
 	--text-faint: var(--muted);
-	--line: var(--ink);
-	--line-2: var(--bevel-lo);
-	--green-2: var(--green-dark);
-	--font-pixel: var(--font-pixelify), "Pixelify Sans", monospace;
-	--font-sys: var(--font-silkscreen), "Silkscreen", monospace;
-	--font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
-	--font-display: var(--font-pixel);
+	--green-2: var(--green-hi);
+	--purple-2: var(--purple-hi);
 }
