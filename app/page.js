@@ -1,8 +1,5 @@
-"use client"
-
 import Image from "next/image"
 import Link from "next/link"
-import { useEffect, useState } from "react"
 
 import { ClockCountdown } from "./components/ClockCountdown"
 import { Question } from "./components/Question"
@@ -16,12 +13,13 @@ import Sponsor from "./components/General/Sponsor"
 import { Profile } from "./components/Team/Profiles"
 import { CONTACT_EMAIL } from "./config"
 
-const PHOTOS = Array.from({ length: 27 }, (_, i) => `/images/conveyor_belt/${i + 1}.jpg`)
-
 // 6-7 February 2027 is the locked weekend. Hacking starts Sat 6 Feb 2027 at
 // 11:00 UK time (Run of Show draft); the UK is on GMT then, so 11:00 UTC.
 const EVENT_DATE = Date.parse("2027-02-06T11:00:00Z")
 const EVENT_WINDOW = "6-7 February 2027"
+
+const TICKER =
+	"Beginners welcome   ·   6-7 Feb 2027   ·   Free food all weekend   ·   24 hours   ·   Workshops and mentors   ·   About 150 hackers   ·   Innovation Centre"
 
 const QUESTIONS = [
 	{
@@ -107,6 +105,31 @@ const PAST_EVENTS = [
 	{ when: "Feb 2024", name: "Hack South West", what: "24-hour hackathon", href: "/past/hsw-2024-feb/" },
 ]
 
+const ABOUT_PHOTOS = [
+	{ src: "/images/everyone.JPEG", alt: "The room during the 2024 hackathon" },
+	{ src: "/images/presentation.JPEG", alt: "A team presenting to the judges" },
+]
+
+const GALLERY_PHOTOS = [
+	{ src: "/images/introduction.jpg", alt: "The opening talk at Hack South West 2024" },
+	{ src: "/images/organisers.JPEG", alt: "The 2024 organising team" },
+	{ src: "/images/pizza.JPEG", alt: "Food at the 2024 hackathon" },
+	{ src: "/images/winners.JPEG", alt: "A team in front of the Hack South West backdrop" },
+]
+
+const PAST_STATS = [
+	{ num: "128", lab: "Tickets sold" },
+	{ num: "56%", lab: "First-timers" },
+	{ num: "13", lab: "Products built" },
+	{ num: "5", lab: "Cities represented" },
+]
+
+const WINNERS = [
+	{ cls: "second", rank: "2nd place", team: "BathX", project: "pool" },
+	{ cls: "first", rank: "1st place", team: "Headge Hackers", project: "LendEase" },
+	{ cls: "third", rank: "3rd place", team: "Asians ++", project: "Asians ++ Training" },
+]
+
 const PRIZE_TRACKS = [
 	{ title: "Best Overall", blurb: "Best project of the weekend." },
 	{ title: "Best of AI Agents", blurb: "Best use of AI agents." },
@@ -115,9 +138,17 @@ const PRIZE_TRACKS = [
 	{ title: "Best of Impact for Exeter / the South West", blurb: "Best project with a real impact on Exeter or the South West." },
 ]
 
-// The schedule below is the old Hack South West 2024 timetable. Hidden until the
-// ExeHacks 2027 Run of Show is final: update HACK_SATURDAY/HACK_SUNDAY, then set true.
+// The hour-by-hour list below is the February 2024 timetable. It is shown as
+// the previous edition, not as the 2027 plan. 2027 only locks doors at 9:00
+// and hacking at 11:00 UK until the Run of Show is final.
 const SHOW_SCHEDULE = false
+
+const HACK_2027_SATURDAY = [
+	{ time: "09:00", what: "Doors open" },
+	{ time: "11:00", what: "Hacking starts (UK time)" },
+]
+
+const HACK_2027_SUNDAY = [{ time: "TBA", what: "Saturday into Sunday, 24 hours. The rest of the run of show is still being set." }]
 
 const HACK_SATURDAY = [
 	{ time: "08:00", what: "Registration Opens + Talk To Sponsors" },
@@ -142,53 +173,6 @@ const HACK_SUNDAY = [
 const FILES =
 	"https://guildgroupssetup-my.sharepoint.com/:f:/g/personal/excs_groups_exeterguild_com/Ej3uvzjcOhxJshyqPG-i7A4Bj-Vd2GYqpygapE_MtUPqgA?e=Xwt0sm"
 
-function useRotatingPhotos() {
-	const [current, setCurrent] = useState([PHOTOS[0], PHOTOS[1]])
-	const [fading, setFading] = useState([false, false])
-
-	useEffect(() => {
-		let first = PHOTOS[0]
-		let second = PHOTOS[1]
-		let later
-
-		const pick = () => {
-			let next = PHOTOS[Math.floor(Math.random() * PHOTOS.length)]
-			let guard = 0
-			while ((next === first || next === second) && guard < 8) {
-				next = PHOTOS[Math.floor(Math.random() * PHOTOS.length)]
-				guard += 1
-			}
-			return next
-		}
-
-		const swap = (index) => {
-			setFading((state) => state.map((value, i) => (i === index ? true : value)))
-			window.setTimeout(() => {
-				const next = pick()
-				if (index === 0) first = next
-				else second = next
-				setCurrent((state) => state.map((value, i) => (i === index ? next : value)))
-				window.setTimeout(() => {
-					setFading((state) => state.map((value, i) => (i === index ? false : value)))
-				}, 80)
-			}, 280)
-		}
-
-		const interval = window.setInterval(() => swap(0), 5000)
-		const startLater = window.setTimeout(() => {
-			later = window.setInterval(() => swap(1), 5000)
-		}, 2500)
-
-		return () => {
-			window.clearInterval(interval)
-			window.clearTimeout(startLater)
-			if (later) window.clearInterval(later)
-		}
-	}, [])
-
-	return { current, fading }
-}
-
 function ScheduleList({ day, rows }) {
 	return (
 		<>
@@ -203,9 +187,15 @@ function ScheduleList({ day, rows }) {
 	)
 }
 
-export default function Home() {
-	const { current, fading } = useRotatingPhotos()
+function EventPhoto({ src, alt, sizes }) {
+	return (
+		<figure className="crt-photo">
+			<Image src={src} alt={alt} fill sizes={sizes} style={{ objectFit: "cover" }} />
+		</figure>
+	)
+}
 
+export default function Home() {
 	return (
 		<div className="desk-page">
 			<div className="desk-stage">
@@ -220,6 +210,16 @@ export default function Home() {
 										Setup will install <b>24 hours of building</b> on your weekend.
 									</p>
 									<p className="tagline">build something that shouldn&apos;t exist yet</p>
+									<p className="hero-energy">
+										Whether you&apos;re writing your first line of code or you&apos;ve shipped projects before, ExeHacks is 24
+										hours, free, with food, for about 150 hackers. Run by <b>EXCS</b>.
+									</p>
+									<ul className="chips">
+										<li>Beginners welcome</li>
+										<li>Free, food included</li>
+										<li>About 150 hackers</li>
+										<li>Workshops and mentors</li>
+									</ul>
 									<div className="facts">
 										<div>
 											<small>When</small>
@@ -250,6 +250,15 @@ export default function Home() {
 							<p className="setup-note">Tickets and more details coming soon. This registers your interest.</p>
 						</Window>
 						<ErrorDialog className="err-pop" />
+					</div>
+
+					<div className="ticker">
+						<div className="ticker-track">
+							<span className="ticker-item">{TICKER}</span>
+							<span className="ticker-item" aria-hidden="true">
+								{TICKER}
+							</span>
+						</div>
 					</div>
 
 					{EVENT_DATE ? (
@@ -293,27 +302,51 @@ export default function Home() {
 								</div>
 							</div>
 							<div className="photo-pair">
-								<div className="crt-photo">
-									<Image
-										src={current[0]}
-										className={fading[0] ? "opacity-0" : "opacity-100"}
-										draggable={false}
-										width={500}
-										height={500}
-										alt="A moment from a previous event"
-									/>
-								</div>
-								<div className="crt-photo photo-second">
-									<Image
-										src={current[1]}
-										className={fading[1] ? "opacity-0" : "opacity-100"}
-										draggable={false}
-										width={500}
-										height={500}
-										alt="A moment from a previous event"
-									/>
-								</div>
+								{ABOUT_PHOTOS.map((photo) => (
+									<EventPhoto key={photo.src} {...photo} sizes="(max-width: 768px) 46vw, 280px" />
+								))}
 							</div>
+						</div>
+					</Window>
+
+					<Window title="hsw-2024.txt" id="hsw-2024">
+						<span className="section-tag">February 2024</span>
+						<h2 className="h-section">Last time we ran it.</h2>
+						<p className="lead">
+							The February 2024 edition, when the event was still called Hack South West. People came from Exeter, Bristol,
+							Plymouth, Bournemouth and Cardiff.
+						</p>
+						<div className="stat-grid">
+							{PAST_STATS.map((stat) => (
+								<div className="stat" key={stat.lab}>
+									<div className="num">{stat.num}</div>
+									<div className="lab">{stat.lab}</div>
+								</div>
+							))}
+						</div>
+						<div className="gallery">
+							{GALLERY_PHOTOS.map((photo) => (
+								<div className="ph" key={photo.src}>
+									<Image src={photo.src} alt={photo.alt} fill sizes="(max-width: 768px) 46vw, 180px" style={{ objectFit: "cover" }} />
+								</div>
+							))}
+							<Link className="ph ph-more" href="/past/hsw-2024-feb/">
+								<span>Full 2024 archive</span>
+							</Link>
+						</div>
+						<div className="sched-past">
+							<h3>Winners</h3>
+							<p className="lead">Every podium team went home with Raspberry Pi Zeros.</p>
+						</div>
+						<div className="podium">
+							{WINNERS.map((winner) => (
+								<div className={`pcol ${winner.cls}`} key={winner.cls}>
+									{winner.cls === "first" ? <span className="topline" /> : null}
+									<div className="rank">{winner.rank}</div>
+									<div className="amt">{winner.team}</div>
+									<div className="perk">{winner.project}</div>
+								</div>
+							))}
 						</div>
 					</Window>
 
@@ -389,29 +422,30 @@ export default function Home() {
 					<Window title="schedule.exe" id="schedule">
 						<span className="section-tag">Run of show</span>
 						<h2 className="h-section">Schedule.</h2>
-						{SHOW_SCHEDULE ? (
+						<p className="lead">Doors at 9:00. Hacking starts at 11:00 UK. The rest of the 2027 timetable is TBA.</p>
+						<div className="sched">
+							<ScheduleList day="Saturday 6 Feb 2027" rows={HACK_2027_SATURDAY} />
+							<ScheduleList day="Sunday 7 Feb 2027" rows={HACK_2027_SUNDAY} />
+						</div>
+						<div className="sched-past">
+							<h3>February 2024 timetable</h3>
+							<p className="lead">What the previous edition looked like. These times are not the 2027 plan.</p>
 							<div className="sched">
-								<ScheduleList day="Saturday 6 Feb" rows={HACK_SATURDAY} />
-								<ScheduleList day="Sunday 7 Feb" rows={HACK_SUNDAY} />
+								<ScheduleList day="Saturday" rows={HACK_SATURDAY} />
+								<ScheduleList day="Sunday" rows={HACK_SUNDAY} />
 							</div>
-						) : (
-							<p className="lead">
-								The rest of the 2027 timetable is TBA. Doors open at 9:00 on Sat 6 Feb. Hacking starts at 11:00 UK time.
-								Saturday into Sunday, 24 hours.
-							</p>
-						)}
+						</div>
 					</Window>
 
 					<Window title="team.cfg" id="team">
 						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">Meet the team.</h2>
-						<p className="lead">Two lead organisers, an academic organiser and an advisor.</p>
+						<p className="lead">The lead organiser, an academic organiser and an advisor.</p>
 						<div className="team-groups">
 							<div className="team-group">
 								<span className="section-tag">Organisers</span>
 								<div className="team-grid">
 									<Profile name="Kazybek Khairulla" position="Lead Organiser" image="/team/kazybek.webp" />
-									<Profile name="Piran Trevenna" position="Lead Organiser" />
 									<Profile name="Emre Acarsoy" position="Academic Organiser" image="/team/emre.jpg" />
 								</div>
 							</div>

@@ -83,9 +83,10 @@ export default function PastHackathon() {
 							>
 								<Image
 									src={p.src}
-									width={500}
-									height={500}
 									alt={p.alt}
+									fill
+									sizes="(max-width: 768px) 50vw, 220px"
+									style={{ objectFit: "cover" }}
 								/>
 							</div>
 						))}
