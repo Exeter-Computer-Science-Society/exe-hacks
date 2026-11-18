@@ -1,5 +1,6 @@
 import Link from "next/link"
 
+import { CurrentSponsors } from "../components/CurrentSponsors"
 import { SponsorForm } from "../components/SponsorForm"
 import { CONTACT_EMAIL } from "../config"
 
@@ -29,7 +30,11 @@ export default function SponsorPage() {
 						</ul>
 					</div>
 
-					<SponsorForm />
+					<CurrentSponsors ctaHref="#enquiry" />
+
+					<div id="enquiry">
+						<SponsorForm />
+					</div>
 
 					<p className="mono sponsor-page-back">
 						<Link href="/#sponsors">← Past sponsors and partners</Link>

@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+import { CONTACT_EMAIL } from "../../config"
+
 export function Footer() {
 	return (
 		<footer className="foot">
@@ -48,6 +50,7 @@ export function Footer() {
 							Instagram ↗
 						</Link>
 						<Link href="/sponsor">Sponsor</Link>
+						<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
 						<Link href="/feedback">Feedback</Link>
 						<Link href="/past/hsw-2024-feb">Past events ↗</Link>
 					</div>

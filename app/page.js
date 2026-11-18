@@ -9,6 +9,7 @@ import { Profile } from "./components/Team/Profiles"
 import Sponsor from "./components/General/Sponsor"
 import Image from "next/image"
 import Link from "next/link"
+import { CONTACT_EMAIL } from "./config"
 
 // hooks
 import { useEffect, useState } from "react"
@@ -106,7 +107,7 @@ export default function Home() {
 		{
 			id: 14,
 			question: "How do I sponsor ExeHacks?",
-			answer: "There's a short enquiry form under Partner with us on this page, and a dedicated sponsor page in the footer. Fill it in and it goes to the EXCS inbox. We reply from the same address."
+			answer: `There's a short enquiry form under Partner with us on this page, and a dedicated sponsor page in the footer. Fill it in, or email ${CONTACT_EMAIL}. We reply from the same address.`
 		}
 	]
 
@@ -682,7 +683,8 @@ export default function Home() {
 							style={{ marginTop: "1.2rem" }}
 						>
 							Have questions? Here you&apos;ll find all the answers to your questions. If there is something missing feel free to reach
-							out to us with absolutely any queries via our email.
+							out to us with absolutely any queries via{" "}
+							<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
 						</p>
 
 						<div className="faq-side-links">

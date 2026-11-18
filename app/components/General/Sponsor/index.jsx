@@ -3,6 +3,7 @@
 import Link from "next/link"
 
 import SponsorCard from "./Card"
+import { CurrentSponsors } from "../../CurrentSponsors"
 import { SponsorForm } from "../../SponsorForm"
 
 const info = {
@@ -73,6 +74,8 @@ export default function Sponsor() {
 
 	return (
 		<section className="w-full">
+			<CurrentSponsors />
+
 			<div className="section-head">
 				<span className="section-tag">Partner with us</span>
 				<h2 className="h-section">Put your name on a track.</h2>

@@ -1,3 +1,5 @@
+import { CONTACT_EMAIL } from "../../config"
+
 export default function terms() {
 	return (
 		<div className="bg-HSWprimary w-full h-fit flex flex-col">
@@ -58,8 +60,8 @@ export default function terms() {
 					<p className="text-center">
 						<small className="font-bold text-md text-HSWaccent">Reporting Procedures</small> If you experience or witness any behaviour that violates this
 						code of conduct, or if you have any concerns or questions, please report it to an Organiser
-						or Guru immediately. Reports can be made in person or via email:
-						excs@groups.exeterguild.com.
+						or Guru immediately. Reports can be made in person or via email:{" "}
+						<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
 					</p>
 
 					<p className="text-center">
