@@ -1,33 +1,20 @@
-import { JetBrains_Mono, Pixelify_Sans, Silkscreen } from "next/font/google"
-import Script from "next/script"
+import { Bricolage_Grotesque, JetBrains_Mono, Pixelify_Sans, VT323 } from "next/font/google"
 
 import "./globals.css"
 import "./tokens.css"
 import "./exehacks.css"
 import { FormspreeProvider } from "./components/FormspreeProvider"
 import { Taskbar } from "./components/chrome/Taskbar"
-import { THEME_BOOT } from "./components/chrome/theme"
 
-const jetbrains = JetBrains_Mono({
-	subsets: ["latin"],
-	weight: ["400", "500", "700"],
-	display: "swap",
-	variable: "--font-jetbrains",
-})
-const pixelify = Pixelify_Sans({
-	subsets: ["latin"],
-	weight: ["600", "700"],
-	display: "swap",
-	variable: "--font-pixelify",
-})
-const silkscreen = Silkscreen({
-	subsets: ["latin"],
-	weight: "400",
-	display: "swap",
-	variable: "--font-silkscreen",
-})
+// The same four faces the pre-desktop site used: Bricolage for body copy,
+// Pixelify Sans for headings and the wordmark, VT323 for terminal chrome
+// (title bars, labels, the clock), JetBrains Mono for anything code-like.
+const bricolage = Bricolage_Grotesque({ subsets: ["latin"], display: "swap", variable: "--font-bricolage" })
+const jetbrains = JetBrains_Mono({ subsets: ["latin"], display: "swap", variable: "--font-jetbrains" })
+const pixelify = Pixelify_Sans({ subsets: ["latin"], display: "swap", variable: "--font-pixelify" })
+const vt323 = VT323({ weight: "400", subsets: ["latin"], display: "swap", variable: "--font-vt323" })
 
-const fontVars = [jetbrains.variable, pixelify.variable, silkscreen.variable].join(" ")
+const fontVars = [bricolage.variable, jetbrains.variable, pixelify.variable, vt323.variable].join(" ")
 
 const siteTitle = "ExeHacks: Exeter's student hackathon"
 const siteDescription =
@@ -72,11 +59,8 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
 	return (
-		<html lang="en" suppressHydrationWarning className={fontVars}>
+		<html lang="en" data-theme="dark" className={fontVars}>
 			<body>
-				<Script id="exehacks-theme" strategy="beforeInteractive">
-					{THEME_BOOT}
-				</Script>
 				<a className="skip" href="#content">
 					Skip to content
 				</a>
@@ -84,6 +68,9 @@ export default function RootLayout({ children }) {
 					<div id="content">{children}</div>
 					<Taskbar />
 				</FormspreeProvider>
+
+				{/* CRT scanline overlay, styled in exehacks.css */}
+				<div className="scanlines" aria-hidden="true" />
 			</body>
 		</html>
 	)
