@@ -10,7 +10,7 @@ const FILTERS = {
 		{ key: "year", label: "Course / year", optionsKey: "years" },
 		{
 			key: "availability",
-			label: "Available 6-7 Feb",
+			label: "Available 6–7 Feb",
 			static: [
 				{ value: "yes", label: "Yes" },
 				{ value: "partly", label: "Partly" },

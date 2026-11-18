@@ -1,5 +1,7 @@
 import Link from "next/link"
 
+import { PageWindow } from "../components/chrome/PageWindow"
+
 export const metadata = {
 	title: "Core team applications are closed: ExeHacks 2027",
 	description:
@@ -8,11 +10,10 @@ export const metadata = {
 
 export default function JoinPage() {
 	return (
-		<div className="w-full h-fit">
-			<section className="band">
-				<div className="wrap sponsor-page">
+		<PageWindow title="join.closed">
+			<div className="sponsor-page">
 					<div className="section-head">
-						<span className="section-tag">ExeHacks 2027 · 6-7 February · Exeter</span>
+						<span className="section-tag">ExeHacks 2027 · 6–7 February · Exeter</span>
 						<h1 className="h-section">Applications are now closed</h1>
 						<p className="lead">
 							Thanks for wanting to help run ExeHacks 2027. We&apos;re no longer taking new applications for the core team.
@@ -33,10 +34,9 @@ export default function JoinPage() {
 					</div>
 
 					<p className="mono sponsor-page-back">
-						<Link href="/">← Back to ExeHacks</Link>
+						<Link href="/">Back to ExeHacks</Link>
 					</p>
-				</div>
-			</section>
-		</div>
+			</div>
+		</PageWindow>
 	)
 }
