@@ -4,9 +4,9 @@ import Link from "next/link"
 import { Question } from "./components/Question"
 import { RegistrationButton } from "./components/RegistrationButton"
 import { DesktopIcons } from "./components/chrome/DesktopIcons"
+import { DeskWindow } from "./components/chrome/DeskWindow"
 import { ErrorDialog } from "./components/chrome/ErrorDialog"
 import { ProgramIcon } from "./components/chrome/ProgramIcon"
-import { Window } from "./components/chrome/Window"
 import Sponsor from "./components/General/Sponsor"
 import { Profile } from "./components/Team/Profiles"
 import { CONTACT_EMAIL, REGISTER } from "./config"
@@ -72,7 +72,7 @@ export default function Home() {
 			<div className="desk-stage">
 				<div className="desk-main">
 					<div className="hero-stack">
-						<Window title="ExeHacks 2027 Setup" shadow className="setup">
+						<DeskWindow id="setup" shadow className="setup">
 							<div className="setup-body">
 								<div className="setup-head">
 									<ProgramIcon size={112} />
@@ -103,7 +103,7 @@ export default function Home() {
 									<p className="setup-note">{REGISTER.note}</p>
 								</div>
 							</div>
-						</Window>
+						</DeskWindow>
 						<ErrorDialog className="err-pop" />
 					</div>
 
@@ -122,7 +122,7 @@ export default function Home() {
 						</div>
 					</div>
 
-					<Window title="about.txt" id="about">
+					<DeskWindow id="about">
 						<div className="welcome-grid">
 							<div>
 								<span className="section-tag">University of Exeter</span>
@@ -143,16 +143,16 @@ export default function Home() {
 								))}
 							</div>
 						</div>
-					</Window>
+					</DeskWindow>
 
-					<Window title="tracks.txt" id="tracks">
+					<DeskWindow id="tracks">
 						<span className="section-tag">What you build</span>
 						<h2 className="h-section">Tracks.</h2>
 						<p className="lead">Tracks will be announced soon. Likely sponsor tracks, plus an overall prize.</p>
 						<p>Schedule coming soon.</p>
-					</Window>
+					</DeskWindow>
 
-					<Window title="team.cfg" id="team">
+					<DeskWindow id="team">
 						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">The people running it.</h2>
 						<div className="team-groups">
@@ -183,13 +183,13 @@ export default function Home() {
 								</div>
 							</div>
 						</div>
-					</Window>
+					</DeskWindow>
 
-					<Window title="sponsors.dll" id="sponsors">
+					<DeskWindow id="sponsors">
 						<Sponsor />
-					</Window>
+					</DeskWindow>
 
-					<Window title="faq.txt" id="faq">
+					<DeskWindow id="faq">
 						<div className="faq-grid">
 							<div>
 								<span className="section-tag">Good to know</span>
@@ -209,9 +209,9 @@ export default function Home() {
 								))}
 							</div>
 						</div>
-					</Window>
+					</DeskWindow>
 
-					<Window title="register.exe" id="register" className="win-center">
+					<DeskWindow id="register" className="win-center">
 						<span className="section-tag">Innovation Centre, Exeter</span>
 						<h2 className="h-section">
 							Ready to <span className="grad-text">build</span>?
@@ -222,7 +222,7 @@ export default function Home() {
 						<div className="hero-cta">
 							<RegistrationButton />
 						</div>
-					</Window>
+					</DeskWindow>
 				</div>
 				<DesktopIcons />
 			</div>

@@ -76,7 +76,9 @@ a.btn:focus-visible,
 button.btn:focus-visible,
 button.tbtn:focus-visible,
 .faq-q:focus-visible,
-a.dicon:focus-visible,
+.dicon:focus-visible,
+.task-win:focus-visible,
+.win:focus-visible,
 .sponsor-field input:focus-visible,
 .sponsor-field select:focus-visible,
 .sponsor-field textarea:focus-visible {
@@ -194,7 +196,11 @@ a { color: var(--link); }
 .tdots i:nth-child(2) { background: var(--purple); }
 .tdots i:nth-child(3) { background: var(--cyan); }
 .ttl { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.tbtns { display: flex; gap: 4px; }
+.tbtns { display: flex; gap: 4px; flex: none; }
+/* Close, and the setup window's buttons, only exist on the desktop layout. */
+.win button.tbtn-close, .setup .tbtns { display: none; }
+/* sleep.exe really goes away when it is dismissed, on every layout. */
+.err[data-open="false"] { display: none; }
 .tbtn, button.tbtn {
 	width: 28px;
 	height: 24px;
@@ -432,6 +438,8 @@ button.btn:disabled, a.btn:disabled, button.btn[disabled] {
 	white-space: nowrap;
 }
 .task-menu-wide { display: none; }
+/* Open-window buttons. Only the desktop layout shows them. */
+.task-wins { display: none; }
 .task-panel {
 	position: absolute;
 	left: 8px;
@@ -478,9 +486,16 @@ button.btn:disabled, a.btn:disabled, button.btn[disabled] {
 	scrollbar-width: none;
 }
 .dicons::-webkit-scrollbar { display: none; }
-a.dicon {
+.dicon {
+	appearance: none;
+	background: none;
+	border: 0;
+	border-radius: 0;
+	margin: 0;
+	padding: 0;
+	font: inherit;
 	color: var(--ink);
-	text-decoration: none;
+	cursor: pointer;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
@@ -488,6 +503,10 @@ a.dicon {
 	width: 96px;
 	flex: none;
 }
+/* setup.exe and register.exe are shortcuts on the desktop layout only. */
+.dicon-wide { display: none; }
+.dicon-prog { display: grid; place-items: center; transition: transform 0.18s ease; }
+.dicon:hover .dicon-prog { transform: translate(2px, 2px); }
 .dicon-file {
 	width: 60px;
 	height: 70px;
@@ -520,7 +539,7 @@ a.dicon {
 	color: var(--on-accent);
 	padding: 1px 4px;
 }
-a.dicon:hover .dicon-file { transform: translate(2px, 2px); box-shadow: 2px 2px 0 0 var(--drop-strong); }
+.dicon:hover .dicon-file { transform: translate(2px, 2px); box-shadow: 2px 2px 0 0 var(--drop-strong); }
 .dicon-label {
 	font-family: var(--font-sys);
 	font-size: 1.05rem;
@@ -531,7 +550,7 @@ a.dicon:hover .dicon-file { transform: translate(2px, 2px); box-shadow: 2px 2px 
 	color: var(--ink);
 }
 .dicon-label-short { display: none; }
-a.dicon.sel .dicon-label {
+.dicon.sel .dicon-label {
 	background: var(--purple);
 	color: var(--on-purple);
 }
@@ -1031,7 +1050,7 @@ a.doc-card { align-items: stretch; text-align: left; min-height: 0; }
 	.dicon-file { width: 44px; height: 52px; box-shadow: 3px 3px 0 0 var(--drop); }
 	.dicon-file::after { width: 14px; height: 14px; }
 	.dicon-file b { font-size: 0.8rem; left: 3px; bottom: 3px; padding: 1px 3px; }
-	a.dicon { width: 56px; gap: 5px; }
+	.dicon { width: 56px; gap: 5px; }
 	.dicon-label { font-size: 0.95rem; padding: 0 2px; white-space: nowrap; }
 	.dicon-label-full { display: none; }
 	.dicon-label-short { display: block; }
@@ -1084,7 +1103,181 @@ a.doc-card { align-items: stretch; text-align: left; min-height: 0; }
 	.task-end { gap: 8px; }
 }
 
+/* ---------- desktop layout ----------
+   1024px and wider, with JavaScript: the page stops scrolling and becomes one
+   screen. Windows float, drag by the title bar, and scroll inside themselves.
+   Their place and stacking come from --x, --y, --w and --z, set by Desktop.jsx.
+   Narrower screens, and pages without JavaScript, keep the stacked layout above. */
+@media (min-width: 1024px) {
+	html[data-js] .desk-page {
+		position: fixed;
+		inset: 0 0 var(--taskbar-h, 3.3rem) 0;
+		width: auto;
+		margin: 0;
+		overflow: hidden;
+		overflow: clip;
+	}
+	html[data-js] .desk-page .desk-stage {
+		position: absolute;
+		inset: 0;
+		display: block;
+	}
+	html[data-js] .desk-page .desk-main,
+	html[data-js] .desk-page .hero-stack { display: contents; }
+
+	html[data-js] .desk-page .ticker {
+		position: absolute;
+		inset: 0 0 auto 0;
+		z-index: 1;
+		border-width: 0 0 2px;
+		padding: 0.35rem 0;
+	}
+
+	/* Icons fill from the top right and wrap into a second column on short screens. */
+	html[data-js] .desk-page .dicons {
+		position: absolute;
+		inset: 54px 14px 10px 14px;
+		z-index: 2;
+		width: auto;
+		height: auto;
+		align-self: auto;
+		padding: 0;
+		display: flex;
+		flex-flow: column wrap-reverse;
+		align-content: flex-start;
+		align-items: center;
+		gap: 10px 6px;
+		overflow: visible;
+		pointer-events: none;
+	}
+	html[data-js] .desk-page .dicon { width: 104px; gap: 6px; pointer-events: auto; }
+	html[data-js] .desk-page .dicon-wide { display: flex; }
+	html[data-js] .desk-page .dicon-file { width: 52px; height: 60px; }
+	html[data-js] .desk-page .dicon-prog { height: 60px; }
+
+	html[data-js] .desk-page .win {
+		position: absolute;
+		left: var(--x, 24px);
+		top: var(--y, 64px);
+		z-index: var(--z, 10);
+		width: min(var(--w, 720px), calc(100% - 40px));
+		max-width: none;
+		/* A window never runs under the taskbar. Its body scrolls instead. */
+		max-height: max(220px, calc(100% - var(--y, 64px) - 16px));
+		display: flex;
+		flex-direction: column;
+		box-shadow: 7px 7px 0 0 var(--drop);
+	}
+	html[data-js] .desk-page .win[data-open="false"],
+	html[data-js] .desk-page .win.win-min { display: none; }
+
+	html[data-js] .desk-page .tbar {
+		flex: none;
+		cursor: grab;
+		touch-action: none;
+		-webkit-user-select: none;
+		user-select: none;
+	}
+	html[data-js] .desk-page .win[data-dragging] .tbar { cursor: grabbing; }
+	html[data-js] .desk-page .tbtns { display: flex; }
+	html[data-js] .desk-page button.tbtn-close { display: grid; }
+
+	html[data-js] .desk-page .wbody {
+		flex: 1 1 auto;
+		min-height: 0;
+		overflow: auto;
+		overscroll-behavior: contain;
+		scrollbar-width: thin;
+		scrollbar-color: var(--green-dark) var(--field);
+	}
+
+	/* Title bars: dark at rest, lit on the window in front. Setup lights purple. */
+	html[data-js] .desk-page .win:not(.err) > .tbar {
+		background: var(--bar);
+		color: var(--green-hi);
+		border-bottom-color: var(--line);
+	}
+	html[data-js] .desk-page .win:not(.err) > .tbar .tdots i { background: var(--green); }
+	html[data-js] .desk-page .win:not(.err) > .tbar .tdots i:nth-child(2) { background: var(--purple); }
+	html[data-js] .desk-page .win:not(.err) > .tbar .tdots i:nth-child(3) { background: var(--cyan); }
+	html[data-js] .desk-page .win[data-active]:not(.err) {
+		box-shadow: 10px 10px 0 0 var(--drop-strong), 0 0 44px var(--glow);
+	}
+	html[data-js] .desk-page .win[data-active]:not(.err) > .tbar {
+		background: var(--green);
+		color: var(--on-accent);
+		border-bottom-color: var(--on-accent);
+	}
+	html[data-js] .desk-page .win[data-active]:not(.err) > .tbar .tdots i { background: var(--on-accent); }
+	html[data-js] .desk-page .win[data-active]:not(.err) > .tbar button.tbtn:hover {
+		background: var(--on-accent);
+		color: var(--green);
+		border-color: var(--on-accent);
+	}
+	html[data-js] .desk-page .win.win-shadow[data-active] > .tbar {
+		background: var(--purple);
+		color: var(--on-purple);
+		border-bottom-color: var(--on-purple);
+	}
+	html[data-js] .desk-page .win.win-shadow[data-active] > .tbar .tdots i { background: var(--on-purple); }
+	html[data-js] .desk-page .win.win-shadow[data-active] > .tbar button.tbtn:hover {
+		background: var(--on-purple);
+		color: var(--purple);
+		border-color: var(--on-purple);
+	}
+	html[data-js] .desk-page .err[data-active] { box-shadow: 8px 8px 0 0 var(--drop-green), 0 0 30px var(--glow); }
+
+	/* Taskbar buttons for the open windows. */
+	html[data-js] .task-wins {
+		display: flex;
+		flex: 1 1 0;
+		gap: 6px;
+		min-width: 0;
+		overflow: hidden;
+	}
+	.task-win {
+		flex: 0 1 190px;
+		min-width: 0;
+		height: 30px;
+		padding: 0 9px;
+		font-family: var(--font-sys);
+		font-size: 1.1rem;
+		line-height: 1;
+		letter-spacing: 0.03em;
+		text-align: left;
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		color: var(--muted);
+		background: var(--tint);
+		border: 2px solid var(--line);
+		border-radius: 0;
+		cursor: pointer;
+	}
+	.task-win:hover { color: var(--ink); border-color: var(--green); }
+	.task-win.on { color: var(--on-accent); background: var(--green); border-color: var(--green); }
+	.task-win:focus-visible { outline-offset: -5px; }
+	.task-win.on:focus-visible { outline-color: var(--on-purple); }
+}
+/* Short screens: smaller icons, so all seven still fit in one column. */
+@media (min-width: 1024px) and (max-height: 800px) {
+	html[data-js] .desk-page .dicons { gap: 8px 4px; }
+	html[data-js] .desk-page .dicon { gap: 5px; }
+	html[data-js] .desk-page .dicon-file { width: 44px; height: 52px; box-shadow: 3px 3px 0 0 var(--drop); }
+	html[data-js] .desk-page .dicon-file::after { width: 14px; height: 14px; }
+	html[data-js] .desk-page .dicon-file b { font-size: 0.8rem; left: 3px; bottom: 3px; padding: 1px 3px; }
+	html[data-js] .desk-page .dicon-prog { height: 52px; }
+	html[data-js] .desk-page .dicon-prog .prog-icon { --s: 46px !important; }
+	html[data-js] .desk-page .dicon-label { font-size: 0.95rem; }
+}
+
 /* ---------- motion ---------- */
+@media (prefers-reduced-motion: no-preference) and (min-width: 1024px) {
+	html[data-js] .desk-page .win { animation: win-open 0.14s ease-out; }
+}
+@keyframes win-open {
+	from { opacity: 0; transform: translateY(8px); }
+}
 @media (prefers-reduced-motion: no-preference) {
 	:root { scroll-behavior: smooth; }
 	.ticker-track { animation: ticker-scroll 34s linear infinite; }

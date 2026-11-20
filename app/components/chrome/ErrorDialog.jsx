@@ -1,16 +1,16 @@
 "use client"
 
-import { useState } from "react"
+import { useDeskWindow } from "./Desktop"
 
+/** sleep.exe. A small error box that floats over the desktop until it is dismissed. */
 export function ErrorDialog({ className = "" }) {
-	const [open, setOpen] = useState(true)
-	if (!open) return null
+	const win = useDeskWindow("sleep")
 
 	return (
-		<aside className={className ? `win err ${className}` : "win err"} aria-label="sleep.exe">
-			<div className="tbar tbar-err">
-				<span className="ttl">sleep.exe</span>
-				<button type="button" className="tbtn" aria-label="Close sleep.exe" onClick={() => setOpen(false)}>
+		<aside {...win.frameProps} className={className ? `win err ${className}` : "win err"} aria-label={win.title}>
+			<div className="tbar tbar-err" {...win.barProps}>
+				<span className="ttl">{win.title}</span>
+				<button type="button" className="tbtn" aria-label={`Close ${win.title}`} onClick={win.close}>
 					x
 				</button>
 			</div>
@@ -21,7 +21,7 @@ export function ErrorDialog({ className = "" }) {
 				<p>sleep.exe could not be found. Keep hacking?</p>
 			</div>
 			<div className="efoot">
-				<button type="button" className="btn btn-primary" onClick={() => setOpen(false)}>
+				<button type="button" className="btn btn-primary" onClick={win.close}>
 					OK
 				</button>
 			</div>

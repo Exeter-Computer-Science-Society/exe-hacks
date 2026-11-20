@@ -5,7 +5,9 @@ import { useEffect, useId, useRef, useState } from "react"
 
 import { CONTACT_EMAIL, REGISTER } from "../../config"
 import { RegistrationButton } from "../RegistrationButton"
+import { useDesktop } from "./Desktop"
 import { ProgramIcon } from "./ProgramIcon"
+import { WINDOW_BY_ID } from "./windows"
 
 // Days until the weekend. No start time is published yet.
 const HACK_START = Date.parse("2027-02-06T00:00:00Z")
@@ -60,6 +62,7 @@ export function Taskbar() {
 	const [days, setDays] = useState(null)
 	const barRef = useRef(null)
 	const menuId = useId()
+	const desk = useDesktop()
 
 	useEffect(() => {
 		const el = barRef.current
@@ -106,7 +109,16 @@ export function Taskbar() {
 
 	return (
 		<footer className="taskbar" ref={barRef}>
-			<Link className="task-brand" href="/">
+			<Link
+				className="task-brand"
+				href="/"
+				onClick={(event) => {
+					// On the desktop the brand is the way back to the setup window.
+					if (!desk.isHome || !desk.isDesktop) return
+					event.preventDefault()
+					desk.launch("setup")
+				}}
+			>
 				<ProgramIcon size={28} />
 				<span className="task-word">.EXEHACKS</span>
 			</Link>
@@ -116,6 +128,28 @@ export function Taskbar() {
 					<MenuLink key={item.href} item={item} />
 				))}
 			</nav>
+
+			{desk.isHome ? (
+				<div className="task-wins" role="group" aria-label="Open windows">
+					{desk.state.bar.map((id) => {
+						const title = WINDOW_BY_ID[id].title
+						const active = desk.activeId === id
+						return (
+							<button
+								key={id}
+								type="button"
+								id={`task-win-${id}`}
+								className={active ? "task-win on" : "task-win"}
+								aria-pressed={active}
+								title={title}
+								onClick={() => desk.toggleFromTaskbar(id)}
+							>
+								{title}
+							</button>
+						)
+					})}
+				</div>
+			) : null}
 
 			<div className="task-end">
 				<RegistrationButton label="Register" className="btn btn-primary task-register" aria-label={REGISTER.label} />
