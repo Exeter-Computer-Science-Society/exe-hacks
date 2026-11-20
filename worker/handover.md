@@ -28,11 +28,11 @@ Who it is for needs a decision from you. These notes describe the audience as st
 
 The event used to be called Hack South West. Same society, same city, new name. The previous edition (HSW3) was 31 January to 1 February 2026, about 80 hackers, budget £1,450. The Innovation Centre closed at 22:00, hackers moved to the Forum overnight, and the building reopened at 07:30. Plan the 2027 overnight the same way until the university confirms otherwise. See [Operations documents](#operations-documents).
 
-As of November 2026 the current Hackathon Organiser is Kazybek Khairulla, Hackathon Director for EXCS. University email `kk598@exeter.ac.uk`. The Cloudflare Access login on the admin allow-list is `kazybekkhairulla@gmail.com`. Those two addresses are the same person. The address that matters for the website is whichever one Access puts in the sign-in token.
+As of November 2026 the current Hackathon Organiser is Kazybek Khairulla, Hackathon Director for EXCS. University contact: `kk598@exeter.ac.uk`. The Cloudflare Access login on the admin allow-list is the outgoing organiser's personal Access login (handed over privately). Do not copy that address into this file. The address that matters for the website is the one Access puts in the sign-in token.
 
 Rough order of work from here:
 
-1. November 2026. Interest list is open. Core-team applications are closed. Hacker applications are built but still closed (see the website section). MLH and Hackathons UK applications were submitted and updated on 17 November 2026. The team Gmail was created on 20 November 2026. Brevo "send as sponsors@" was still being set up.
+1. November 2026. Interest list is open. Core-team applications are closed. Hacker applications are built but still closed (see the website section). MLH and Hackathons UK applications were submitted and updated on 17 November 2026. The team Gmail was created on 20 November 2026, and Gmail "Send mail as" for `sponsors@exehacks.excs.uk` was verified the same day (see Email setup).
 2. By 8 January 2027. Sign the Hackathons UK partner agreement. Do not use their logo for 2027 before that, and not before they approve the event.
 3. Before applications open. Set `APPLICATIONS_OPEN` to `true` and deploy. The advertised opening on the site is Monday 9 November 2026 at 12:00 UK time, and that clock has passed while the flag is still `false`. Opening is a deliberate change, not something the clock does by itself.
 4. Saturday 6 February 2027 to Sunday 7 February 2027. The event.
@@ -77,8 +77,18 @@ How a message moves:
 1. Someone writes to `sponsors@exehacks.excs.uk` (the address on the site and in `app/config.js` as `CONTACT_EMAIL`).
 2. Cloudflare Email Routing, on `exehacks.excs.uk` in the `excs.uk` zone, forwards that message to `exehacks.excs@gmail.com`.
 3. You read it in the shared Gmail and reply from there.
-4. To make the reply show `sponsors@` as the From address, Gmail "Send mail as" uses a free Brevo SMTP relay. The Brevo account is the team Gmail. That relay was still being set up in November 2026. The SMTP password is handed over privately. Finish the setup if send-as still fails, then send yourself a test from `sponsors@` and reply to it.
+4. Replies go out as ExeHacks Team `<sponsors@exehacks.excs.uk>`. Gmail "Send mail as" was verified on 20 November 2026. It sends through Brevo: host `smtp-relay.brevo.com`, port 587, TLS. The SMTP login is `c461a4001@smtp-brevo.com`. The SMTP key is handed over privately. Do not put the key in this file or in git.
 5. Recovery email for the team Gmail should be `excs@groups.exeterguild.com`, not a personal address. Otherwise the next handover depends on someone who has left.
+
+The Brevo account is the free plan, signed in with Google as the team Gmail. The domain `exehacks.excs.uk` is authenticated there. These DNS records live on `exehacks.excs.uk` in the `excs.uk` Cloudflare zone: a TXT record `brevo-code`, CNAME records `brevo1._domainkey` and `brevo2._domainkey`, a TXT record `_dmarc`, and an SPF record that includes `spf.brevo.com`. The free plan allows 300 emails a day.
+
+Three things will break send-as if nobody watches them:
+
+- The Brevo SMTP key used for Gmail send-as expires on 20 November 2027. Before that date, generate a new key in Brevo under SMTP & API, then put it in Gmail: Settings, Accounts, Send mail as, edit info. The new key is handed over privately. Do not paste it here.
+- Brevo deletes a free account after 4 months with no login. Reminder emails go to the team Gmail 30, 15, 7, and 1 days before that. Mail that is actually sent counts as activity. Log in at least every 3 months, and do not leave it untouched over the summer.
+- The phone number on the Brevo account is the outgoing organiser's. Replace it with your own in Brevo account settings. Do not write the number in this file.
+
+The default From address in the team Gmail may still be `exehacks.excs@gmail.com`. Set `sponsors@exehacks.excs.uk` as the default if you want sponsor replies to use it without choosing the address each time.
 
 The Guild mailbox is shared with the whole society committee. Do not mark messages read unless you were asked to deal with them. Do not delete mail.
 
@@ -126,7 +136,7 @@ No values belong in git, in Slack, or in this guide. "Handed over privately" mea
 | `EXPORT_TOKEN` | Worker secret (`npx wrangler secret put EXPORT_TOKEN`) | Bearer token for the interest CSV script. Rotate at handover. |
 | `ACCESS_TEAM_DOMAIN` | Worker secret | Cloudflare Access team hostname, with or without `https://`. |
 | `ACCESS_AUD` | Worker secret | Audience tag of the Access application that protects `/admin`. |
-| `ADMIN_EMAILS` | Worker variable in `wrangler.jsonc` | Comma-separated emails allowed into `/admin` after Access. A non-empty value replaces the default `kazybekkhairulla@gmail.com`. |
+| `ADMIN_EMAILS` | Worker variable in `wrangler.jsonc` | Comma-separated emails allowed into `/admin` after Access. A non-empty value replaces the default in that file. The current default is the outgoing organiser's personal Access login (handed over privately). |
 | `ORGANISER_EMAILS` | Worker variable in `wrangler.jsonc` | Comma-separated Hackathon Organiser emails. See below. |
 | `APPLICATIONS_OPEN` | Worker variable in `wrangler.jsonc` | `true` or `false`. Anything other than `true` keeps `/apply` closed. Currently `false`. |
 | `ORGANISER_DEV_EMAIL` | Gitignored `.dev.vars` on your machine only | Local preview of this guide. Never set it on the deployed Worker. |
@@ -142,7 +152,7 @@ There is no accounts table. The role is an email list checked by the Worker.
 3. That email must be on `ADMIN_EMAILS`, or the response is 403 ("not an admin"). No token, or a bad token, is 401.
 4. For `/admin/handover` and `GET /api/admin/handover` only, the email must also be on `ORGANISER_EMAILS`. Another admin gets 403. The guide HTML is not in the static files or the public JavaScript. The link on `/admin/` appears only after the session check says you are an organiser.
 
-`ORGANISER_EMAILS` format: `ada@exeter.ac.uk, kim@exeter.ac.uk`. Case does not matter. Spaces around commas are fine. If the variable is missing, blank, or contains no email addresses, the Worker uses the default in `worker/organiser.js` (the same two addresses as `wrangler.jsonc`). A list with at least one address replaces that default completely. When you add yourself, include every organiser who should keep access, not only the new address. The address must be the one Access uses, and it must also be on `ADMIN_EMAILS`.
+`ORGANISER_EMAILS` format: `ada@exeter.ac.uk, kim@exeter.ac.uk`. Case does not matter. Spaces around commas are fine. If the variable is missing, blank, or contains no email addresses, the Worker uses the default in `worker/organiser.js` (also written in `wrangler.jsonc`). That default still includes the outgoing organiser's personal Access login (handed over privately). Do not copy it into this file. A list with at least one address replaces that default completely. When you add yourself, include every organiser who should keep access, not only the new address. The address must be the one Access uses, and it must also be on `ADMIN_EMAILS`.
 
 ### Deploy
 
@@ -181,7 +191,7 @@ Hackathons UK and the university both need to be in the conversation about the o
 
 ## Sponsors
 
-About thirty organisations were contacted or on the target list as of November 2026: Vercel, Nvidia, Arm, Replit, Supabase, GitHub, Twilio, Postman, Figma, Mistral, Jane Street, G-Research, Met Office, TPP, Graphcore, Deloitte, and Securious (a warm lead). Write to them from the team inbox (`sponsors@` once send-as works). Do not write from a personal address. A sponsor who replies to a personal thread is easy to lose at the next handover.
+About thirty organisations were contacted or on the target list as of November 2026: Vercel, Nvidia, Arm, Replit, Supabase, GitHub, Twilio, Postman, Figma, Mistral, Jane Street, G-Research, Met Office, TPP, Graphcore, Deloitte, and Securious (a warm lead). Write to them from the team inbox as `sponsors@exehacks.excs.uk`. Do not write from a personal address. A sponsor who replies to a personal thread is easy to lose at the next handover.
 
 2025 cash bands, from the previous event, were £100 to £499, £500 to £999, and £1,000 and above. The website's current tier labels, in `app/sponsors.js`, are `title`, `gold`, `silver`, `bronze`, and `partner`. Say which label you are selling before you send a deck, and keep the deck, the email, and the site on the same names.
 
@@ -237,18 +247,17 @@ Do these in order when you take the role. Tick them off in the shared drive. Thi
 
 1. Read this guide, `README.md`, and `CLAUDE.md`. Skim `wrangler.jsonc` so you know the Worker name, the database, and the variables.
 2. Take the team Gmail (`exehacks.excs@gmail.com`) from the outgoing organiser, in private. Sign in, change the password, and set the recovery email to `excs@groups.exeterguild.com`.
-3. Send a test message to `sponsors@exehacks.excs.uk` and confirm it lands in that Gmail. Finish Brevo "Send mail as" if it is not done. The SMTP password is handed over privately. Send a test from `sponsors@` as well.
+3. Send a test to `sponsors@exehacks.excs.uk` and confirm it lands in the team Gmail. Send a reply as ExeHacks Team `<sponsors@exehacks.excs.uk>`. Send-as already works (20 November 2026). The Brevo SMTP key is handed over privately. Diary the key expiry (20 November 2027), log in to Brevo at least every 3 months, and replace the Brevo account phone number (it is the outgoing organiser's) with your own.
 4. Get access to the EXCS Guild mailbox. Agree to leave other people's mail unread.
 5. Get the shared Google Drive and move the OneDrive "South West Hacks" folder into a drive the society or the team owns. Get Notion access, or export it into that drive. Get the Devpost, LinkedIn, and Instagram logins (still under the Hack South West name). Passwords are handed over privately, then changed.
 6. Get added to the GitHub organisation Exeter-Computer-Science-Society, with access to `exe-hacks`. When the handover is finished, remove the outgoing organiser if they are leaving the project.
 7. Get access to the EXCS Cloudflare account. Run `wrangler whoami` and confirm it is that account. If you see the other account id from `wrangler.jsonc`, sign out. Do not deploy.
-8. Add your Access email to the Cloudflare Access policy for `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`. Remove the outgoing organiser. Sign in at [/admin/](https://exehacks.excs.uk/admin/) and confirm the tables load.
-9. Put that same email on `ADMIN_EMAILS` and on `ORGANISER_EMAILS` in `wrangler.jsonc`. A non-empty `ORGANISER_EMAILS` replaces the whole list, so keep anyone who should still be an organiser. Remove the outgoing address. Merge to `main` and wait for the deploy. Then open [/admin/handover/](https://exehacks.excs.uk/admin/handover/) and confirm this page loads for you and not for any other admin.
-10. Receive, store, and rotate the secrets the outgoing organiser still knows: `EXPORT_TOKEN`, `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `CLOUDFLARE_API_TOKEN`, `FORMSPREE_DEPLOY_KEY`, the Brevo SMTP password, and the team Gmail password you already changed. Values are handed over privately. Never commit them. `CLOUDFLARE_ACCOUNT_ID` is the EXCS account id, also a GitHub secret. Confirm it, and rotate the API token rather than the account id.
-11. If the sponsor form should work, set `FORMSPREE_DEPLOY_KEY` and `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` (both were missing in November 2026) and decide whether Formspree writes to the Guild mailbox or the team Gmail. Send a test enquiry.
-12. Email Christine Kim at MLH, and Holly and Adam Drummond at Hackathons UK, with your contact details. Sign the Hackathons UK agreement by 8 January 2027. Do not announce either partnership until it is actually confirmed.
-13. Tell the EXCS committee you are the Hackathon Organiser. Take the TPP society-wide idea to them before you agree anything. Introduce yourself to the treasurer and look at the £1,800 and the Student Alumni Fund together.
-14. Confirm the overnight plan (Forum or Library, closing time, who stays) with the university and Hackathons UK. Write it into the risk assessment and the run of show.
-15. Copy the rota, risk assessments, and run of show forward, with named owners, for 6 to 7 February 2027. Share them from the team drive, not from a personal OneDrive.
-16. Decide the public eligibility line (18+ students and recent graduates, or the wider FAQ) and make the FAQ match the form.
-17. Before you hand the role on, update this file, move anything new into the shared drive, and rotate the secrets again.
+8. Add your own Access login to the Cloudflare Access policy for `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`, and to `ADMIN_EMAILS` and `ORGANISER_EMAILS` in `wrangler.jsonc`. Remove the outgoing organiser's personal Access login from the policy and from both lists. A non-empty `ORGANISER_EMAILS` replaces the whole list, so include every organiser who should keep access. Merge to `main` and wait for the deploy. Sign in at [/admin/](https://exehacks.excs.uk/admin/) and open [/admin/handover/](https://exehacks.excs.uk/admin/handover/). Confirm the tables and this page load for you, and that another admin cannot open the guide.
+9. Receive, store, and rotate the secrets the outgoing organiser still knows: `EXPORT_TOKEN`, `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `CLOUDFLARE_API_TOKEN`, `FORMSPREE_DEPLOY_KEY`, the Brevo SMTP key, and the team Gmail password you already changed. Values are handed over privately. Never commit them. `CLOUDFLARE_ACCOUNT_ID` is the EXCS account id, also a GitHub secret. Confirm it, and rotate the API token rather than the account id.
+10. If the sponsor form should work, set `FORMSPREE_DEPLOY_KEY` and `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` (both were missing in November 2026) and decide whether Formspree writes to the Guild mailbox or the team Gmail. Send a test enquiry.
+11. Email Christine Kim at MLH, and Holly and Adam Drummond at Hackathons UK, with your contact details. Sign the Hackathons UK agreement by 8 January 2027. Do not announce either partnership until it is actually confirmed.
+12. Tell the EXCS committee you are the Hackathon Organiser. Take the TPP society-wide idea to them before you agree anything. Introduce yourself to the treasurer and look at the £1,800 and the Student Alumni Fund together.
+13. Confirm the overnight plan (Forum or Library, closing time, who stays) with the university and Hackathons UK. Write it into the risk assessment and the run of show.
+14. Copy the rota, risk assessments, and run of show forward, with named owners, for 6 to 7 February 2027. Share them from the team drive, not from a personal OneDrive.
+15. Decide the public eligibility line (18+ students and recent graduates, or the wider FAQ) and make the FAQ match the form.
+16. Before you hand the role on, update this file, move anything new into the shared drive, and rotate the secrets again.

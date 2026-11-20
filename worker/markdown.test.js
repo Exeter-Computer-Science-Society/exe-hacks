@@ -70,6 +70,11 @@ test("guide has no secret values, em dashes, or raw html", () => {
 	]
 	for (const pattern of forbidden) assert.equal(pattern.test(source), false, String(pattern))
 	assert.equal(/<(script|iframe|img|object)\b/i.test(source), false)
+	assert.equal(source.includes("kazybekkhairulla@gmail.com"), false)
+	assert.match(source, /outgoing organiser's personal Access login \(handed over privately\)/)
+	assert.match(source, /smtp-relay\.brevo\.com/)
+	assert.match(source, /20 November 2027/)
+	assert.equal(/still being set up/i.test(source), false)
 })
 
 test("guide text is not shipped in the app, public files, or static export", () => {
