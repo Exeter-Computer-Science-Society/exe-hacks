@@ -4,8 +4,7 @@ import { useEffect, useState } from "react"
 
 const ICONS = [
 	{ id: "about", href: "/#about", ext: "TXT", label: "about.txt", short: "About" },
-	{ id: "events", href: "/#events", ext: "EXE", label: "event.exe", short: "Event" },
-	{ id: "schedule", href: "/#schedule", ext: "EXE", label: "schedule.exe", short: "Times" },
+	{ id: "tracks", href: "/#tracks", ext: "TXT", label: "tracks.txt", short: "Tracks" },
 	{ id: "sponsors", href: "/#sponsors", ext: "DLL", label: "sponsors.dll", short: "Sponsors" },
 	{ id: "team", href: "/#team", ext: "CFG", label: "team.cfg", short: "Team" },
 	{ id: "faq", href: "/#faq", ext: "TXT", label: "faq.txt", short: "FAQ" },

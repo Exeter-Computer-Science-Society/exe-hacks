@@ -147,7 +147,7 @@ export function SponsorForm() {
 					name="message"
 					rows={5}
 					maxLength={SPONSOR_LIMITS.message}
-					placeholder="Track idea, workshop, or just say hello."
+					placeholder="Say hello, or tell us what you have in mind."
 					required
 					aria-invalid={field === "message" || undefined}
 					aria-describedby={field === "message" ? "sponsor-message-error" : undefined}
