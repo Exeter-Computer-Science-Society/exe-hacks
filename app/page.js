@@ -153,25 +153,35 @@ export default function Home() {
 					</Window>
 
 					<Window title="team.cfg" id="team">
-						<span className="section-tag">Core team</span>
+						<span className="section-tag">Who runs this</span>
 						<h2 className="h-section">The people running it.</h2>
-						<div className="team-grid">
-							<Profile
-								name="Kazybek Khairulla"
-								position="Hackathon Director"
-								course="Computer Science, 3rd year"
-								image="/team/kazybek.webp"
-							/>
-							<Profile
-								name="Emre Acarsoy"
-								position="Tech Lead"
-								course="Computer Science, 3rd year"
-								image="/team/emre.jpg"
-							/>
-							<Profile name="Keira Heffernan" position="Logistics Lead" course="Computer Science, 2nd year" />
-							<Profile name="Rose Burston" position="Volunteer Coordinator" course="Computer Science, 3rd year" />
-							<Profile name="Sam Carpenter" position="Treasurer" course="Computer Science, 3rd year" />
-							<Profile name="Wiktor Wiejak" position="Advisor" image="/team/wiktor.webp" />
+						<div className="team-groups">
+							<div className="team-group">
+								<span className="section-tag">Core team</span>
+								<div className="team-grid">
+									<Profile
+										name="Kazybek Khairulla"
+										position="Hackathon Director"
+										course="Computer Science, 3rd year"
+										image="/team/kazybek.webp"
+									/>
+									<Profile
+										name="Emre Acarsoy"
+										position="Tech Lead"
+										course="Computer Science, 3rd year"
+										image="/team/emre.jpg"
+									/>
+									<Profile name="Keira Heffernan" position="Logistics Lead" course="Computer Science, 2nd year" />
+									<Profile name="Rose Burston" position="Volunteer Coordinator" course="Computer Science, 3rd year" />
+									<Profile name="Sam Carpenter" position="Treasurer" course="Computer Science, 3rd year" />
+								</div>
+							</div>
+							<div className="team-group">
+								<span className="section-tag">Advisor</span>
+								<div className="team-grid">
+									<Profile name="Wiktor Wiejak" position="Advisor, creator of HackSouthWest" image="/team/wiktor.webp" />
+								</div>
+							</div>
 						</div>
 					</Window>
 
