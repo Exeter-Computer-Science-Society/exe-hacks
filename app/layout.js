@@ -57,6 +57,14 @@ export const metadata = {
 	},
 }
 
+// viewport-fit=cover lets the bars pad themselves around the notch and the
+// iOS home indicator with env(safe-area-inset-*).
+export const viewport = {
+	width: "device-width",
+	initialScale: 1,
+	viewportFit: "cover",
+}
+
 export default function RootLayout({ children }) {
 	return (
 		<html lang="en" data-theme="dark" className={fontVars}>
