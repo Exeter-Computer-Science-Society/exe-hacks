@@ -1103,6 +1103,65 @@ a.doc-card { align-items: stretch; text-align: left; min-height: 0; }
 	.task-end { gap: 8px; }
 }
 
+/* ---------- boot intro ----------
+   Three typed lines over the desktop, about 0.8s in all. Off unless the
+   inline script in BootScreen.jsx sets data-boot="run" on <html>. */
+.boot { display: none; }
+html[data-boot="run"] .boot {
+	position: fixed;
+	inset: 0;
+	z-index: 70;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 24px;
+	background: var(--boot-veil);
+	cursor: pointer;
+	animation: boot-out 0.18s ease-out 0.62s forwards;
+}
+.boot-lines {
+	font-family: var(--font-sys);
+	font-size: clamp(1.25rem, 5.4vw, 2.4rem);
+	line-height: 1.3;
+	letter-spacing: 0.04em;
+	color: var(--green);
+	text-shadow: 0 0 14px var(--glow-strong);
+}
+.boot-line { position: relative; width: max-content; margin: 0; white-space: nowrap; }
+/* Each line is uncovered one character at a time, with a caret riding the edge. */
+.boot-line span {
+	display: inline-block;
+	clip-path: inset(-0.4em 100% -0.4em -0.4em);
+	animation: boot-type 0.16s steps(var(--n)) calc(var(--i) * 0.19s) forwards;
+}
+.boot-line::after {
+	content: "";
+	position: absolute;
+	left: 0;
+	top: 0.2em;
+	width: 0.5em;
+	height: 0.9em;
+	margin-left: 0.1em;
+	background: var(--green);
+	box-shadow: 0 0 14px var(--glow-strong);
+	opacity: 0;
+	animation: boot-caret 0.16s steps(var(--n)) calc(var(--i) * 0.19s);
+}
+.boot-line:last-child::after { animation-fill-mode: forwards; }
+@keyframes boot-type {
+	to { clip-path: inset(-0.4em -0.4em -0.4em -0.4em); }
+}
+@keyframes boot-caret {
+	from { left: 0; opacity: 1; }
+	to { left: 100%; opacity: 1; }
+}
+@keyframes boot-out {
+	to { opacity: 0; visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+	.boot { display: none !important; }
+}
+
 /* ---------- desktop layout ----------
    1024px and wider, with JavaScript: the page stops scrolling and becomes one
    screen. Windows float, drag by the title bar, and scroll inside themselves.
