@@ -1,46 +1,37 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useDesktop } from "./Desktop"
+import { ProgramIcon } from "./ProgramIcon"
+import { DESKTOP_ICONS } from "./windows"
 
-const ICONS = [
-	{ id: "about", href: "/#about", ext: "TXT", label: "about.txt", short: "About" },
-	{ id: "tracks", href: "/#tracks", ext: "TXT", label: "tracks.txt", short: "Tracks" },
-	{ id: "sponsors", href: "/#sponsors", ext: "DLL", label: "sponsors.dll", short: "Sponsors" },
-	{ id: "team", href: "/#team", ext: "CFG", label: "team.cfg", short: "Team" },
-	{ id: "faq", href: "/#faq", ext: "TXT", label: "faq.txt", short: "FAQ" },
-]
-
+/** Desktop shortcuts. Each one is a button that opens its window. */
 export function DesktopIcons() {
-	const [current, setCurrent] = useState("")
-
-	useEffect(() => {
-		const read = () => setCurrent(window.location.hash.replace("#", ""))
-		read()
-		window.addEventListener("hashchange", read)
-		return () => window.removeEventListener("hashchange", read)
-	}, [])
+	const { activeId, launch } = useDesktop()
 
 	return (
-		<nav className="dicons" aria-label="Desktop">
-			{ICONS.map((icon) => {
-				const selected = current === icon.id
+		<div className="dicons" role="group" aria-label="Desktop icons">
+			{DESKTOP_ICONS.map(({ id, icon }) => {
+				const classes = ["dicon", activeId === id ? "sel" : "", icon.onMobile === false ? "dicon-wide" : ""]
+					.filter(Boolean)
+					.join(" ")
 				return (
-					<a
-						key={icon.id}
-						href={icon.href}
-						className={selected ? "dicon sel" : "dicon"}
-						aria-current={selected ? "true" : undefined}
-					>
-						<span className="dicon-file" aria-hidden="true">
-							<b>.{icon.ext}</b>
-						</span>
+					<button key={id} type="button" id={`dicon-${id}`} className={classes} onClick={() => launch(id)}>
+						{icon.kind === "program" ? (
+							<span className="dicon-prog">
+								<ProgramIcon size={56} />
+							</span>
+						) : (
+							<span className="dicon-file" aria-hidden="true">
+								<b>.{icon.ext}</b>
+							</span>
+						)}
 						<span className="dicon-label">
 							<span className="dicon-label-full">{icon.label}</span>
 							<span className="dicon-label-short">{icon.short}</span>
 						</span>
-					</a>
+					</button>
 				)
 			})}
-		</nav>
+		</div>
 	)
 }

@@ -3,13 +3,14 @@ import Link from "next/link"
 
 import { Question } from "./components/Question"
 import { RegistrationButton } from "./components/RegistrationButton"
+import { BootScreen } from "./components/chrome/BootScreen"
 import { DesktopIcons } from "./components/chrome/DesktopIcons"
+import { DeskWindow } from "./components/chrome/DeskWindow"
 import { ErrorDialog } from "./components/chrome/ErrorDialog"
 import { ProgramIcon } from "./components/chrome/ProgramIcon"
-import { Window } from "./components/chrome/Window"
 import Sponsor from "./components/General/Sponsor"
 import { Profile } from "./components/Team/Profiles"
-import { CONTACT_EMAIL } from "./config"
+import { CONTACT_EMAIL, REGISTER } from "./config"
 
 const EVENT_WINDOW = "6 to 7 February 2027"
 
@@ -68,162 +69,167 @@ function EventPhoto({ src, alt, sizes }) {
 
 export default function Home() {
 	return (
-		<div className="desk-page">
-			<div className="desk-stage">
-				<div className="desk-main">
-					<div className="hero-stack">
-						<Window title="ExeHacks 2027 Setup" shadow className="setup">
-							<div className="setup-body">
-								<div className="setup-head">
-									<ProgramIcon size={112} />
-									<div className="setup-title">
-										<h1 className="wordmark" aria-label="ExeHacks">
-											<span className="glitch" aria-hidden="true" data-text=".EXEHACKS">
-												.EXEHACKS
+		<>
+			<BootScreen />
+			<div className="desk-page">
+				<div className="desk-stage">
+					<div className="desk-main">
+						<div className="hero-stack">
+							<DeskWindow id="setup" shadow className="setup">
+								<div className="setup-body">
+									<div className="setup-head">
+										<ProgramIcon size={112} />
+										<div className="setup-title">
+											<h1 className="wordmark" aria-label="ExeHacks">
+												<span className="glitch" aria-hidden="true" data-text=".EXEHACKS">
+													.EXEHACKS
+												</span>
+											</h1>
+											<p className="tagline">build something that shouldn&apos;t exist yet</p>
+										</div>
+									</div>
+									<dl className="facts">
+										<div>
+											<dt>When</dt>
+											<dd>6-7 Feb 2027</dd>
+										</div>
+										<div>
+											<dt>Where</dt>
+											<dd>
+												Innovation Centre
+												<span className="fact-place">Exeter</span>
+											</dd>
+										</div>
+									</dl>
+									<div className="setup-cta">
+										<RegistrationButton label="Register" />
+										<p className="setup-note">{REGISTER.note}</p>
+									</div>
+								</div>
+							</DeskWindow>
+							<ErrorDialog className="err-pop" />
+						</div>
+
+						<div className="ticker" aria-hidden="true">
+							<div className="ticker-track">
+								{[0, 1].map((copy) => (
+									<span className="ticker-item" key={copy}>
+										{TICKER.map((item) => (
+											<span className="ticker-bit" key={item}>
+												<span className="star">✦</span>
+												{item}
 											</span>
-										</h1>
-										<p className="tagline">build something that shouldn&apos;t exist yet</p>
-									</div>
-								</div>
-								<dl className="facts">
-									<div>
-										<dt>When</dt>
-										<dd>6-7 Feb 2027</dd>
-									</div>
-									<div>
-										<dt>Where</dt>
-										<dd>
-											Innovation Centre
-											<span className="fact-place">Exeter</span>
-										</dd>
-									</div>
-								</dl>
-								<div className="setup-cta">
-									<RegistrationButton label="Register" />
-									<p className="setup-note">Registers your interest. We&apos;ll email you.</p>
-								</div>
+										))}
+									</span>
+								))}
 							</div>
-						</Window>
-						<ErrorDialog className="err-pop" />
-					</div>
+						</div>
 
-					<div className="ticker" aria-hidden="true">
-						<div className="ticker-track">
-							{[0, 1].map((copy) => (
-								<span className="ticker-item" key={copy}>
-									{TICKER.map((item) => (
-										<span className="ticker-bit" key={item}>
-											<span className="star">✦</span>
-											{item}
-										</span>
+						<DeskWindow id="about">
+							<div className="welcome-grid">
+								<div>
+									<span className="section-tag">University of Exeter</span>
+									<h2 className="h-section">
+										Exeter&apos;s student <span className="grad-text">hackathon</span>.
+									</h2>
+									<p>
+										ExeHacks is run by the <b>Exeter Computer Science Society</b> (EXCS). It used to be called Hack South
+										West. Same society, same venue.
+									</p>
+									<p>
+										<b>{EVENT_WINDOW}</b>. Innovation Centre, Exeter.
+									</p>
+								</div>
+								<div className="photo-pair">
+									{ABOUT_PHOTOS.map((photo) => (
+										<EventPhoto key={photo.src} {...photo} sizes="(max-width: 768px) 46vw, 280px" />
 									))}
-								</span>
-							))}
-						</div>
+								</div>
+							</div>
+						</DeskWindow>
+
+						<DeskWindow id="tracks">
+							<span className="section-tag">What you build</span>
+							<h2 className="h-section">Tracks.</h2>
+							<p className="lead">Tracks will be announced soon. Likely sponsor tracks, plus an overall prize.</p>
+							<p>Schedule coming soon.</p>
+						</DeskWindow>
+
+						<DeskWindow id="team">
+							<span className="section-tag">Who runs this</span>
+							<h2 className="h-section">The people running it.</h2>
+							<div className="team-groups">
+								<div className="team-group">
+									<span className="section-tag">Core team</span>
+									<div className="team-grid">
+										<Profile
+											name="Kazybek Khairulla"
+											position="Hackathon Director"
+											course="Computer Science, 3rd year"
+											image="/team/kazybek.webp"
+										/>
+										<Profile
+											name="Emre Acarsoy"
+											position="Tech Lead"
+											course="Computer Science, 3rd year"
+											image="/team/emre.jpg"
+										/>
+										<Profile name="Keira Heffernan" position="Logistics Lead" course="Computer Science, 2nd year" />
+										<Profile name="Rose Burston" position="Volunteer Coordinator" course="Computer Science, 3rd year" />
+										<Profile name="Sam Carpenter" position="Treasurer" course="Computer Science, 3rd year" />
+									</div>
+								</div>
+								<div className="team-group">
+									<span className="section-tag">Advisor</span>
+									<div className="team-grid">
+										<Profile name="Wiktor Wiejak" position="Advisor, creator of HackSouthWest" image="/team/wiktor.webp" />
+									</div>
+								</div>
+							</div>
+						</DeskWindow>
+
+						<DeskWindow id="sponsors">
+							<Sponsor />
+						</DeskWindow>
+
+						<DeskWindow id="faq">
+							<div className="faq-grid">
+								<div>
+									<span className="section-tag">Good to know</span>
+									<h2 className="h-section">Questions.</h2>
+									<p className="lead">
+										If something is missing, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+									</p>
+									<div className="faq-side-links">
+										<Link href="/past/hsw-2024-feb/">Past editions</Link>
+										<Link href="/conditions/intellectual/">Intellectual property</Link>
+										<Link href="/conditions/terms/">Terms</Link>
+									</div>
+								</div>
+								<div className="faq-list">
+									{QUESTIONS.map((question) => (
+										<Question key={question.id} info={question} />
+									))}
+								</div>
+							</div>
+						</DeskWindow>
+
+						<DeskWindow id="register" className="win-center">
+							<span className="section-tag">Innovation Centre, Exeter</span>
+							<h2 className="h-section">
+								Ready to <span className="grad-text">build</span>?
+							</h2>
+							<p>
+								{EVENT_WINDOW}. {REGISTER.blurb}
+							</p>
+							<div className="hero-cta">
+								<RegistrationButton />
+							</div>
+						</DeskWindow>
 					</div>
-
-					<Window title="about.txt" id="about">
-						<div className="welcome-grid">
-							<div>
-								<span className="section-tag">University of Exeter</span>
-								<h2 className="h-section">
-									Exeter&apos;s student <span className="grad-text">hackathon</span>.
-								</h2>
-								<p>
-									ExeHacks is run by the <b>Exeter Computer Science Society</b> (EXCS). It used to be called Hack South
-									West. Same society, same venue.
-								</p>
-								<p>
-									<b>{EVENT_WINDOW}</b>. Innovation Centre, Exeter.
-								</p>
-							</div>
-							<div className="photo-pair">
-								{ABOUT_PHOTOS.map((photo) => (
-									<EventPhoto key={photo.src} {...photo} sizes="(max-width: 768px) 46vw, 280px" />
-								))}
-							</div>
-						</div>
-					</Window>
-
-					<Window title="tracks.txt" id="tracks">
-						<span className="section-tag">What you build</span>
-						<h2 className="h-section">Tracks.</h2>
-						<p className="lead">Tracks will be announced soon. Likely sponsor tracks, plus an overall prize.</p>
-						<p>Schedule coming soon.</p>
-					</Window>
-
-					<Window title="team.cfg" id="team">
-						<span className="section-tag">Who runs this</span>
-						<h2 className="h-section">The people running it.</h2>
-						<div className="team-groups">
-							<div className="team-group">
-								<span className="section-tag">Core team</span>
-								<div className="team-grid">
-									<Profile
-										name="Kazybek Khairulla"
-										position="Hackathon Director"
-										course="Computer Science, 3rd year"
-										image="/team/kazybek.webp"
-									/>
-									<Profile
-										name="Emre Acarsoy"
-										position="Tech Lead"
-										course="Computer Science, 3rd year"
-										image="/team/emre.jpg"
-									/>
-									<Profile name="Keira Heffernan" position="Logistics Lead" course="Computer Science, 2nd year" />
-									<Profile name="Rose Burston" position="Volunteer Coordinator" course="Computer Science, 3rd year" />
-									<Profile name="Sam Carpenter" position="Treasurer" course="Computer Science, 3rd year" />
-								</div>
-							</div>
-							<div className="team-group">
-								<span className="section-tag">Advisor</span>
-								<div className="team-grid">
-									<Profile name="Wiktor Wiejak" position="Advisor, creator of HackSouthWest" image="/team/wiktor.webp" />
-								</div>
-							</div>
-						</div>
-					</Window>
-
-					<Window title="sponsors.dll" id="sponsors">
-						<Sponsor />
-					</Window>
-
-					<Window title="faq.txt" id="faq">
-						<div className="faq-grid">
-							<div>
-								<span className="section-tag">Good to know</span>
-								<h2 className="h-section">Questions.</h2>
-								<p className="lead">
-									If something is missing, email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
-								</p>
-								<div className="faq-side-links">
-									<Link href="/past/hsw-2024-feb/">Past editions</Link>
-									<Link href="/conditions/intellectual/">Intellectual property</Link>
-									<Link href="/conditions/terms/">Terms</Link>
-								</div>
-							</div>
-							<div className="faq-list">
-								{QUESTIONS.map((question) => (
-									<Question key={question.id} info={question} />
-								))}
-							</div>
-						</div>
-					</Window>
-
-					<Window title="register.exe" id="register" className="win-center">
-						<span className="section-tag">Innovation Centre, Exeter</span>
-						<h2 className="h-section">
-							Ready to <span className="grad-text">build</span>?
-						</h2>
-						<p>{EVENT_WINDOW}. Leave your details and we&apos;ll email you.</p>
-						<div className="hero-cta">
-							<RegistrationButton />
-						</div>
-					</Window>
+					<DesktopIcons />
 				</div>
-				<DesktopIcons />
 			</div>
-		</div>
+		</>
 	)
 }

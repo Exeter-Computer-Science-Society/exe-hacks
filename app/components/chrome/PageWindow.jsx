@@ -4,7 +4,7 @@ import { Window } from "./Window"
 export function PageWindow({ title, children }) {
 	return (
 		<div className="page-desk">
-			<Window title={title} className="win-page" collapsible={false}>
+			<Window title={title} className="win-page">
 				{children}
 			</Window>
 		</div>

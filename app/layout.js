@@ -4,6 +4,7 @@ import "./globals.css"
 import "./tokens.css"
 import "./exehacks.css"
 import { FormspreeProvider } from "./components/FormspreeProvider"
+import { DesktopProvider } from "./components/chrome/Desktop"
 import { Taskbar } from "./components/chrome/Taskbar"
 
 // The same four faces the pre-desktop site used: Bricolage for body copy,
@@ -59,14 +60,21 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
 	return (
-		<html lang="en" data-theme="dark" className={fontVars}>
+		// The inline scripts set data-js and data-boot on <html> before React hydrates.
+		<html lang="en" data-theme="dark" className={fontVars} suppressHydrationWarning>
 			<body>
+				{/* Marks the page as scripted before first paint. The homepage only becomes
+				    the draggable desktop when this is set, so without JavaScript it stays
+				    the plain stacked page with every window readable. */}
+				<script dangerouslySetInnerHTML={{ __html: 'document.documentElement.setAttribute("data-js","1")' }} />
 				<a className="skip" href="#content">
 					Skip to content
 				</a>
 				<FormspreeProvider>
-					<div id="content">{children}</div>
-					<Taskbar />
+					<DesktopProvider>
+						<div id="content">{children}</div>
+						<Taskbar />
+					</DesktopProvider>
 				</FormspreeProvider>
 
 				{/* CRT scanline overlay, styled in exehacks.css */}
