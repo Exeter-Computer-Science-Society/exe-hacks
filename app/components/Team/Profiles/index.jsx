@@ -16,7 +16,7 @@ function initialsOf(name) {
 		.join("")
 }
 
-export function Profile({ name, position, description, image = "", github = "", linkedin = "", website = "", cybersoc = false, tba = false }) {
+export function Profile({ name, position, course = "", description, image = "", github = "", linkedin = "", website = "", cybersoc = false, tba = false }) {
 	return (
 		<article className={`gcard tcard${tba ? " tcard-tba" : ""}`}>
 			<div className="pic">
@@ -42,6 +42,7 @@ export function Profile({ name, position, description, image = "", github = "", 
 			<div className="body">
 				<p className="nm">{name}</p>
 				{position && <p className="role">{position}</p>}
+				{course && <p className="course">{course}</p>}
 				{description && <p className="bio">{description}</p>}
 			</div>
 

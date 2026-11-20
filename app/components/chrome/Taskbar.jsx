@@ -6,11 +6,12 @@ import { useEffect, useId, useRef, useState } from "react"
 import { CONTACT_EMAIL } from "../../config"
 import { ProgramIcon } from "./ProgramIcon"
 
-const HACK_START = Date.parse("2027-02-06T11:00:00Z")
+// Days until the weekend. No start time is published yet.
+const HACK_START = Date.parse("2027-02-06T00:00:00Z")
 
 const PRIMARY = [
 	{ href: "/#about", label: "About" },
-	{ href: "/#events", label: "Event" },
+	{ href: "/#tracks", label: "Tracks" },
 	{ href: "/#team", label: "Team" },
 	{ href: "/#faq", label: "FAQ" },
 	{ href: "/sponsor/", label: "Sponsor" },
@@ -19,9 +20,6 @@ const PRIMARY = [
 const REGISTER = { href: "/interested/", label: "Register your interest" }
 
 const MORE = [
-	{ href: "/#excs", label: "Who runs it" },
-	{ href: "/#rebrand", label: "The name" },
-	{ href: "/#schedule", label: "Schedule" },
 	{ href: "/#sponsors", label: "Sponsors" },
 	{ href: "https://www.linkedin.com/company/hack-south-west/", label: "LinkedIn", external: true },
 	{ href: "https://www.instagram.com/hacksouthwest/", label: "Instagram", external: true },

@@ -4,6 +4,7 @@ import Link from "next/link"
 
 import { CurrentSponsors } from "../../CurrentSponsors"
 import { SponsorForm } from "../../SponsorForm"
+import { CONTACT_EMAIL } from "../../../config"
 import SponsorCard from "./Card"
 
 const info = {
@@ -116,16 +117,11 @@ export default function Sponsor() {
 
 			<div className="section-head">
 				<span className="section-tag">Partner with us</span>
-				<h2 className="h-section">Put your name on a track.</h2>
+				<h2 className="h-section">Sponsor ExeHacks.</h2>
 				<p className="lead">
-					We&apos;re raising the 6-7 February 2027 weekend now. A partner gets a named prize track on this page, a logo on the site and in
-					the room, and a slot to talk to the teams.
+					Interested in the 6 to 7 February 2027 weekend? Send a note, or email{" "}
+					<a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
 				</p>
-				<ul className="partner-offer">
-					<li>Named track and prize: your brief, one line</li>
-					<li>Logo here, on slides, and at the venue</li>
-					<li>Optional workshop, booth, or judging seat</li>
-				</ul>
 				<p className="mono" style={{ color: "var(--muted)", marginTop: "0.8rem" }}>
 					Powered by{" "}
 					<a
