@@ -3,7 +3,6 @@ import { Bricolage_Grotesque, JetBrains_Mono, Pixelify_Sans, VT323 } from "next/
 import "./globals.css"
 import "./tokens.css"
 import "./exehacks.css"
-import { FormspreeProvider } from "./components/FormspreeProvider"
 import { Taskbar } from "./components/chrome/Taskbar"
 
 // The same four faces the pre-desktop site used: Bricolage for body copy,
@@ -64,10 +63,8 @@ export default function RootLayout({ children }) {
 				<a className="skip" href="#content">
 					Skip to content
 				</a>
-				<FormspreeProvider>
-					<div id="content">{children}</div>
-					<Taskbar />
-				</FormspreeProvider>
+				<div id="content">{children}</div>
+				<Taskbar />
 
 				{/* CRT scanline overlay, styled in exehacks.css */}
 				<div className="scanlines" aria-hidden="true" />

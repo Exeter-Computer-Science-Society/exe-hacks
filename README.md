@@ -2,9 +2,9 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Interest signups
 
-`/interested/` posts to `POST /api/interest` on the Cloudflare Worker `hack-sw-website`. Rows go into the D1 database `exehacks-interest` (`fca01d5a-1608-4881-a6a0-3a9af696b6b2`). The sponsor enquiry form still uses Formspree. The live site is https://exehacks.excs.uk, served by that Worker: `/api/*` and `/admin*` run Worker code, and every other path is the static export in `./out`. GitHub Pages is disabled on this repo.
+`/interested/` posts to `POST /api/interest` on the Cloudflare Worker `hack-sw-website`. Rows go into the D1 database `exehacks-interest` (`fca01d5a-1608-4881-a6a0-3a9af696b6b2`). Sponsor enquiries post to `POST /api/sponsor` and land in the same database. The live site is https://exehacks.excs.uk, served by that Worker: `/api/*` and `/admin*` run Worker code, and every other path is the static export in `./out`. GitHub Pages is disabled on this repo.
 
-Deploy from the **Exeter Computer Science Society** Cloudflare account. A login on the wrong Cloudflare account (id `d058c8ec4c5caeadbd55cf293f3d2d32`) would publish `hack-sw-website` there. `wrangler whoami` must show EXCS. Set `CLOUDFLARE_ACCOUNT_ID` to the EXCS account, or let the **Deploy to Cloudflare (EXCS)** GitHub Action (`.github/workflows/cloudflare.yml`) do it. That Action runs on every push to `main`, and can also be started by hand. It uses the org secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. Formspree secrets are optional: if they are missing, the Action skips publishing Formspree forms and still deploys the Worker. The sponsor form will not submit until `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` is set.
+Deploy from the **Exeter Computer Science Society** Cloudflare account. A login on the wrong Cloudflare account (id `d058c8ec4c5caeadbd55cf293f3d2d32`) would publish `hack-sw-website` there. `wrangler whoami` must show EXCS. Set `CLOUDFLARE_ACCOUNT_ID` to the EXCS account, or let the **Deploy to Cloudflare (EXCS)** GitHub Action (`.github/workflows/cloudflare.yml`) do it. That Action runs on every push to `main`, and can also be started by hand. It uses the org secrets `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN`. It builds the static export, applies D1 migrations to the remote database, and deploys the Worker.
 
 ```bash
 npm ci
@@ -37,6 +37,31 @@ curl -fsS -H "Authorization: Bearer $EXPORT_TOKEN" \
 
 A missing or wrong token gets `401`. The same address can register again; the API still returns `200` and does not say whether the email was new.
 
+## Sponsor enquiries
+
+`/sponsor/` and the Sponsor section on the home page post to `POST /api/sponsor`. Each enquiry is a row in `sponsor_enquiries` (`migrations/0005_sponsor_enquiries.sql`): name, email, organisation (`company`), interest (`track`, `workshop`, `booth`, `judging` or `general`) and the note (`message`). A hidden honeypot field (`hp_website`) returns success and stores nothing. The same email, organisation, interest and note is stored once and still returns `200`. A sixth new enquiry from the same email within an hour returns `429`.
+
+The Worker then emails the sponsorship inbox. `wrangler.jsonc` declares a `send_email` binding named `SPONSOR_EMAIL` with no `destination_address`. `sponsors@exehacks.excs.uk` is an Email Routing forward rule on the `exehacks.excs.uk` zone, not a verified destination address, so it cannot be fixed on the binding. The message is sent to the Worker secret `SPONSOR_NOTIFY_EMAIL` when that value is a valid address, and otherwise to `sponsors@exehacks.excs.uk`. The from address is `sponsors@exehacks.excs.uk` and the reply-to is the enquirer's email. The row is inserted first. If the send fails, the error is logged and the API still returns success.
+
+Email Routing accepts Worker sends to verified destination addresses until the zone is onboarded for Email Sending. If a send to `sponsors@exehacks.excs.uk` is rejected for that reason, set the secret to the verified destination the forward rule already uses. That address must already be verified in Email Routing. Do not commit it, and do not put a personal mailbox in the repo or in `wrangler.jsonc`.
+
+```bash
+npx wrangler secret put SPONSOR_NOTIFY_EMAIL
+```
+
+Leave the secret unset to try `sponsors@exehacks.excs.uk`. `wrangler dev` simulates the binding and writes the message to the log instead of sending it.
+
+`/admin/` lists these rows newest first, with an interest filter, behind the same Cloudflare Access check as the other tables.
+
+```bash
+npx wrangler d1 migrations apply exehacks-interest --local
+npm test
+npm run build
+npx wrangler dev --var LOCAL_ADMIN:1
+```
+
+`LOCAL_ADMIN=1` signs in `/admin` only for a loopback host when the request has no `CF-Ray` header (wrangler dev). It is not set in `wrangler.jsonc`. Production admin still requires Cloudflare Access.
+
 ## Hacker applications (/apply)
 
 `/apply/` is the ExeHacks 2027 hacker application. It posts to `POST /api/apply`, which stores one row per email in `hacker_applications` (`migrations/0004_hacker_applications.sql`). A repeat email gets a friendly 409 and is not stored twice. New rows start with `status = 'pending'`; set `accepted`, `waitlisted`, `rejected`, `confirmed` or `declined` per acceptance wave. Allowed values for every dropdown live in `app/apply/options.js`, shared by the form and the Worker.
@@ -52,7 +77,7 @@ npm run build && npx wrangler dev --var APPLICATIONS_OPEN:true
 
 ## Admin
 
-`/admin/` lists every D1 table (newest first, with search and a CSV download). `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
+`/admin/` lists every D1 table (newest first, with search and a CSV download). `sponsor_enquiries` has an interest filter. `team_applications` and `hacker_applications` have filter dropdowns (hackers: status, level of study, university, experience, team status, heard from), and the CSV download respects the current search and filters. Future tables, such as registrations, show up without a new page. The CSV link is `/api/admin/tables/<name>.csv`. The bearer export above stays available for scripts.
 
 Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`, and allow `kazybekkhairulla@gmail.com`. The Worker still checks the `Cf-Access-Jwt-Assertion` JWT:
 
