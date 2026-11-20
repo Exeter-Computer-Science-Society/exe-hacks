@@ -55,10 +55,18 @@
 
 	// Comma-separated allow-list checked after the Cloudflare Access JWT.
 	// Override in the dashboard or with `wrangler secret put ADMIN_EMAILS` if it changes.
+	// ORGANISER_EMAILS is the Hackathon Organiser subset allowed to open
+	// /admin/handover. A list with at least one address replaces the default in
+	// worker/organiser.js. The same addresses must also be on ADMIN_EMAILS and
+	// on the Access policy. Do not set ORGANISER_DEV_EMAIL here (local .dev.vars only).
 	// APPLICATIONS_OPEN gates /apply and POST /api/apply. Keep "false" until
-	// opening day (Mon 9 Nov 2026), then set it to "true" and redeploy.
+	// you mean to open applications, then set it to "true" and redeploy.
 	"vars": {
 		"ADMIN_EMAILS": "kazybekkhairulla@gmail.com",
+		"ORGANISER_EMAILS": "kazybekkhairulla@gmail.com,kk598@exeter.ac.uk",
 		"APPLICATIONS_OPEN": "false"
-	}
+	},
+
+	// worker/handover.md is bundled into the Worker as text. It is not a static asset.
+	"rules": [{ "type": "Text", "globs": ["**/*.md"], "fallthrough": true }]
 }

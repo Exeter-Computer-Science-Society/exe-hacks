@@ -10,10 +10,13 @@
  * response does not say whether that address was already on the list.
  * GET /api/interest/export.csv needs Authorization: Bearer $EXPORT_TOKEN.
  * /admin and /api/admin/* need a Cloudflare Access JWT for an ADMIN_EMAILS address.
+ * /admin/handover and GET /api/admin/handover also need that address on ORGANISER_EMAILS.
  */
 
 import { authorizeAdmin } from "./access.js"
 import { listTables, readTable, readTableCsv } from "./admin.js"
+import { handoverHtml } from "./handover.js"
+import { authorizeOrganiser, isOrganiserEmail, localDevOrganiser } from "./organiser.js"
 import { applicationsOpen, insertApplication, validateApplication } from "./apply.js"
 import { toCsv } from "./csv.js"
 
@@ -59,11 +62,21 @@ const worker = {
 			return exportCsv(request, env)
 		}
 
+		if (path === "/api/admin/session") return adminSession(request, env)
+		if (path === "/api/admin/handover") return adminHandover(request, env)
+
 		if (path === "/api/admin/tables" || path.startsWith("/api/admin/tables/")) {
 			return adminApi(request, env, path)
 		}
 
 		if (path.startsWith("/api/")) return json({ ok: false, error: "Not found." }, 404)
+
+		// Before the general /admin check, so another admin gets 403 rather than the page shell.
+		if (path === "/admin/handover" || path.startsWith("/admin/handover/")) {
+			const auth = await authorizeOrganiser(request, env)
+			if (!auth.ok) return html(auth.status, auth.error)
+			return privateAsset(request, env)
+		}
 
 		if (path === "/admin" || path.startsWith("/admin/")) {
 			const auth = await authorizeAdmin(request, env)
@@ -281,6 +294,31 @@ function consentGiven(value) {
 	if (typeof value !== "string") return false
 	const normalized = value.trim().toLowerCase()
 	return normalized === "true" || normalized === "1" || normalized === "yes" || normalized === "on"
+}
+
+async function adminSession(request, env) {
+	if (request.method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
+	const local = localDevOrganiser(request, env)
+	if (local) return json({ ok: true, email: local.email, organiser: true })
+	const auth = await authorizeAdmin(request, env)
+	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+	return json({ ok: true, email: auth.email, organiser: isOrganiserEmail(auth.email, env) })
+}
+
+async function adminHandover(request, env) {
+	const auth = await authorizeOrganiser(request, env)
+	if (!auth.ok) return json({ ok: false, error: auth.error }, auth.status)
+	if (request.method !== "GET") return json({ ok: false, error: "Method not allowed." }, 405)
+	return json({ ok: true, html: handoverHtml() })
+}
+
+async function privateAsset(request, env) {
+	const asset = await env.ASSETS.fetch(request)
+	const headers = new Headers(asset.headers)
+	headers.set("cache-control", "private, no-store")
+	headers.set("x-content-type-options", "nosniff")
+	headers.set("x-robots-tag", "noindex, nofollow")
+	return new Response(asset.body, { status: asset.status, statusText: asset.statusText, headers })
 }
 
 async function adminApi(request, env, path) {
