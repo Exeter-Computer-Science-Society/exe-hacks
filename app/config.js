@@ -3,10 +3,6 @@
  */
 
 // Where people are pointed for sponsorship and data questions.
+// Sponsor enquiries post to /api/sponsor and are stored in D1. The Worker
+// notifies this address (or SPONSOR_NOTIFY_EMAIL, when that secret is set).
 export const CONTACT_EMAIL = "sponsors@exehacks.excs.uk"
-
-// Formspree CLI project for the sponsor enquiry only. Interest signups go to
-// D1 via POST /api/interest, not Formspree. The form key must match formspree.json.
-// Project ID comes from the Formspree dashboard (Settings on a CLI project).
-export const FORMSPREE_FORM_KEY = "sponsorForm"
-export const FORMSPREE_PROJECT_ID = process.env.NEXT_PUBLIC_FORMSPREE_PROJECT_ID ?? ""

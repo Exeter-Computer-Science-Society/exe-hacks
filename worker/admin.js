@@ -5,6 +5,7 @@ import {
 	LEVELS_OF_STUDY,
 	TEAM_STATUSES,
 } from "../app/apply/options.js"
+import { SPONSOR_INTERESTS } from "../app/sponsor/options.js"
 
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/
 const INTERNAL = /^(_cf_|sqlite_|d1_)/i
@@ -93,6 +94,15 @@ export async function readTable(db, table, { search = "", filters = {}, limit = 
 			teams: TEAM_STATUSES,
 			heard: HEARD_FROM,
 		}
+	}
+	if (table === "sponsor_enquiries") {
+		const interest = String(filters.interest || "")
+		if (SPONSOR_INTERESTS.some((item) => item.value === interest)) {
+			clauses.push(`interest = ?`)
+			binds.push(interest)
+			applied.interest = interest
+		}
+		options = { interests: SPONSOR_INTERESTS }
 	}
 	const where = clauses.length ? `WHERE ${clauses.map((c) => `(${c})`).join(" AND ")}` : ""
 	const order = orderBy(columns)

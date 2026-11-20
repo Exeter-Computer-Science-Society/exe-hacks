@@ -14,11 +14,15 @@
 	// Workers Builds (Settings → Build) on the EXCS account:
 	//   Build command:  npm run build
 	//   Deploy command: npm run deploy
-	//   Build variables: FORMSPREE_DEPLOY_KEY, NEXT_PUBLIC_FORMSPREE_PROJECT_ID
 	//   Secrets (once):
 	//     npx wrangler secret put EXPORT_TOKEN
 	//     npx wrangler secret put ACCESS_TEAM_DOMAIN
 	//     npx wrangler secret put ACCESS_AUD
+	//   Optional, only if sends to sponsors@exehacks.excs.uk are rejected
+	//   because that address is a routing rule rather than a verified
+	//   destination. The value must already be a verified Email Routing
+	//   destination. Do not commit it:
+	//     npx wrangler secret put SPONSOR_NOTIFY_EMAIL
 	//
 	// Do not run `wrangler deploy` from the wrong Cloudflare account
 	// (id d058c8ec4c5caeadbd55cf293f3d2d32). `wrangler whoami` must show the
@@ -50,6 +54,16 @@
 			"database_name": "exehacks-interest",
 			"database_id": "fca01d5a-1608-4881-a6a0-3a9af696b6b2",
 			"migrations_dir": "migrations"
+		}
+	],
+
+	// No destination_address. sponsors@exehacks.excs.uk is an Email Routing
+	// forward rule, not a verified destination, and a personal mailbox must
+	// not be committed here. The Worker sends to SPONSOR_NOTIFY_EMAIL when
+	// that secret is a valid address, otherwise to sponsors@exehacks.excs.uk.
+	"send_email": [
+		{
+			"name": "SPONSOR_EMAIL"
 		}
 	],
 

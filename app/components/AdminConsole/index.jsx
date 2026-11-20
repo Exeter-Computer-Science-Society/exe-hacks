@@ -26,11 +26,18 @@ const FILTERS = {
 		{ key: "team", label: "Team status", optionsKey: "teams" },
 		{ key: "heard", label: "Heard from", optionsKey: "heard" },
 	],
+	sponsor_enquiries: [{ key: "interest", label: "Interest", optionsKey: "interests", any: "Any interest" }],
 }
 
 const NOUNS = {
 	team_applications: ["applicant", "applicants"],
 	hacker_applications: ["hacker application", "hacker applications"],
+	sponsor_enquiries: ["enquiry", "enquiries"],
+}
+
+function tableLabel(name) {
+	if (name === "sponsor_enquiries") return "Sponsor enquiries"
+	return name
 }
 
 function optionValue(item) {
@@ -145,7 +152,7 @@ export function AdminConsole() {
 								clearAll()
 							}}
 						>
-							{name}
+							{tableLabel(name)}
 						</button>
 					))}
 				</div>
@@ -214,7 +221,7 @@ export function AdminConsole() {
 					{result.count} {nouns ? (result.count === 1 ? nouns[0] : nouns[1]) : result.count === 1 ? "row" : "rows"}
 					{applied ? ` matching “${applied}”` : ""}
 					{activeFilters.map((f) => ` · ${f.label.toLowerCase()}: ${filters[f.key]}`).join("")}
-					{table === "interest" ? " · newest first" : ""}
+					{table === "interest" || table === "sponsor_enquiries" ? " · newest first" : ""}
 				</p>
 			)}
 

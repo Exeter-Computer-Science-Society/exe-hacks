@@ -32,7 +32,25 @@ export function readAccessToken(request) {
 	return match ? decodeURIComponent(match[1]) : ""
 }
 
+// Opt-in for `wrangler dev` only. Deployed Workers always carry CF-Ray, and the
+// request host there is the public hostname, so this cannot sign in production.
+export function localDevAdmin(request, env) {
+	if (String(env?.LOCAL_ADMIN || "").trim() !== "1") return null
+	if (request.headers.get("cf-ray")) return null
+	let host = ""
+	try {
+		host = new URL(request.url).hostname
+	} catch {
+		return null
+	}
+	if (host !== "127.0.0.1" && host !== "localhost" && host !== "::1") return null
+	return { ok: true, email: "local-dev@localhost" }
+}
+
 export async function authorizeAdmin(request, env) {
+	const local = localDevAdmin(request, env)
+	if (local) return local
+
 	const domain = accessTeamDomain(env)
 	const aud = typeof env?.ACCESS_AUD === "string" ? env.ACCESS_AUD.trim() : ""
 	if (!domain || !aud) {

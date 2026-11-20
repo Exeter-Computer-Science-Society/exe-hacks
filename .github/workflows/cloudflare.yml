@@ -7,11 +7,10 @@
 #
 # Required secrets, from the EXCS account (org secrets scoped to this repo):
 #   CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_API_TOKEN
-# Optional:
-#   FORMSPREE_DEPLOY_KEY, NEXT_PUBLIC_FORMSPREE_PROJECT_ID
-# Missing Formspree secrets skip the Formspree publish step and still
-# deploy the Worker. The sponsor form will not submit until
-# NEXT_PUBLIC_FORMSPREE_PROJECT_ID is set.
+# Sponsor notification uses the SPONSOR_EMAIL binding in wrangler.jsonc.
+# Optional Worker secret, set on the EXCS account (not in this workflow):
+#   SPONSOR_NOTIFY_EMAIL — verified Email Routing destination, only if sends
+#   to sponsors@exehacks.excs.uk are rejected. Do not commit that address.
 name: Deploy to Cloudflare (EXCS)
 
 on:
@@ -54,22 +53,8 @@ jobs:
             exit 1
           fi
 
-      # Sponsor enquiries still use Formspree. Interest signups use D1, so a
-      # missing Formspree key must not block the Worker deploy.
-      - name: Publish Formspree forms
-        env:
-          FORMSPREE_DEPLOY_KEY: ${{ secrets.FORMSPREE_DEPLOY_KEY }}
-        run: |
-          if [ -z "$FORMSPREE_DEPLOY_KEY" ]; then
-            echo "FORMSPREE_DEPLOY_KEY is unset. Skipping Formspree. Sponsor enquiries need this key; interest signups use D1."
-            exit 0
-          fi
-          npm run formspree:deploy
-
       - name: Build static export
         run: npm run build
-        env:
-          NEXT_PUBLIC_FORMSPREE_PROJECT_ID: ${{ secrets.NEXT_PUBLIC_FORMSPREE_PROJECT_ID }}
 
       - name: Apply D1 migrations
         uses: cloudflare/wrangler-action@v3
