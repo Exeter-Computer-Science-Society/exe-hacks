@@ -62,6 +62,20 @@ Put a Cloudflare Access application in front of `exehacks.excs.uk/admin*` and `e
 
 Missing Access configuration, a missing JWT, or a bad JWT returns `401`. A valid JWT for an email that is not on the list returns `403`.
 
+### Hackathon Organiser guide
+
+`/admin/handover/` is the handover guide. The text lives in `worker/handover.md` (headings, lists, tables, links). The Worker bundles that file and serves HTML from `GET /api/admin/handover`. It is not part of the static export in `out/`, and the public site never receives the file.
+
+Reading it needs everything `/admin` needs, plus the Hackathon Organiser role:
+
+- `ORGANISER_EMAILS` is a comma-separated list of emails, compared case-insensitively with the email in the Access JWT. Spaces around commas are fine. One or more addresses replace the default entirely, so include every organiser who should keep access. If the variable is missing, blank, or has no email addresses, the Worker uses the default in `worker/organiser.js`. The same default is set in `wrangler.jsonc`: `kazybekkhairulla@gmail.com,kk598@exeter.ac.uk`.
+- That address must already be allowed by Cloudflare Access and by `ADMIN_EMAILS`. Another admin gets `403`. Missing or bad sign-in still gets `401`.
+- The Worker does not trust the `Cf-Access-Authenticated-User-Email` header on its own. It reads the email from the verified JWT (`Cf-Access-Jwt-Assertion` or the `CF_Authorization` cookie).
+
+The link on `/admin/` is shown only when `GET /api/admin/session` says the signed-in admin is an organiser.
+
+To preview the guide on your machine without Access, leave `ACCESS_TEAM_DOMAIN` unset and set `ORGANISER_DEV_EMAIL` in gitignored `.dev.vars` to an address on the organiser list. That bypass runs only for `localhost` or `127.0.0.1`. Do not set `ORGANISER_DEV_EMAIL` in `wrangler.jsonc` or on the deployed Worker. A real admin preview still needs `ACCESS_TEAM_DOMAIN` and `ACCESS_AUD` in `.dev.vars`.
+
 ## Getting Started
 
 First, run the development server:

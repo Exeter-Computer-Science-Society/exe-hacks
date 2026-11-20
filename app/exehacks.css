@@ -965,6 +965,50 @@ a.doc-card { align-items: stretch; text-align: left; min-height: 0; }
 .admin-table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
 .admin-table th, .admin-table td { text-align: left; padding: 0.6rem 0.75rem; border-bottom: 2px solid var(--line-2); vertical-align: top; }
 .admin-table th { font-family: var(--font-pixel); font-weight: 600; font-size: 0.9rem; letter-spacing: 0.04em; color: var(--label); }
+.admin-organiser-link { margin: 0.2rem 0 1rem; }
+.admin-organiser-link a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+
+.handover { max-width: 76ch; }
+.handover > :first-child { margin-top: 0; }
+.handover h2, .handover h3 {
+	font-family: var(--font-pixel);
+	color: var(--ink);
+	line-height: 1.2;
+	scroll-margin-top: 4.5rem;
+}
+.handover h2 { font-size: clamp(1.35rem, 3vw, 1.85rem); margin: 2.1rem 0 0.6rem; }
+.handover h3 { font-size: 1.2rem; margin: 1.5rem 0 0.45rem; }
+.handover p, .handover li { color: var(--muted); }
+.handover p { margin: 0.55rem 0; }
+.handover ul, .handover ol { margin: 0.4rem 0 0.9rem; padding-left: 1.3rem; }
+.handover li { margin: 0.35rem 0; }
+.handover li::marker { color: var(--green); }
+.handover a { color: var(--green); text-decoration: underline; text-underline-offset: 3px; }
+.handover strong { color: var(--ink); font-weight: 650; }
+.handover code {
+	font-family: var(--font-jetbrains), ui-monospace, monospace;
+	font-size: 0.86em;
+	color: var(--green);
+	background: transparent;
+	padding: 0;
+	border: 0;
+}
+.handover pre {
+	overflow-x: auto;
+	border: 2px solid var(--line);
+	background: var(--shade);
+	padding: 0.8rem 0.9rem;
+	margin: 0.8rem 0;
+}
+.handover pre code { border: 0; padding: 0; background: transparent; }
+.handover blockquote {
+	margin: 0.8rem 0 1rem;
+	padding: 0.1rem 0 0.1rem 0.9rem;
+	border-left: 4px solid var(--green);
+}
+.handover hr { border: 0; border-top: 2px solid var(--line); margin: 1.4rem 0; }
+.handover .admin-table-wrap { margin: 0.8rem 0 1.1rem; }
+.handover .admin-table { font-size: 0.88rem; }
 
 .stat-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .stat { border: 2px solid var(--line); background: var(--raised); padding: 1.1rem 1.2rem; }
