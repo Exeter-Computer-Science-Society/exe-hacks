@@ -148,7 +148,7 @@ export default function Home() {
 					<Window title="tracks.txt" id="tracks">
 						<span className="section-tag">What you build</span>
 						<h2 className="h-section">Tracks.</h2>
-						<p className="lead">To be announced. Likely sponsor tracks, plus an overall prize.</p>
+						<p className="lead">Tracks will be announced soon. Likely sponsor tracks, plus an overall prize.</p>
 						<p>Schedule coming soon.</p>
 					</Window>
 
