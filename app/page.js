@@ -9,7 +9,7 @@ import { ProgramIcon } from "./components/chrome/ProgramIcon"
 import { Window } from "./components/chrome/Window"
 import Sponsor from "./components/General/Sponsor"
 import { Profile } from "./components/Team/Profiles"
-import { CONTACT_EMAIL } from "./config"
+import { CONTACT_EMAIL, REGISTER } from "./config"
 
 const EVENT_WINDOW = "6 to 7 February 2027"
 
@@ -100,7 +100,7 @@ export default function Home() {
 								</dl>
 								<div className="setup-cta">
 									<RegistrationButton label="Register" />
-									<p className="setup-note">Registers your interest. We&apos;ll email you.</p>
+									<p className="setup-note">{REGISTER.note}</p>
 								</div>
 							</div>
 						</Window>
@@ -216,7 +216,9 @@ export default function Home() {
 						<h2 className="h-section">
 							Ready to <span className="grad-text">build</span>?
 						</h2>
-						<p>{EVENT_WINDOW}. Leave your details and we&apos;ll email you.</p>
+						<p>
+							{EVENT_WINDOW}. {REGISTER.blurb}
+						</p>
 						<div className="hero-cta">
 							<RegistrationButton />
 						</div>

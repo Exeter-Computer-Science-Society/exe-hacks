@@ -3,7 +3,8 @@
 import Link from "next/link"
 import { useEffect, useId, useRef, useState } from "react"
 
-import { CONTACT_EMAIL } from "../../config"
+import { CONTACT_EMAIL, REGISTER } from "../../config"
+import { RegistrationButton } from "../RegistrationButton"
 import { ProgramIcon } from "./ProgramIcon"
 
 // Days until the weekend. No start time is published yet.
@@ -17,7 +18,7 @@ const PRIMARY = [
 	{ href: "/sponsor/", label: "Sponsor" },
 ]
 
-const REGISTER = { href: "/interested/", label: "Register your interest" }
+const REGISTER_ITEM = { href: REGISTER.href, label: REGISTER.label, external: REGISTER.external }
 
 const MORE = [
 	{ href: "/#sponsors", label: "Sponsors" },
@@ -117,9 +118,7 @@ export function Taskbar() {
 			</nav>
 
 			<div className="task-end">
-				<Link className="btn btn-primary task-register" href="/interested/" aria-label="Register your interest">
-					Register
-				</Link>
+				<RegistrationButton label="Register" className="btn btn-primary task-register" aria-label={REGISTER.label} />
 				<button
 					type="button"
 					className="btn task-menu-btn"
@@ -140,7 +139,7 @@ export function Taskbar() {
 
 			{open ? (
 				<nav id={menuId} className="task-panel" aria-label="More">
-					{[...PRIMARY, REGISTER, ...MORE].map((item) => (
+					{[...PRIMARY, REGISTER_ITEM, ...MORE].map((item) => (
 						<MenuLink key={item.href + item.label} item={item} onNavigate={() => setOpen(false)} />
 					))}
 				</nav>
