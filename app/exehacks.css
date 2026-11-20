@@ -571,7 +571,7 @@ a.dicon.sel .dicon-label {
 .facts {
 	margin: 0;
 	display: grid;
-	grid-template-columns: repeat(3, minmax(0, 1fr));
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 	border: 2px solid var(--line);
 	background: var(--tint);
 }
@@ -753,6 +753,7 @@ a.dicon.sel .dicon-label {
 .tcard .body { padding: 1rem 1rem 0.9rem; display: flex; flex-direction: column; gap: 0.35rem; flex: 1; }
 .tcard .nm { margin: 0; font-family: var(--font-pixel); font-weight: 700; font-size: 1.15rem; line-height: 1.2; color: var(--ink); text-shadow: 0 0 18px var(--glow); }
 .tcard .role { margin: 0; font-family: var(--font-sys); font-size: 1rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--green); }
+.tcard .course { margin: 0; color: var(--muted); font-size: 0.95rem; }
 .tcard .bio { margin: 0; color: var(--muted); font-size: 0.9rem; }
 .tcard .links { display: flex; gap: 8px; padding: 0.7rem 1rem; border-top: 2px solid var(--line-2); margin-top: auto; }
 .tcard .links a {

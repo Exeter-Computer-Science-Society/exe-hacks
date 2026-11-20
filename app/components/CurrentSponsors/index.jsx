@@ -65,7 +65,7 @@ export function CurrentSponsors({ ctaHref = "/sponsor/" }) {
 				<div className="sponsor-empty">
 					<p className="sponsor-empty-kicker">TBA</p>
 					<h3>Sponsors coming soon.</h3>
-					<p>Want your name on a track? We would love to talk.</p>
+					<p>Interested in sponsoring? We would love to talk.</p>
 					<div className="sponsor-empty-actions">
 						<Link className="btn btn-primary" href={ctaHref}>
 							Become a sponsor

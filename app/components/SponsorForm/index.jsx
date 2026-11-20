@@ -121,7 +121,7 @@ export function SponsorForm() {
 					name="message"
 					rows={5}
 					maxLength={1000}
-					placeholder="Track idea, workshop, or just say hello."
+					placeholder="Say hello, or tell us what you have in mind."
 					required
 				/>
 				<ValidationError

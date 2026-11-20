@@ -8,13 +8,10 @@ const LINES = [
 	{ t: "./register --hackathon", cmd: true },
 	{ t: "booting ExeHacks 2027 ...", arrow: true },
 	{ t: "formerly: Hack South West", ok: true },
-	{ t: "when: 6–7 February 2027", ok: true },
+	{ t: "when: 6-7 February 2027", ok: true },
 	{ t: "location: Innovation Centre, Exeter", ok: true },
 	{ t: "run by: EXCS", ok: true },
-	{ t: "open to: every skill level", ok: true },
-	{ t: "prize pool: £500+ loaded", ok: true },
-	{ t: "beginners: WELCOME", ok: true },
-	{ t: "food: unlimited pizza", ok: true },
+	{ t: "tracks: to be announced", ok: true },
 	{ t: "status: REGISTRATION OPENING SOON", hl: true },
 ]
 
