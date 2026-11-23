@@ -9,10 +9,11 @@
  * goes to sponsors@exehacks.excs.uk. Never commit a personal mailbox.
  */
 
-import { CONTACT_EMAIL } from "../app/config.js"
 import { SPONSOR_INTERESTS, SPONSOR_LIMITS } from "../app/sponsor/options.js"
 
-export const SPONSOR_INBOX = CONTACT_EMAIL
+// Same address as CONTACT_EMAIL in app/config.js. Kept here so the Worker bundle
+// does not import config.js, which reads process.env for the register switch.
+export const SPONSOR_INBOX = "sponsors@exehacks.excs.uk"
 export const HOURLY_LIMIT = 5
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/

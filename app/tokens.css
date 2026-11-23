@@ -56,6 +56,7 @@
 	--glow-wash-b: rgba(226, 100, 255, 0.17);
 	--scan: rgba(0, 0, 0, 0.16);
 	--vignette: rgba(0, 0, 0, 0.42);
+	--boot-veil: rgba(6, 10, 6, 0.9);
 
 	/* program icon: the screen stays near-black on any surface */
 	--icon-screen: #060a06;

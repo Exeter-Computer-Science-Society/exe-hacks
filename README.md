@@ -62,6 +62,24 @@ npx wrangler dev --var LOCAL_ADMIN:1
 
 `LOCAL_ADMIN=1` signs in `/admin` only for a loopback host when the request has no `CF-Ray` header (wrangler dev). It is not set in `wrangler.jsonc`. Production admin still requires Cloudflare Access.
 
+## The homepage desktop
+
+On screens 1024px and wider the homepage is one screen that does not scroll. The desktop icons open windows. A window drags by its title bar, comes to the front when clicked, and has minimise and close buttons. The taskbar lists the open windows. A long window scrolls inside itself. A link such as `/#faq` opens that window. Below 1024px, and without JavaScript, the same windows stack down a scrolling page.
+
+- `app/components/chrome/windows.js` lists every window: its id, title, desktop icon, and where it starts. Add a window there, then add a `<DeskWindow id="...">` with its content in `app/page.js`.
+- `app/components/chrome/Desktop.jsx` is the window manager (open, minimise, close, z-order, dragging, Escape, deep links).
+- `app/components/chrome/BootScreen.jsx` is the boot intro. It lasts about 0.8 seconds, plays once per browser tab (`sessionStorage`), ends on any click or key, and does not play at all with `prefers-reduced-motion`. The desktop is already rendered underneath it.
+- The layout rules are under "desktop layout" in `app/exehacks.css`.
+
+## Where Register points
+
+Every Register button (taskbar, More menu, the setup window, `register.exe`) reads one constant: `REGISTER_URL` in `app/config.js`.
+
+- Empty (the default): the buttons open the on-site interest form at `/interested/`, which posts to D1 as described above.
+- A full `https://` URL, such as the Tito event page: the buttons open that page in a new tab, and the short lines of copy next to them change to match.
+
+Set it either by pasting the URL between the quotes in `app/config.js`, or by setting `NEXT_PUBLIC_REGISTER_URL` when `next build` runs. The value is inlined at build time. The deploy workflow does not pass `NEXT_PUBLIC_REGISTER_URL` to the build today, so for production either edit the constant, or add the variable to the build step in `.github/workflows/cloudflare.yml`.
+
 ## Hacker applications (/apply)
 
 `/apply/` is the ExeHacks 2027 hacker application. It posts to `POST /api/apply`, which stores one row per email in `hacker_applications` (`migrations/0004_hacker_applications.sql`). A repeat email gets a friendly 409 and is not stored twice. New rows start with `status = 'pending'`; set `accepted`, `waitlisted`, `rejected`, `confirmed` or `declined` per acceptance wave. Allowed values for every dropdown live in `app/apply/options.js`, shared by the form and the Worker.

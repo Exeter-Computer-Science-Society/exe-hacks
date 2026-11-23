@@ -5,6 +5,7 @@ import { DatabaseSync } from "node:sqlite"
 import { test } from "node:test"
 import { fileURLToPath } from "node:url"
 
+import { CONTACT_EMAIL } from "../app/config.js"
 import { SPONSOR_INTERESTS } from "../app/sponsor/options.js"
 import worker from "./index.js"
 import { HOURLY_LIMIT, SPONSOR_INBOX } from "./sponsor.js"
@@ -316,6 +317,7 @@ test("admin stays behind Cloudflare Access unless loopback dev mode is on", asyn
 })
 
 test("sponsor mail config does not commit a personal mailbox or Formspree", () => {
+	assert.equal(SPONSOR_INBOX, CONTACT_EMAIL)
 	for (const file of ["worker/sponsor.js", "migrations/0005_sponsor_enquiries.sql", "app/components/SponsorForm/index.jsx"]) {
 		assert.equal(readFileSync(join(root, file), "utf8").includes("gmail.com"), false, file)
 	}
