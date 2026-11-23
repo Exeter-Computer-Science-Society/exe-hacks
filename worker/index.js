@@ -6,6 +6,8 @@
  * That route does not read or change existing team_applications rows.
  * GET /api/apply/status and POST /api/apply serve the hacker application (see apply.js).
  * Hacker applications stay closed unless the var APPLICATIONS_OPEN is "true".
+ * POST /api/sponsor stores a sponsor enquiry in D1, then emails the sponsorship
+ * inbox. A repeated identical enquiry is still 200 and is not stored twice.
  * POST /api/interest stores a row in D1. A repeated email is still 200, so the
  * response does not say whether that address was already on the list.
  * GET /api/interest/export.csv needs Authorization: Bearer $EXPORT_TOKEN.
@@ -19,6 +21,7 @@ import { handoverHtml } from "./handover.js"
 import { authorizeOrganiser, isOrganiserEmail, localDevOrganiser } from "./organiser.js"
 import { applicationsOpen, insertApplication, validateApplication } from "./apply.js"
 import { toCsv } from "./csv.js"
+import { notifySponsor, saveSponsorEnquiry, validateSponsorEnquiry } from "./sponsor.js"
 
 const LIMITS = {
 	firstName: 80,
@@ -55,6 +58,11 @@ const worker = {
 		if (path === "/api/apply") {
 			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
 			return postApply(request, env)
+		}
+
+		if (path === "/api/sponsor") {
+			if (request.method !== "POST") return json({ ok: false, error: "Method not allowed." }, 405)
+			return postSponsor(request, env)
 		}
 
 		if (path === "/api/interest/export.csv") {
@@ -166,6 +174,38 @@ async function postApply(request, env) {
 		console.error("hacker application insert failed", error instanceof Error ? error.name : "error")
 		return json({ ok: false, error: "We couldn't save that. Try again in a moment." }, 500)
 	}
+	return json({ ok: true })
+}
+
+async function postSponsor(request, env) {
+	if (!sameOrigin(request)) return json({ ok: false, error: "Forbidden." }, 403)
+
+	const length = Number(request.headers.get("content-length") || 0)
+	if (length > 20_000) return json({ ok: false, error: "Check the form and try again." }, 413)
+
+	const parsed = await readBody(request)
+	if (parsed.error === "type") return json({ ok: false, error: "Check the form and try again." }, 415)
+	if (parsed.error) return json({ ok: false, error: "Check the form and try again." }, 400)
+
+	const data = parsed.data
+	if (honeypotTripped(data)) return json({ ok: true })
+
+	const result = validateSponsorEnquiry(data, { clip, clipLong, field })
+	if (!result.ok) {
+		const body = { ok: false, error: result.error }
+		if (result.field) body.field = result.field
+		return json(body, 400)
+	}
+
+	try {
+		const saved = await saveSponsorEnquiry(env.DB, result.row)
+		if (!saved.ok) return json({ ok: false, error: saved.error }, saved.status)
+		if (!saved.duplicate) await notifySponsor(env, result.row)
+	} catch (error) {
+		console.error("sponsor enquiry insert failed", error instanceof Error ? error.name : "error")
+		return json({ ok: false, error: "We couldn't save that. Try again in a moment." }, 500)
+	}
+
 	return json({ ok: true })
 }
 
@@ -358,6 +398,7 @@ async function adminApi(request, env, path) {
 		status: params.get("status") || "",
 		team: params.get("team") || "",
 		heard: params.get("heard") || "",
+		interest: params.get("interest") || "",
 	}
 	try {
 		if (csv) {
@@ -387,6 +428,9 @@ async function adminApi(request, env, path) {
 }
 
 function clampInt(value, fallback, min, max) {
+	// Number(null) is 0, which is an integer. A missing query param has to
+	// take the fallback first, or /admin lists a single row.
+	if (value == null || value === "") return fallback
 	const parsed = Number(value)
 	if (!Number.isInteger(parsed)) return fallback
 	return Math.min(max, Math.max(min, parsed))

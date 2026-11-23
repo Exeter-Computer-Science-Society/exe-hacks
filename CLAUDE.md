@@ -77,7 +77,7 @@ with `/permissions`). If a push is refused, that file is where to look.
 
 It is a society org repo *and* other people push to it regularly. Between
 2026-09-01 and 2026-09-02 it gained **15 commits** from another contributor
-(rebrand to ExeHacks, sponsor page, Formspree, 2027 committee photos, the
+(rebrand to ExeHacks, sponsor page, 2027 committee photos, the
 Cloudflare Worker config) while a local branch sat 3 ahead — the merge conflicted
 on two files.
 
@@ -90,8 +90,8 @@ on two files.
 
 | workflow | trigger | does |
 |---|---|---|
-| `ci.yml` | push to `main`, pull requests | install, audit, build. **No deploy.** |
-| `cloudflare.yml` | push to `main`, and `workflow_dispatch` | optional Formspree publish, build, `d1 migrations apply --remote`, `wrangler deploy` to the **EXCS** account |
+| `ci.yml` | push to `main`, pull requests | install, audit, Worker tests, build. **No deploy.** |
+| `cloudflare.yml` | push to `main`, and `workflow_dispatch` | build, `d1 migrations apply --remote`, `wrangler deploy` to the **EXCS** account |
 | Workers Builds (Cloudflare dashboard) | unused; deploys go through Actions | not required |
 
 The CI audit step blocks on new advisories even when your change is unrelated.
@@ -105,10 +105,12 @@ is usually `npm audit fix` without `--force`, which changes only
 `hack-sw-website` there instead of Exeter Computer Science Society. Pin
 `CLOUDFLARE_ACCOUNT_ID` to the EXCS account first, or let the GitHub workflow do
 it. The workflow uses the org secrets `CLOUDFLARE_ACCOUNT_ID` and
-`CLOUDFLARE_API_TOKEN`, already scoped to this repo. `FORMSPREE_DEPLOY_KEY` and
-`NEXT_PUBLIC_FORMSPREE_PROJECT_ID` are optional: if they are missing, Formspree
-publish is skipped and the Worker still deploys. The sponsor form will not
-submit until `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` is set.
+`CLOUDFLARE_API_TOKEN`, already scoped to this repo. Sponsor enquiries are
+stored in D1 (`POST /api/sponsor`) and emailed with the `SPONSOR_EMAIL`
+binding. `SPONSOR_NOTIFY_EMAIL` is an optional Worker secret: set it only when
+Email Routing rejects `sponsors@exehacks.excs.uk` because that address is a
+forward rule, not a verified destination. The secret must be the verified
+destination that rule forwards to, and it must not be committed.
 
 `wrangler.jsonc` sets `main` to `worker/index.js`. The Worker runs first for
 `/api/*` and `/admin*` (`assets.run_worker_first`); every other path is still the

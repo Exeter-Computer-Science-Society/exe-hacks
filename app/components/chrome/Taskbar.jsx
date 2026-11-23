@@ -3,25 +3,26 @@
 import Link from "next/link"
 import { useEffect, useId, useRef, useState } from "react"
 
-import { CONTACT_EMAIL } from "../../config"
+import { CONTACT_EMAIL, REGISTER } from "../../config"
+import { RegistrationButton } from "../RegistrationButton"
+import { useDesktop } from "./Desktop"
 import { ProgramIcon } from "./ProgramIcon"
+import { WINDOW_BY_ID } from "./windows"
 
-const HACK_START = Date.parse("2027-02-06T11:00:00Z")
+// Days until the weekend. No start time is published yet.
+const HACK_START = Date.parse("2027-02-06T00:00:00Z")
 
 const PRIMARY = [
 	{ href: "/#about", label: "About" },
-	{ href: "/#events", label: "Event" },
+	{ href: "/#tracks", label: "Tracks" },
 	{ href: "/#team", label: "Team" },
 	{ href: "/#faq", label: "FAQ" },
 	{ href: "/sponsor/", label: "Sponsor" },
 ]
 
-const REGISTER = { href: "/interested/", label: "Register your interest" }
+const REGISTER_ITEM = { href: REGISTER.href, label: REGISTER.label, external: REGISTER.external }
 
 const MORE = [
-	{ href: "/#excs", label: "Who runs it" },
-	{ href: "/#rebrand", label: "The name" },
-	{ href: "/#schedule", label: "Schedule" },
 	{ href: "/#sponsors", label: "Sponsors" },
 	{ href: "https://www.linkedin.com/company/hack-south-west/", label: "LinkedIn", external: true },
 	{ href: "https://www.instagram.com/hacksouthwest/", label: "Instagram", external: true },
@@ -61,6 +62,7 @@ export function Taskbar() {
 	const [days, setDays] = useState(null)
 	const barRef = useRef(null)
 	const menuId = useId()
+	const desk = useDesktop()
 
 	useEffect(() => {
 		const el = barRef.current
@@ -107,7 +109,16 @@ export function Taskbar() {
 
 	return (
 		<footer className="taskbar" ref={barRef}>
-			<Link className="task-brand" href="/">
+			<Link
+				className="task-brand"
+				href="/"
+				onClick={(event) => {
+					// On the desktop the brand is the way back to the setup window.
+					if (!desk.isHome || !desk.isDesktop) return
+					event.preventDefault()
+					desk.launch("setup")
+				}}
+			>
 				<ProgramIcon size={28} />
 				<span className="task-word">.EXEHACKS</span>
 			</Link>
@@ -118,10 +129,30 @@ export function Taskbar() {
 				))}
 			</nav>
 
+			{desk.isHome ? (
+				<div className="task-wins" role="group" aria-label="Open windows">
+					{desk.state.bar.map((id) => {
+						const title = WINDOW_BY_ID[id].title
+						const active = desk.activeId === id
+						return (
+							<button
+								key={id}
+								type="button"
+								id={`task-win-${id}`}
+								className={active ? "task-win on" : "task-win"}
+								aria-pressed={active}
+								title={title}
+								onClick={() => desk.toggleFromTaskbar(id)}
+							>
+								{title}
+							</button>
+						)
+					})}
+				</div>
+			) : null}
+
 			<div className="task-end">
-				<Link className="btn btn-primary task-register" href="/interested/" aria-label="Register your interest">
-					Register
-				</Link>
+				<RegistrationButton label="Register" className="btn btn-primary task-register" aria-label={REGISTER.label} />
 				<button
 					type="button"
 					className="btn task-menu-btn"
@@ -142,7 +173,7 @@ export function Taskbar() {
 
 			{open ? (
 				<nav id={menuId} className="task-panel" aria-label="More">
-					{[...PRIMARY, REGISTER, ...MORE].map((item) => (
+					{[...PRIMARY, REGISTER_ITEM, ...MORE].map((item) => (
 						<MenuLink key={item.href + item.label} item={item} onNavigate={() => setOpen(false)} />
 					))}
 				</nav>

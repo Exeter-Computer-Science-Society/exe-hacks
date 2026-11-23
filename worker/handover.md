@@ -57,7 +57,7 @@ Passwords are not in this repo and they are not on this page. The outgoing organ
 | Interest form | [/interested/](https://exehacks.excs.uk/interested/) | Open. Writes to D1. |
 | Hacker applications | [/apply/](https://exehacks.excs.uk/apply/) | Closed until `APPLICATIONS_OPEN` is `true`. |
 | Core team form | [/join/](https://exehacks.excs.uk/join/) | Closed. The Worker refuses new writes. |
-| Sponsor form | [/sponsor/](https://exehacks.excs.uk/sponsor/) | Formspree. See Sponsors. |
+| Sponsor form | [/sponsor/](https://exehacks.excs.uk/sponsor/) | `POST /api/sponsor`, stored in D1 `sponsor_enquiries`. See Sponsors. |
 | Devpost, LinkedIn, Instagram | Old "Hack South West" name | The public FAQ still sends people there while the rebrand settles. Get the logins in the private handover. |
 | Past files | OneDrive folder "South West Hacks" | On the outgoing organiser's OneDrive. Move it. Shared Google Drive files also sit on the team account. |
 | Planning notes | Notion | Original planning home. Get access or export it into the shared drive. |
@@ -97,7 +97,7 @@ Changing Email Routing or DNS is a production change. Do it in the EXCS Cloudfla
 Two different inboxes both matter, and they are easy to mix up:
 
 - Human sponsor replies: team Gmail, via `sponsors@`.
-- The website sponsor form, when Formspree is configured, is set in `formspree.json` to email `excs@groups.exeterguild.com`, not the team Gmail. The page copy tells the visitor it goes to `sponsors@`. As of November 2026 the Formspree secrets were not set, so the form does not submit yet. When you turn it on, decide which inbox should actually receive it and make `formspree.json`, the page copy, and Email Routing agree.
+- The website sponsor form posts to `POST /api/sponsor`. The row is stored in D1 first. The Worker then emails the sponsorship inbox from `sponsors@exehacks.excs.uk`, with reply-to set to the enquirer. Formspree is no longer used. Details are in the Sponsors section.
 
 ## Website, infrastructure and deploy
 
@@ -112,6 +112,7 @@ GitHub Pages is off. Ignore any old `github.io` link.
 | Table | What it is | How it is filled |
 | --- | --- | --- |
 | `interest` | People who asked to be emailed when applications open. Columns include name, email, university, consent, `created_at`. | `POST /api/interest` from `/interested/`. A repeated email is still a success response and does not say whether the address was already on the list. |
+| `sponsor_enquiries` | Sponsor enquiries: name, email, organisation, interest, note. | `POST /api/sponsor` from `/sponsor/` and the homepage sponsor section. See Sponsors. |
 | `team_applications` | Core-team applications (sponsorship, logistics, marketing and social, design, tech, volunteer coordinator, welfare, finance), plus Discord, LinkedIn, and GitHub columns. | The form is closed. `POST /api/join` is refused and does not change existing rows. |
 | `hacker_applications` | One row per email for ExeHacks 2027. Status moves `pending` to `accepted`, `waitlisted`, or `rejected`, then `confirmed` or `declined`. Holds phone, dietary, and accessibility notes. | `POST /api/apply`. A second application with the same email gets a friendly refusal and is not stored twice. |
 
@@ -131,9 +132,9 @@ No values belong in git, in Slack, or in this guide. "Handed over privately" mea
 | --- | --- | --- |
 | `CLOUDFLARE_ACCOUNT_ID` | GitHub organisation secret, scoped to this repo | Actions deploys to this Cloudflare account. It must be the EXCS account, not the other id in `wrangler.jsonc`. |
 | `CLOUDFLARE_API_TOKEN` | GitHub organisation secret | Lets Actions deploy the Worker and apply D1 migrations. Rotate at handover. |
-| `FORMSPREE_DEPLOY_KEY` | GitHub secret, optional | Publishes `formspree.json`. If it is missing, the deploy still succeeds and the sponsor form does not work. Missing as of November 2026. |
-| `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` | GitHub secret, optional | Baked into the static site at build time so the sponsor form can submit. Once set, the id is visible in the public JavaScript, because the browser has to send it. Still do not paste it into this file. Missing as of November 2026. |
 | `EXPORT_TOKEN` | Worker secret (`npx wrangler secret put EXPORT_TOKEN`) | Bearer token for the interest CSV script. Rotate at handover. |
+| `SPONSOR_EMAIL` | Worker binding in `wrangler.jsonc` | Cloudflare Email Sending binding. It has no destination address. |
+| `SPONSOR_NOTIFY_EMAIL` | Worker secret, optional (`npx wrangler secret put SPONSOR_NOTIFY_EMAIL`) | Where sponsor-form mail is sent when `sponsors@` cannot receive Worker mail. Must already be a verified Email Routing destination. Leave it unset to send to `sponsors@exehacks.excs.uk`. Do not commit the address. |
 | `ACCESS_TEAM_DOMAIN` | Worker secret | Cloudflare Access team hostname, with or without `https://`. |
 | `ACCESS_AUD` | Worker secret | Audience tag of the Access application that protects `/admin`. |
 | `ADMIN_EMAILS` | Worker variable in `wrangler.jsonc` | Comma-separated emails allowed into `/admin` after Access. A non-empty value replaces the default in that file. The current default is the outgoing organiser's personal Access login (handed over privately). |
@@ -159,7 +160,7 @@ There is no accounts table. The role is an email list checked by the Worker.
 Two GitHub workflows:
 
 - `.github/workflows/ci.yml` runs on pull requests and on `main`. It installs, runs `npm audit --omit=dev --audit-level=high`, and builds. It does not deploy. A new high advisory can fail the check even when your change is unrelated. `npm audit fix` without `--force` is the usual repair, and it should only touch `package-lock.json`.
-- `.github/workflows/cloudflare.yml` runs on a push to `main`, and can be started by hand. It publishes Formspree if `FORMSPREE_DEPLOY_KEY` is set, builds, runs `wrangler d1 migrations apply exehacks-interest --remote`, and deploys the Worker to the EXCS account.
+- `.github/workflows/cloudflare.yml` runs on a push to `main`, and can be started by hand. It builds, runs `wrangler d1 migrations apply exehacks-interest --remote`, and deploys the Worker to the EXCS account. It does not publish a form service. Sponsor enquiries are the D1 table `sponsor_enquiries`.
 
 Normal path: branch, pull request, merge to `main`, watch the Action, then look at [https://exehacks.excs.uk](https://exehacks.excs.uk). Do not run `npm run deploy` or `wrangler deploy` from a laptop unless you have just checked `wrangler whoami` is EXCS. A manual deploy also applies remote D1 migrations. That is outside the usual path. Ask before you do it.
 
@@ -205,7 +206,7 @@ To put a confirmed logo on the site:
 2. Append an entry to `SPONSORS` in `app/sponsors.js` with `name`, `logo`, `url`, and `tier`.
 3. Merge to `main`. No other code change is required. Do not add a logo before the partnership is confirmed.
 
-The sponsor enquiry form is `/sponsor/`, Formspree form key `sponsorForm`, fields name, org, email, interest, and message. Recipient and secret status are in the email section above. Until the two Formspree GitHub secrets are set, use email rather than the form.
+The sponsor enquiry form is on `/sponsor/` and in the homepage sponsor section. It posts to `POST /api/sponsor`. Fields are name, organisation, email, interest (`track`, `workshop`, `booth`, `judging`, or `general`), and a note. The same enquiry is stored once. A sixth new enquiry from the same email within an hour is refused. The row is kept even if the notification email fails, and it shows on `/admin/` under `sponsor_enquiries` (with an interest filter and a CSV download). You can still write to sponsors directly from the team inbox.
 
 TPP have asked about a society-wide EXCS deal, not only an ExeHacks package. Do not agree that on your own. Take it to the EXCS committee first.
 
@@ -253,8 +254,8 @@ Do these in order when you take the role. Tick them off in the shared drive. Thi
 6. Get added to the GitHub organisation Exeter-Computer-Science-Society, with access to `exe-hacks`. When the handover is finished, remove the outgoing organiser if they are leaving the project.
 7. Get access to the EXCS Cloudflare account. Run `wrangler whoami` and confirm it is that account. If you see the other account id from `wrangler.jsonc`, sign out. Do not deploy.
 8. Add your own Access login to the Cloudflare Access policy for `exehacks.excs.uk/admin*` and `exehacks.excs.uk/api/admin*`, and to `ADMIN_EMAILS` and `ORGANISER_EMAILS` in `wrangler.jsonc`. Remove the outgoing organiser's personal Access login from the policy and from both lists. A non-empty `ORGANISER_EMAILS` replaces the whole list, so include every organiser who should keep access. Merge to `main` and wait for the deploy. Sign in at [/admin/](https://exehacks.excs.uk/admin/) and open [/admin/handover/](https://exehacks.excs.uk/admin/handover/). Confirm the tables and this page load for you, and that another admin cannot open the guide.
-9. Receive, store, and rotate the secrets the outgoing organiser still knows: `EXPORT_TOKEN`, `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `CLOUDFLARE_API_TOKEN`, `FORMSPREE_DEPLOY_KEY`, the Brevo SMTP key, and the team Gmail password you already changed. Values are handed over privately. Never commit them. `CLOUDFLARE_ACCOUNT_ID` is the EXCS account id, also a GitHub secret. Confirm it, and rotate the API token rather than the account id.
-10. If the sponsor form should work, set `FORMSPREE_DEPLOY_KEY` and `NEXT_PUBLIC_FORMSPREE_PROJECT_ID` (both were missing in November 2026) and decide whether Formspree writes to the Guild mailbox or the team Gmail. Send a test enquiry.
+9. Receive, store, and rotate the secrets the outgoing organiser still knows: `EXPORT_TOKEN`, `ACCESS_TEAM_DOMAIN`, `ACCESS_AUD`, `CLOUDFLARE_API_TOKEN`, `SPONSOR_NOTIFY_EMAIL` if it is set, the Brevo SMTP key, and the team Gmail password you already changed. Values are handed over privately. Never commit them. `CLOUDFLARE_ACCOUNT_ID` is the EXCS account id, also a GitHub secret. Confirm it, and rotate the API token rather than the account id.
+10. Send a test sponsor enquiry from `/sponsor/`. Confirm the row is in `/admin/` under `sponsor_enquiries`, and that the notification arrives. If a send to `sponsors@exehacks.excs.uk` is rejected because that address is only an Email Routing rule, set `SPONSOR_NOTIFY_EMAIL` to the verified destination the rule already uses. Do not commit that address.
 11. Email Christine Kim at MLH, and Holly and Adam Drummond at Hackathons UK, with your contact details. Sign the Hackathons UK agreement by 8 January 2027. Do not announce either partnership until it is actually confirmed.
 12. Tell the EXCS committee you are the Hackathon Organiser. Take the TPP society-wide idea to them before you agree anything. Introduce yourself to the treasurer and look at the £1,800 and the Student Alumni Fund together.
 13. Confirm the overnight plan (Forum or Library, closing time, who stays) with the university and Hackathons UK. Write it into the risk assessment and the run of show.

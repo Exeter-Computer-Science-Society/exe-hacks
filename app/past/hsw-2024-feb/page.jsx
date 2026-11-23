@@ -2,6 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { PageWindow } from "../../components/chrome/PageWindow"
+import { RegistrationButton } from "../../components/RegistrationButton"
 
 export const metadata = {
 	title: "Hack South West, February 2024: ExeHacks archive",
@@ -147,12 +148,7 @@ export default function PastHackathon() {
 					</Link>
 
 					<div className="hero-cta">
-						<Link
-							className="btn btn-primary"
-							href="/interested/"
-						>
-							Register your interest
-						</Link>
+						<RegistrationButton />
 					</div>
 				</div>
 			</section>
