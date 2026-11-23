@@ -3,7 +3,6 @@ import { Bricolage_Grotesque, JetBrains_Mono, Pixelify_Sans, VT323 } from "next/
 import "./globals.css"
 import "./tokens.css"
 import "./exehacks.css"
-import { FormspreeProvider } from "./components/FormspreeProvider"
 import { DesktopProvider } from "./components/chrome/Desktop"
 import { Taskbar } from "./components/chrome/Taskbar"
 
@@ -70,12 +69,10 @@ export default function RootLayout({ children }) {
 				<a className="skip" href="#content">
 					Skip to content
 				</a>
-				<FormspreeProvider>
-					<DesktopProvider>
-						<div id="content">{children}</div>
-						<Taskbar />
-					</DesktopProvider>
-				</FormspreeProvider>
+				<DesktopProvider>
+					<div id="content">{children}</div>
+					<Taskbar />
+				</DesktopProvider>
 
 				{/* CRT scanline overlay, styled in exehacks.css */}
 				<div className="scanlines" aria-hidden="true" />

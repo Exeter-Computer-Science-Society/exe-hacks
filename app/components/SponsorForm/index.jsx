@@ -1,25 +1,61 @@
 "use client"
 
-import { ValidationError, useForm } from "@formspree/react"
+import { useState } from "react"
 
-import { CONTACT_EMAIL, FORMSPREE_FORM_KEY } from "../../config"
-
-const INTERESTS = [
-	{ value: "track", label: "Named prize track" },
-	{ value: "workshop", label: "Workshop or talk" },
-	{ value: "booth", label: "Booth on the weekend" },
-	{ value: "judging", label: "Judging seat" },
-	{ value: "general", label: "General, not sure yet" },
-]
+import { CONTACT_EMAIL } from "../../config"
+import { SPONSOR_INTERESTS, SPONSOR_LIMITS } from "../../sponsor/options"
 
 export function SponsorForm() {
-	const [state, handleSubmit, reset] = useForm(FORMSPREE_FORM_KEY, {
-		data: {
-			subject: "ExeHacks sponsorship enquiry",
-		},
-	})
+	const [submitting, setSubmitting] = useState(false)
+	const [succeeded, setSucceeded] = useState(false)
+	const [error, setError] = useState("")
+	const [field, setField] = useState("")
 
-	if (state.succeeded) {
+	async function onSubmit(event) {
+		event.preventDefault()
+		setError("")
+		setField("")
+		const form = event.currentTarget
+		if (!form.reportValidity()) return
+
+		const data = new FormData(form)
+		setSubmitting(true)
+		try {
+			const response = await fetch("/api/sponsor", {
+				method: "POST",
+				headers: {
+					accept: "application/json",
+					"content-type": "application/json",
+				},
+				body: JSON.stringify({
+					name: data.get("name"),
+					company: data.get("company"),
+					email: data.get("email"),
+					interest: data.get("interest"),
+					message: data.get("message"),
+					hp_website: data.get("hp_website") || "",
+				}),
+			})
+			let body = null
+			try {
+				body = await response.json()
+			} catch {
+				body = null
+			}
+			if (!response.ok) {
+				setField(body && typeof body.field === "string" ? body.field : "")
+				setError((body && typeof body.error === "string" && body.error) || "We couldn't send your enquiry. Check the form and try again.")
+				return
+			}
+			setSucceeded(true)
+		} catch {
+			setError("We couldn't send your enquiry. Check your connection and try again.")
+		} finally {
+			setSubmitting(false)
+		}
+	}
+
+	if (succeeded) {
 		return (
 			<div className="sponsor-form sent" role="status">
 				<p className="mono sponsor-form-kicker">Enquiry sent</p>
@@ -27,7 +63,11 @@ export function SponsorForm() {
 				<button
 					type="button"
 					className="btn btn-ghost"
-					onClick={reset}
+					onClick={() => {
+						setSucceeded(false)
+						setError("")
+						setField("")
+					}}
 				>
 					Send another
 				</button>
@@ -36,10 +76,7 @@ export function SponsorForm() {
 	}
 
 	return (
-		<form
-			className="sponsor-form"
-			onSubmit={handleSubmit}
-		>
+		<form className="sponsor-form" onSubmit={onSubmit}>
 			<p className="mono sponsor-form-kicker">Interested in sponsoring?</p>
 			<div className="sponsor-form-grid">
 				<label className="sponsor-field" htmlFor="sponsor-name">
@@ -49,30 +86,26 @@ export function SponsorForm() {
 						type="text"
 						name="name"
 						autoComplete="name"
+						maxLength={SPONSOR_LIMITS.name}
 						required
+						aria-invalid={field === "name" || undefined}
+						aria-describedby={field === "name" ? "sponsor-name-error" : undefined}
 					/>
-					<ValidationError
-						field="name"
-						prefix="Name"
-						errors={state.errors}
-						className="sponsor-form-error"
-					/>
+					<FieldError id="sponsor-name-error" field={field} name="name" message={error} />
 				</label>
-				<label className="sponsor-field" htmlFor="sponsor-org">
+				<label className="sponsor-field" htmlFor="sponsor-company">
 					<span>Organisation</span>
 					<input
-						id="sponsor-org"
+						id="sponsor-company"
 						type="text"
-						name="org"
+						name="company"
 						autoComplete="organization"
+						maxLength={SPONSOR_LIMITS.company}
 						required
+						aria-invalid={field === "company" || undefined}
+						aria-describedby={field === "company" ? "sponsor-company-error" : undefined}
 					/>
-					<ValidationError
-						field="org"
-						prefix="Organisation"
-						errors={state.errors}
-						className="sponsor-form-error"
-					/>
+					<FieldError id="sponsor-company-error" field={field} name="company" message={error} />
 				</label>
 				<label className="sponsor-field" htmlFor="sponsor-email">
 					<span>Work email</span>
@@ -81,14 +114,12 @@ export function SponsorForm() {
 						type="email"
 						name="email"
 						autoComplete="email"
+						maxLength={SPONSOR_LIMITS.email}
 						required
+						aria-invalid={field === "email" || undefined}
+						aria-describedby={field === "email" ? "sponsor-email-error" : undefined}
 					/>
-					<ValidationError
-						field="email"
-						prefix="Email"
-						errors={state.errors}
-						className="sponsor-form-error"
-					/>
+					<FieldError id="sponsor-email-error" field={field} name="email" message={error} />
 				</label>
 				<label className="sponsor-field" htmlFor="sponsor-interest">
 					<span>What are you interested in?</span>
@@ -96,22 +127,17 @@ export function SponsorForm() {
 						id="sponsor-interest"
 						name="interest"
 						defaultValue="track"
+						required
+						aria-invalid={field === "interest" || undefined}
+						aria-describedby={field === "interest" ? "sponsor-interest-error" : undefined}
 					>
-						{INTERESTS.map((item) => (
-							<option
-								key={item.value}
-								value={item.value}
-							>
+						{SPONSOR_INTERESTS.map((item) => (
+							<option key={item.value} value={item.value}>
 								{item.label}
 							</option>
 						))}
 					</select>
-					<ValidationError
-						field="interest"
-						prefix="Interest"
-						errors={state.errors}
-						className="sponsor-form-error"
-					/>
+					<FieldError id="sponsor-interest-error" field={field} name="interest" message={error} />
 				</label>
 			</div>
 			<label className="sponsor-field" htmlFor="sponsor-message">
@@ -120,31 +146,46 @@ export function SponsorForm() {
 					id="sponsor-message"
 					name="message"
 					rows={5}
-					maxLength={1000}
+					maxLength={SPONSOR_LIMITS.message}
 					placeholder="Say hello, or tell us what you have in mind."
 					required
+					aria-invalid={field === "message" || undefined}
+					aria-describedby={field === "message" ? "sponsor-message-error" : undefined}
 				/>
-				<ValidationError
-					field="message"
-					prefix="Note"
-					errors={state.errors}
-					className="sponsor-form-error"
-				/>
+				<FieldError id="sponsor-message-error" field={field} name="message" message={error} />
 			</label>
-			<ValidationError
-				errors={state.errors}
-				className="sponsor-form-error"
-			/>
+			<div className="sponsor-honeypot" aria-hidden="true">
+				<input
+					id="sponsor-hp"
+					type="text"
+					name="hp_website"
+					tabIndex={-1}
+					autoComplete="off"
+					defaultValue=""
+				/>
+			</div>
+			{error && !field ? (
+				<div role="alert">
+					<p className="sponsor-form-error">
+						{error} You can also email <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>.
+					</p>
+				</div>
+			) : null}
 			<div className="sponsor-form-actions">
-				<button
-					type="submit"
-					className="btn btn-primary"
-					disabled={state.submitting}
-				>
-					{state.submitting ? "Sending…" : "Send enquiry"}
+				<button type="submit" className="btn btn-primary" disabled={submitting}>
+					{submitting ? "Sending…" : "Send enquiry"}
 				</button>
 				<p className="mono">Goes to {CONTACT_EMAIL}. We reply from the same address.</p>
 			</div>
 		</form>
+	)
+}
+
+function FieldError({ id, field, name, message }) {
+	if (field !== name || !message) return null
+	return (
+		<p id={id} className="sponsor-form-error" role="alert">
+			{message}
+		</p>
 	)
 }
