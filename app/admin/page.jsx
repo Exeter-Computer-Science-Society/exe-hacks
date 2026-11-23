@@ -1,4 +1,5 @@
 import { AdminConsole } from "../components/AdminConsole"
+import { OrganiserNav } from "../components/OrganiserNav"
 import { PageWindow } from "../components/chrome/PageWindow"
 
 export const metadata = {
@@ -18,6 +19,7 @@ export default function AdminPage() {
 							download it as CSV. Other D1 tables show up here when they exist.
 						</p>
 					</div>
+					<OrganiserNav />
 					<AdminConsole />
 			</div>
 		</PageWindow>

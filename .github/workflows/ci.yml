@@ -41,3 +41,6 @@ jobs:
 
       - name: Build static export
         run: npm run build
+
+      - name: Test worker auth and handover privacy
+        run: npm test

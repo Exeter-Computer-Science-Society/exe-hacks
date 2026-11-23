@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test": "node --experimental-default-type=module --test worker/sponsor.test.js",
+    "test": "node --experimental-default-type=module --import ./worker/register-md-loader.js --test worker/*.test.js",
     "preview": "wrangler dev",
     "deploy": "wrangler deploy"
   },
